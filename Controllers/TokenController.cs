@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization; // for TokenValidationParameters
 
 namespace CBA.Controllers;
 [Route("api/[controller]")]
+
 [ApiController]
 public class TokenController : ControllerBase
 {
