@@ -1,0 +1,109 @@
+using CBA.Context;
+using CBA.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using CBA.Models.AuthModel;
+using CBA.Services;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+
+
+namespace CBA.Controllers
+{
+    /// <summary>
+    /// Controller for handling authentication-related operations.
+    /// </summary>
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
+    {
+        private readonly ITokenService _tokenService;
+        private readonly IValidator<ApplicationUser> _validatorService;
+        private readonly IPasswordService _passwordService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<AuthController> _logger;
+        private readonly IEmailService _emailService;
+        private readonly UserDataContext _context;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthController"/> class.
+        /// </summary>
+        /// <param name="context">The user data context.</param>
+        /// <param name="passwordService">The password service.</param>
+        /// <param name="tokenService">The token service.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="validationService">The validation service.</param>
+        /// <param name="emailService">The email service.</param>
+        public AuthController(UserDataContext context, IPasswordService passwordService, ITokenService tokenService, UserManager<ApplicationUser> userManager, ILogger<AuthController> logger, IValidator<ApplicationUser> validationService, IEmailService emailService)
+        {
+            _tokenService = tokenService;
+            _passwordService = passwordService;
+            _userManager = userManager;
+            _validatorService = validationService;
+            _logger = logger;
+            _context = context;
+            _emailService = emailService;
+            _logger.LogInformation("AuthController constructor called");
+        }
+
+        /// <summary>
+        /// Handles user login.
+        /// </summary>
+        /// <param name="user">The user login request.</param>
+        /// <returns>The login result.</returns>
+        [HttpPost]
+        [Route("Login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest user)
+        {
+            // Code omitted for brevity...
+        }
+
+        /// <summary>
+        /// Handles user registration.
+        /// </summary>
+        /// <param name="user">The user profile.</param>
+        /// <returns>The registration result.</returns>
+        [HttpPost]
+        [Route("Register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] UserProfile user)
+        {
+            // Code omitted for brevity...
+        }
+
+        /// <summary>
+        /// Generates a code based on the region and branch names.
+        /// </summary>
+        /// <param name="region">The region name.</param>
+        /// <param name="branch">The branch name.</param>
+        /// <returns>The generated code.</returns>
+        private static string GenerateCode(string region, string branch)
+        {
+            // Code omitted for brevity...
+        }
+
+        /// <summary>
+        /// Creates a bank branch entity based on the branch details and user.
+        /// </summary>
+        /// <param name="branch">The branch details.</param>
+        /// <param name="user">The user.</param>
+        /// <returns>The created bank branch entity.</returns>
+        private static BankBranch CreateUserBranchDetails(BankBranch branch, ApplicationUser user)
+        {
+            // Code omitted for brevity...
+        }
+
+        /// <summary>
+        /// Creates a user entity based on the user profile and hashed password.
+        /// </summary>
+        /// <param name="user">The user profile.</param>
+        /// <param name="hashPassword">The hashed password.</param>
+        /// <returns>The created user entity.</returns>
+        private static ApplicationUser CreateUserDetails(UserProfile user, string hashPassword)
+        {
+            // Code omitted for brevity...
+        }
+    }
+}

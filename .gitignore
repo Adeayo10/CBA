@@ -1,0 +1,10 @@
+bin/Debug/net7.0/logs/log-20231215.json
+
+#ignore 
+bin/Debug/net7.0/logs/log-20231215.json
+bin
+bin/Debug
+logs
+WeatherForecast.cs
+WeatherForecastController.cs
+
