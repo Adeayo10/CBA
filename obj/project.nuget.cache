@@ -1,9 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "ATXuY2Ghil1PvBOI3llstxw0q4+8KM+eYPdKZFQxILyyjVGVkBGvU1nnBRq+V6n5ThZ/PUpcdVLLUrJEw19ShA==",
+  "dgSpecHash": "zMuWd/pY+DWSnp0eoXPH8bjn7+q9GYSBy661G5mcHfc2/OB1RrkP1j38o4IHNj53b81Fgjw8f84a5nBNy/tRkw==",
   "success": true,
   "projectFilePath": "C:\\Users\\Adesoji\\Desktop\\.NET Projects\\CBA\\CBA.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.abstractions\\7.0.0\\asp.versioning.abstractions.7.0.0.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.http\\7.0.0\\asp.versioning.http.7.0.0.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.mvc\\7.0.0\\asp.versioning.mvc.7.0.0.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.mvc.apiexplorer\\7.0.0\\asp.versioning.mvc.apiexplorer.7.0.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",

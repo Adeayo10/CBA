@@ -6,11 +6,14 @@ using CBA.Models.AuthModel;
 using CBA.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Asp.Versioning;
 
 
 namespace CBA.Controllers
-{
-    [Route("api/[controller]")]
+{   
+    
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -34,6 +37,7 @@ namespace CBA.Controllers
             _logger.LogInformation("AuthController constructor called");
         }
 
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [Route("Login")]
         [AllowAnonymous]
@@ -86,6 +90,7 @@ namespace CBA.Controllers
             }
         }
 
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [Route("Register")]
         [AllowAnonymous]
@@ -131,8 +136,7 @@ namespace CBA.Controllers
                 {
                     _logger.LogInformation($"User {newUser.UserName} created a new account.");
 
-                    var message = new Message(new string[] { newUser.Email! }, " User Information", $"Hello {newUser.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {newUser.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> Thank you. ");
-                    await _emailService.SendEmail(message);
+                    await SendUserConfirmationEmail(newUser);
                     _logger.LogInformation($"Email sent successfully");
 
                     return Ok(new RegistrationResponse
@@ -197,7 +201,18 @@ namespace CBA.Controllers
                 Address = user.Address,
                 Status = user.Status,
             };
+            
             return newUser;
         }
+    
+        private async Task SendUserConfirmationEmail(ApplicationUser user)
+        {
+        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> Thank you. ");
+         await _emailService.SendEmail(message);
+        }
+    
     }
+
+    
+
 }

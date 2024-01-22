@@ -1,9 +1,13 @@
+using Asp.Versioning;
 using CBA.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-[Route("api/[controller]")] // api/setup
+namespace CBA.Controllers;
+
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
     public class SetupController : ControllerBase
     {
@@ -26,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
             _logger.LogInformation("SetupController constructor called");   
         }
 
+        [MapToApiVersion("1.0")]
         [HttpGet]
         public IActionResult GetAllRoles()
         {
@@ -33,6 +38,7 @@ using Microsoft.EntityFrameworkCore;
             return Ok(roles);
         }
 
+        [MapToApiVersion("1.0")]
         [HttpPost]
         public async Task<IActionResult> CreateRole(string roleName)
         {
@@ -53,7 +59,7 @@ using Microsoft.EntityFrameworkCore;
             return BadRequest(new {error = "Role already exist"});
         }
 
-        // Get all users
+        [MapToApiVersion("1.0")]
         [HttpGet]
         [Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
@@ -62,6 +68,7 @@ using Microsoft.EntityFrameworkCore;
             return Ok(users);
         }
 
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [Route("AddUsers")]
         public async Task<IActionResult> CreateUser(string email, string password)
@@ -104,7 +111,7 @@ using Microsoft.EntityFrameworkCore;
             return BadRequest(new {error = "User already exist"});
         }   
 
-        // Add User to role
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [Route("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
@@ -140,7 +147,7 @@ using Microsoft.EntityFrameworkCore;
             return BadRequest(new {error = "Unable to find user"});
         }
 
-        // Get specific user role
+        [MapToApiVersion("1.0")]
         [HttpGet]
         [Route("GetUserRoles")]
         public async Task<IActionResult> GetUserRoles(string email)
@@ -159,7 +166,7 @@ using Microsoft.EntityFrameworkCore;
      
         }
 
-        // Remove User to role
+        [MapToApiVersion("1.0")]
         [HttpPost]
         [Route("RemoveUserFromRole")]
         public async Task<IActionResult> RemoveUserFromRole(string email, string roleName)

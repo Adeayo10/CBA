@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using CBA.Models.AuthModel;
 using CBA.Models.TokenModel;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization; // for TokenValidationParameters
+using Microsoft.AspNetCore.Authorization;
+using Asp.Versioning; // for TokenValidationParameters
 
 namespace CBA.Controllers;
-[Route("api/[controller]")]
-
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 public class TokenController : ControllerBase
 {
@@ -26,6 +27,7 @@ public class TokenController : ControllerBase
         _logger = logger;
         _logger.LogInformation("Token constructor called");
     }
+    [MapToApiVersion("1.0")]
     [HttpPost]
     [Route("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenRequest tokenRequest)
@@ -63,6 +65,7 @@ public class TokenController : ControllerBase
          
     }
 
+    [MapToApiVersion("1.0")]
     [HttpPost, Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")] 
     [Route("RevokeToken")]
     public async Task<IActionResult> RevokeToken()

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using Asp.Versioning;
 using CBA.Context;
 using CBA.Models;
 using CBA.Services;
@@ -75,6 +76,19 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1);
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new() { Title = "CBA", Version = "v1" });

@@ -205,3 +205,8 @@ C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\zh-Hans\Microsoft.Vi
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\zh-Hant\Microsoft.TestPlatform.CommunicationUtilities.resources.dll
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\zh-Hant\Microsoft.TestPlatform.CrossPlatEngine.resources.dll
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\zh-Hant\Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Abstractions.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Http.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Mvc.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Mvc.ApiExplorer.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240122.json

@@ -45,6 +45,14 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Asp.Versioning.Http": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Asp.Versioning.Mvc.ApiExplorer": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "FluentValidation": {
               "target": "Package",
               "version": "[11.7.1, )"
