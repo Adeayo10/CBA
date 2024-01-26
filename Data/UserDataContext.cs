@@ -12,6 +12,8 @@ namespace CBA.Context
 
         public DbSet<BankBranch> BankBranch { get; set; }
 
+        public DbSet<GLAccounts> GLAccounts { get; set; }
+
         public UserDataContext(DbContextOptions<UserDataContext> options) : base(options)
         {
         }

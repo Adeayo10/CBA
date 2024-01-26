@@ -69,12 +69,14 @@ builder.Services.AddDbContext<UserDataContext>(options => options.UseSqlServer(c
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApiVersioning(options =>
 {

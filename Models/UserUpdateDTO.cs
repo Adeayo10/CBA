@@ -3,13 +3,11 @@ using CBA.Enums;
 
 namespace CBA.Models;
 
-public class UserProfileDTO
+public class UserUpdateDTO
 {
     public int Id { get; set; }
     public required string UserName { get; set; }
     public required string Email { get; set; }
-    public required string Password { get; set; }
-
     public required string FullName  { get; set; }
     public required string Address { get; set; }
 
@@ -19,8 +17,7 @@ public class UserProfileDTO
 
     public  Role Role { get; set; }
 
-    public required BankBranch BankBranch { get; set; }
-
+    public  BankBranch? BankBranch { get; set; }
 }
 
 

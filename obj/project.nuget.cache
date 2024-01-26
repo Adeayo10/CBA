@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "zMuWd/pY+DWSnp0eoXPH8bjn7+q9GYSBy661G5mcHfc2/OB1RrkP1j38o4IHNj53b81Fgjw8f84a5nBNy/tRkw==",
+  "dgSpecHash": "Qga1w4jo1DLO0PpxfaLbWzwCfxIj42H/IwOPyaHgq7BSfy86BdJSHBLC321XiTIhEVcmTe5MgobuK27bgK1dqQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Adesoji\\Desktop\\.NET Projects\\CBA\\CBA.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,8 @@
     "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.http\\7.0.0\\asp.versioning.http.7.0.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.mvc\\7.0.0\\asp.versioning.mvc.7.0.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\asp.versioning.mvc.apiexplorer\\7.0.0\\asp.versioning.mvc.apiexplorer.7.0.0.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
@@ -22,7 +24,7 @@
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.13\\microsoft.aspnetcore.openapi.7.0.13.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.codecoverage\\17.9.0-release-23619-01\\microsoft.codecoverage.17.9.0-release-23619-01.nupkg.sha512",
-    "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.data.sqlclient\\5.0.1\\microsoft.data.sqlclient.5.0.1.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.data.sqlclient.sni.runtime\\5.0.1\\microsoft.data.sqlclient.sni.runtime.5.0.1.nupkg.sha512",
     "C:\\Users\\Adesoji\\.nuget\\packages\\microsoft.entityframeworkcore\\7.0.0\\microsoft.entityframeworkcore.7.0.0.nupkg.sha512",

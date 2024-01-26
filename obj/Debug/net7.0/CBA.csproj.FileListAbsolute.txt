@@ -210,3 +210,9 @@ C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Http.
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Mvc.dll
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Asp.Versioning.Mvc.ApiExplorer.dll
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240122.json
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\AutoMapper.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240125.json
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240126.json
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package-lock.json
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package.json

@@ -6,7 +6,5 @@ public enum Role
     Admin,
     User,
     SuperAdmin,
-    Manager
-
-
+    Manager,
 }
