@@ -4,6 +4,7 @@ using CBA.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CBA.Migrations
 {
     [DbContext(typeof(UserDataContext))]
-    partial class UserDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240128115723_testing")]
+    partial class testing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,7 +138,7 @@ namespace CBA.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BankBranch", (string)null);
+                    b.ToTable("BankBranch");
                 });
 
             modelBuilder.Entity("CBA.Models.BranchUser", b =>
@@ -156,7 +159,7 @@ namespace CBA.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BranchUser", (string)null);
+                    b.ToTable("BranchUser");
                 });
 
             modelBuilder.Entity("CBA.Models.GLAccounts", b =>
@@ -184,7 +187,7 @@ namespace CBA.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("GLAccounts", (string)null);
+                    b.ToTable("GLAccounts");
                 });
 
             modelBuilder.Entity("CBA.Models.TokenModel.RefreshToken", b =>
@@ -220,7 +223,7 @@ namespace CBA.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshToken", (string)null);
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

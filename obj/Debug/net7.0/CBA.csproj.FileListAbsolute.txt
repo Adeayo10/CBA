@@ -216,3 +216,4 @@ C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240125.jso
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240126.json
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package-lock.json
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package.json
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240128.json

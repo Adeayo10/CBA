@@ -1,10 +1,10 @@
 using CBA.Models.AuthModel;
 
 namespace CBA.Models.TokenModel;
-public class TokenRequest : AuthResult
+public class TokenRequest
 {
     
-    public new required string Token { get; set; }
+    public  required string Token { get; set; }
     
-    public new required string RefreshToken { get; set; }
+    public  required string RefreshToken { get; set; }
 }
