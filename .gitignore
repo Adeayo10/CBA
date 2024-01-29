@@ -7,13 +7,9 @@ bin/Debug
 logs
 WeatherForecast.cs
 WeatherForecastController.cs
-<<<<<<< HEAD
 
 appsettings*
 .vs
 obj
-=======
-.vs
 .github
 CBA.csproj.user
->>>>>>> b8e26c6cbc1eef0fb47ba6cda7bf3c9ce064e261
