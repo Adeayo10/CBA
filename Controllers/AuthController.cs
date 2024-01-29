@@ -135,10 +135,13 @@ namespace CBA.Controllers
 
                 await _context.BankBranch.AddAsync(bankBranch);
                 await _context.SaveChangesAsync();
-
+                
                 if (result.Succeeded)
                 {
                     _logger.LogInformation($"User {newUser.UserName} created a new account.");
+
+                    await CreateBranchUser(bankBranch, newUser);
+                    _logger.LogInformation($"BranchUser created successfully");
 
                     await SendUserConfirmationEmail(newUser);
                     _logger.LogInformation($"Email sent successfully");
@@ -188,9 +191,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-
                 var userExist = await _userManager.FindByIdAsync(id.ToString());
-
                 if (userExist == null)
                 {
                     _logger.LogError($"Error occurred in Update method: User does not exist");
@@ -201,26 +202,18 @@ namespace CBA.Controllers
                     });
                 }
                 _logger.LogInformation($"User {userExist.UserName} found");
+                var isUserUpdated =  UpdateUser(userExist, user).Result;
+                var bankBranchUpdateDetails = CreateUserBranchDetails(user.BankBranch!, userExist);
+                _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} found");
 
-                userExist.UserName = user.UserName;
-                userExist.Email = user.Email;
-                userExist.FullName = user.FullName;
-                userExist.Address = user.Address;
-                userExist.PhoneNumber = user.PhoneNumber;
-                userExist.Status = user.Status;
-                userExist.Role = user.Role;
-                userExist.PasswordHash = userExist.PasswordHash;
-
-                var UpdatedBankBranch = CreateUserBranchDetails(user.BankBranch, userExist);
-                _logger.LogInformation($"BankBranch {UpdatedBankBranch.Name} found"); 
-
-                _context.BankBranch.Update(UpdatedBankBranch);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"BankBranch {UpdatedBankBranch.Name} updated successfully");
+                await UpdateBankBranch(bankBranchUpdateDetails, userExist);
+                _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} updated successfully");
         
-                var result = await _userManager.UpdateAsync(userExist);
-                if (result.Succeeded)
+                if (isUserUpdated.Succeeded)
                 {
+
+                    // await UpdateBranchUser(bankBranchUpdateDetails, userExist);
+                    // await _context.SaveChangesAsync();
                     _logger.LogInformation($"User {userExist.UserName} updated successfully");
                     return Ok(new AuthResult
                     {
@@ -228,10 +221,9 @@ namespace CBA.Controllers
                         Errors = null,
                         Message = "User updated successfully!"
                     });
-                }
-                else
+                }else
                 {
-                    var errorDescriptions = result.Errors.Select(x => x.Description).ToList();
+                    var errorDescriptions= isUserUpdated.Errors.Select(x => x.Description).ToList();
                     _logger.LogError($"Error occurred in updating user: {errorDescriptions.FirstOrDefault()}");
                     return BadRequest(new AuthResult
                     {
@@ -356,11 +348,50 @@ namespace CBA.Controllers
             return newUser;
         }
     
+        private async  Task CreateBranchUser(BankBranch bankBranch, ApplicationUser user)
+        {
+            var branchUser = new BranchUser()
+            {
+                UserId = user.Id,
+                BranchId = bankBranch.Id
+            };
+            await _context.BranchUser.AddAsync(branchUser);
+            await _context.SaveChangesAsync();
+        }
         private async Task SendUserConfirmationEmail(ApplicationUser user)
         {
         var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> Thank you. ");
          await _emailService.SendEmail(message);
         }
     
+        private  async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
+        {
+            var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);
+            bankBranch.Name = UpdatedBankBranch.Name;
+            bankBranch.Region = UpdatedBankBranch.Region;
+            bankBranch.Code = UpdatedBankBranch.Code;
+            bankBranch.Description = UpdatedBankBranch.Description;
+            await _context.SaveChangesAsync();
+        }
+        private Task<IdentityResult> UpdateUser(ApplicationUser userExist, UserUpdateDTO user)
+        {
+            userExist.Email = user.Email;
+            userExist.UserName = user.UserName;
+            userExist.Password = userExist.PasswordHash;
+            userExist.Role = user.Role;
+            userExist.PhoneNumber = user.PhoneNumber;
+            userExist.FullName = user.FullName;
+            userExist.Address = user.Address;
+            userExist.Status = user.Status;
+            var result = _userManager.UpdateAsync(userExist);
+            return result;
+        }
+        /*private async Task UpdateBranchUser(BankBranch UpdatedBankBranch, ApplicationUser userExist)
+        {
+            var branchUser = _context.BranchUser.FirstOrDefault(x => x.UserId == userExist.Id);
+            branchUser.BranchId = UpdatedBankBranch.Id;
+            await _context.SaveChangesAsync();
+        }*/
+
     }
 }

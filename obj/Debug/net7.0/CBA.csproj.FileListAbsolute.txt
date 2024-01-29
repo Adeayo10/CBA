@@ -216,6 +216,7 @@ C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240125.jso
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240126.json
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package-lock.json
 C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\Frontend\CBA\package.json
+<<<<<<< HEAD
 C:\Users\Osy\Desktop\CBA\bin\Debug\net7.0\testhost.dll
 C:\Users\Osy\Desktop\CBA\bin\Debug\net7.0\testhost.exe
 C:\Users\Osy\Desktop\CBA\bin\Debug\net7.0\appsettings.Development.json
@@ -422,3 +423,6 @@ C:\Users\Osy\Desktop\CBA\obj\Debug\net7.0\CBA.pdb
 C:\Users\Osy\Desktop\CBA\obj\Debug\net7.0\CBA.genruntimeconfig.cache
 C:\Users\Osy\Desktop\CBA\obj\Debug\net7.0\ref\CBA.dll
 C:\Users\Osy\Desktop\CBA\bin\Debug\net7.0\Logs\log20240128.json
+=======
+C:\Users\Adesoji\Desktop\.NET Projects\CBA\bin\Debug\net7.0\logs\log20240128.json
+>>>>>>> b8e26c6cbc1eef0fb47ba6cda7bf3c9ce064e261
