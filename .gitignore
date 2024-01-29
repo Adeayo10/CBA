@@ -8,3 +8,6 @@ logs
 WeatherForecast.cs
 WeatherForecastController.cs
 
+appsettings*
+.vs
+obj
