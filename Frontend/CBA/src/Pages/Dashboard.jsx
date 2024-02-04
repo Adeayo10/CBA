@@ -18,29 +18,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Outlet } from 'react-router-dom';
 import SideBar from '../Components/SideBar';
 
-import { DRAWER_WIDTH } from '../util';
+import { DRAWER_WIDTH } from '../constants';
 import Header from '../Components/Header';
-
-let mainListItems = ["Users"]
-let secondaryListItems = []
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: DRAWER_WIDTH,
-    width: `calc(100% - ${DRAWER_WIDTH}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
 
 export default function Dashboard(props) {
   const [open, setOpen] = useState(true);

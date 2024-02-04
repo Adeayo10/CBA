@@ -13,6 +13,15 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import Copyright from "./Components/Copyright";
 import Users from "./Views/Users";
+import { useEffect } from "react";
+
+function RedirectToLogin(){
+  const navigate = useNavigate()
+  useEffect(()=>{
+    navigate("/login")
+  }, [])
+  return (<></>)
+}
 
 function App() {
   return (
@@ -21,8 +30,10 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
+          <Route path="/" element={<RedirectToLogin />} />
           <Route path="login" element={<Login />} />
           <Route path="dashboard" element={<Dashboard />}>
+            <Route path="" element={<Users />} />
             <Route path="users" element={<Users />} />
             <Route path="roles" element={<Login />} />
           </Route>
