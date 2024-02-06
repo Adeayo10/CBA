@@ -65,7 +65,7 @@ builder.Services.AddAuthentication(options =>
     }
 );
 
-var connectionString = configure.GetConnectionString("UserDB")?? "Server=localhost;Database=master;Trusted_Connection=true;Encrypt=False;";
+var connectionString = configure["ConnectionString:UserDB"] ?? "Server=localhost;Database=master;Trusted_Connection=true;Encrypt=False;";
 builder.Services.AddDbContext<UserDataContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
