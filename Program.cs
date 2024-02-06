@@ -33,7 +33,8 @@ builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<UserDataContext>();
+.AddEntityFrameworkStores<UserDataContext>()
+.AddDefaultTokenProviders();
 // password settings
 // builder.Services.Configure<IdentityOptions>(options =>
 // lockout settings
@@ -69,8 +70,10 @@ builder.Services.AddDbContext<UserDataContext>(options => options.UseSqlServer(c
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
+//builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

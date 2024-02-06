@@ -27,7 +27,7 @@ public class TokenController : ControllerBase
         _logger = logger;
         _logger.LogInformation("Token constructor called");
     }
-    [MapToApiVersion("1.0")]
+    
     [HttpPost]
     [Route("RefreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenRequest tokenRequest)
@@ -39,7 +39,15 @@ public class TokenController : ControllerBase
             if (response == null)
             {
                 _logger.LogError($"Error occured in RefreshToken method: Token is invalid");
-                return BadRequest(new {message = "Invalid token"});
+                return BadRequest(new AuthResult
+                {
+                    Token = null,
+                    RefreshToken = null,
+                    Success = false,
+                    Errors = new List<string> {"Invalid payload"},
+                    ExpiryDate = null,
+                    Message = "Invalid payload",
+                });
             }
             _logger.LogInformation($"Token verified");
             return Ok(new AuthResult
@@ -64,8 +72,7 @@ public class TokenController : ControllerBase
         });
          
     }
-
-    [MapToApiVersion("1.0")]
+    
     [HttpPost, Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")] 
     [Route("RevokeToken")]
     public async Task<IActionResult> RevokeToken()
@@ -76,16 +83,13 @@ public class TokenController : ControllerBase
         if (user == null)
         {
             _logger.LogError($"Error occured in RevokeToken method: User does not exist");
-            return BadRequest();
-            
+            return BadRequest();     
         }
         _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
         await _context.SaveChangesAsync();
         _logger.LogInformation($"Refresh token revoked for user: {userName}");
         await _userManager.UpdateAsync(user);
         _logger.LogInformation($"User updated");
-
-
         return NoContent();
     }   
 }

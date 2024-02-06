@@ -13,3 +13,12 @@ appsettings*
 obj
 .github
 CBA.csproj.user
+Services/customerService
+Services/PostingService
+Models/CustomerModel
+Models/PostingModels
+Data/userDataContext.cs
+Services/ValidationService/CustomerValidationService.cs
+CBA.dll
+CBA.pdb
+```

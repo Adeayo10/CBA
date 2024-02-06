@@ -13,7 +13,7 @@ public  partial class ValidatorService : AbstractValidator<ApplicationUser>
         RuleFor(user => user.Password).MinimumLength(6).MaximumLength(300).Must(HasValidPassword).WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one digit and one special character");
         RuleFor(user => user.FullName).NotEmpty().MaximumLength(20).MinimumLength(6);
         RuleFor(user => user.Address).NotEmpty();
-        RuleFor(user => user.PhoneNumber).NotEmpty().WithMessage("Phone number cannot be empty").Must(HasValidPhoneNumber).WithMessage("Please provide a valid phone number");
+        RuleFor(user => user.PhoneNumber).NotEmpty().WithMessage("Phone number cannot be empty").Must(HasValidPhoneNumber!).WithMessage("Please provide a valid phone number");
         RuleFor(user => user.Status).NotEmpty();
         RuleFor(user => user.Role).NotEmpty().WithMessage("Role cannot be empty").IsInEnum().Must(HasValidRole).WithMessage("Please provide a valid role");
     }

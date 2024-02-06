@@ -5,7 +5,7 @@ namespace CBA.Models;
 
 public class UserUpdateDTO
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public required string UserName { get; set; }
     public required string Email { get; set; }
     public required string FullName  { get; set; }

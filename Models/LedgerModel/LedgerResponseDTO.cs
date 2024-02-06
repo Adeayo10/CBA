@@ -4,6 +4,6 @@ public class LedgerResponse
 {
     public string? Message { get; set; }
     public bool Status { get; set; }
-    public string? Data { get; set; }
+    public LedgerData? Data { get; set; }
 
 }
