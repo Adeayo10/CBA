@@ -67,9 +67,7 @@ export default function Users() {
                     let splitName = fullName.split(" ");
                     let firstName = splitName[0];
                     let lastName =
-                      splitName.lenght > 1
-                        ? splitName[splitName.length - 1]
-                        : "-";
+                      splitName.length > 1 ? splitName[1] : "No Lastname";
 
                     firstName = firstName[0].toUpperCase() + firstName.slice(1);
                     lastName = lastName[0].toUpperCase() + lastName.slice(1);

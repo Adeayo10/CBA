@@ -31,14 +31,18 @@ namespace CBA.Controllers
                 _logger.LogInformation("Login method called");
                 if (user is null)
                 {
-                    return BadRequest("Invalid client request");
+                    return BadRequest(new AuthResult
+                    {
+                        Errors = new List<string>() { "User object is null" },
+                        Success = false
+                    });
                 }
                 var result = await _userService.LoginUser(user);
                 return Ok(new AuthResult
                 {
-                    Success = true,
+                    Success = result.Success,
                     Errors = null,
-                    Message = "User logged in successfully!",
+                    Message = result.Message,
                     Token = result.Token,
                     RefreshToken = result.RefreshToken,
                     ExpiryDate = result.ExpiryDate
@@ -147,7 +151,7 @@ namespace CBA.Controllers
                 {
                     Success = true,
                     Errors = null,
-                    User = result.User,
+                    Users = result.Users,
                     UserBranch = result.UserBranch
                 });
             }
@@ -169,15 +173,13 @@ namespace CBA.Controllers
         {
             try
             {
-
-                _logger.LogInformation($"Users found");
-
                 var result = await _userService.GetAllUsers();
+                _logger.LogInformation("GetAll method called");
                 return Ok(new UserResponse
                 {
-                    Success = true,
-                    Errors = null,
-                    User = result.User,
+                    Success = result.Success,
+                    Errors = result.Errors,
+                    Users = result.Users,
                     UserBranch = result.UserBranch
                 });
             }

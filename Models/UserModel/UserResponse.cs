@@ -8,7 +8,7 @@ namespace CBA.Models;
         public List<string>? Errors {get; set;}
 
         public bool Success {get; set;}
-        public List<ApplicationUser>? User {get; set;}
+        public List<ApplicationUser>? Users {get; set;}
         public List<BankBranch>? UserBranch {get; set;}
         
     }

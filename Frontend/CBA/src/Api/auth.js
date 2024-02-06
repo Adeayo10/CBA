@@ -1,25 +1,27 @@
-export function loginUser(loginDetails) {
+export async function loginUser(loginDetails) {
   const API_URL = "/api/v1/Auth/Login";
   const headers = {
     "Content-Type": "application/json",
   };
   console.log(loginDetails);
-  return fetch(API_URL, {
+  const response = await fetch(API_URL, {
     method: "POST",
     headers,
     body: JSON.stringify(loginDetails),
-  }).then((response) => response.json());
+  });
+  return await response.json();
 }
 
-export function refreshToken(){
+export async function refreshToken(){
   const API_URL = "/api/v1/Auth/Login";
   const headers = {
     "Content-Type": "application/json",
   };
   console.log(loginDetails);
-  return fetch(API_URL, {
+  const response = await fetch(API_URL, {
     method: "POST",
     headers,
     body: JSON.stringify(loginDetails),
-  }).then((response) => response.json());
+  });
+  return await response.json();
 }

@@ -102,7 +102,7 @@ public class UserService : IUserService
     }
     public async Task<LoginResponse> LoginUser(UserLoginRequest user)
     {
-        var userExist = await _userManager.FindByEmailAsync(user.Email ?? string.Empty);
+        var userExist = await _userManager.FindByEmailAsync(user.Email);
         //await _userManager.IsEmailConfirmedAsync(userExist);
         if (userExist == null)
         {
@@ -113,7 +113,9 @@ public class UserService : IUserService
                 Errors = new List<string>()
                 {
                     "User does not exist"
-                }
+                },
+                Message = "User does not exist"
+                
             };
         }
         string passwordhash = userExist.PasswordHash;
@@ -143,7 +145,9 @@ public class UserService : IUserService
                 Errors = new List<string>()
                 {
                     "Invalid password"
-                }
+                },
+                Message = "Invalid password"
+
             };
         }
 
@@ -316,7 +320,7 @@ public async Task<UserResponse> GetUser(Guid userId)
         return new UserResponse()
         {
             Success = true,
-            User = new List<ApplicationUser>()
+            Users = new List<ApplicationUser>()
             {
                 user
             },
@@ -346,7 +350,7 @@ public async Task<UserResponse> GetUser(Guid userId)
         return new UserResponse()
         {
             Success = true,
-            User = users,
+            Users = users,
             UserBranch = BankBranch
            
         };
