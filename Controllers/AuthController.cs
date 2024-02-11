@@ -87,9 +87,9 @@ namespace CBA.Controllers
                 }
                 return CreatedAtAction(nameof(Register), new AuthResult
                 {
-                    Success = true,
-                    Errors = null,
-                    Message = "User created successfully!"
+                    Success = results.Success,
+                    Errors = results.Errors,
+                    Message = results.Message
                 });
             }
             catch (Exception ex)
@@ -215,8 +215,8 @@ namespace CBA.Controllers
                 {
                     return Ok(new AuthResult
                     {
-                        Success = true,
-                        Errors = null,
+                        Success = result.Success,
+                        Errors = result.Errors,
                         Message = "Password reset link sent successfully!"
                     });
                 }
@@ -224,7 +224,7 @@ namespace CBA.Controllers
                 {
                     return BadRequest(new AuthResult
                     {
-                        Success = false,
+                        Success = result.Success,
                         Errors = result.Errors,
                         Message = "Password reset link failed to send!"
                     });
@@ -262,18 +262,18 @@ namespace CBA.Controllers
                 {
                     return Ok(new AuthResult
                     {
-                        Success = true,
-                        Errors = null,
-                        Message = "Password reset successfully!"
+                        Success = result.Success,
+                        Errors = result.Errors,
+                        Message = result.Message
                     });
                 }
                 else
                 {
                     return BadRequest(new AuthResult
                     {
-                        Success = false,
+                        Success = result.Success,
                         Errors = result.Errors,
-                        Message = "Password reset failed!"
+                        Message = result.Message
                     });
                 }
             }

@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using CBA.Models.AuthModel;
 using CBA.Models.TokenModel;
 using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
-using Asp.Versioning; // for TokenValidationParameters
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization; // for TokenValidationParameters
 
 namespace CBA.Controllers;
 [ApiVersion("1.0")]
@@ -41,12 +41,12 @@ public class TokenController : ControllerBase
                 _logger.LogError($"Error occured in RefreshToken method: Token is invalid");
                 return BadRequest(new AuthResult
                 {
-                    Token = null,
-                    RefreshToken = null,
-                    Success = false,
-                    Errors = new List<string> {"Invalid payload"},
-                    ExpiryDate = null,
-                    Message = "Invalid payload",
+                    Token = response!.Token,
+                    RefreshToken = response.RefreshToken,
+                    Success = response.Success,
+                    Errors = response.Errors,
+                    ExpiryDate = response.ExpiryDate,
+                    Message = response.Message,
                 });
             }
             _logger.LogInformation($"Token verified");
@@ -54,10 +54,10 @@ public class TokenController : ControllerBase
             {
                 Token = response.Token,
                 RefreshToken = response.RefreshToken,
-                Success = true,
-                Errors = null,
+                Success = response.Success,
+                Errors = response.Errors,
                 ExpiryDate = response.ExpiryDate,
-                Message = "Token refreshed successfully",
+                Message = response.Message,
             });
         }
         _logger.LogError($"Error occured in RefreshToken method: Model state is invalid");
@@ -73,8 +73,9 @@ public class TokenController : ControllerBase
          
     }
     
-    [HttpPost, Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")] 
+    [HttpPost] 
     [Route("RevokeToken")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> RevokeToken()
     {
         _logger.LogInformation("RevokeToken method called");
@@ -91,5 +92,5 @@ public class TokenController : ControllerBase
         await _userManager.UpdateAsync(user);
         _logger.LogInformation($"User updated");
         return NoContent();
-    }   
+    }
 }

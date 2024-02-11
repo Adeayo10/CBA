@@ -58,12 +58,13 @@ export default function Users() {
                   <TableCell>Username</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Phone</TableCell>
+                  <TableCell>Permission</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {usersList.map(
-                  ({ id, fullName, userName, email, phoneNumber }, index) => {
+                  ({ id, fullName, userName, email, phoneNumber,role }, index) => {
                     let splitName = fullName.split(" ");
                     let firstName = splitName[0];
                     let lastName =
@@ -78,6 +79,7 @@ export default function Users() {
                         <TableCell>{userName}</TableCell>
                         <TableCell>{email}</TableCell>
                         <TableCell>{phoneNumber}</TableCell>
+                        <TableCell>{role}</TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="toggle password visibility"
