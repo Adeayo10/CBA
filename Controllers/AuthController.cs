@@ -331,5 +331,27 @@ namespace CBA.Controllers
             }
         }
 
+        [HttpGet]
+    [Route("get-roles")]
+    [AllowAnonymous]
+    public IActionResult GetRoles()
+    {
+        try
+        {
+            _logger.LogInformation("GetRoles method called");
+            var result = _userService.GetUserRoles();
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred in GetRoles method");
+            return StatusCode(500, new AuthResult
+            {
+                Errors = new List<string>() { ex.Message },
+                Success = false
+            });
+        }
+    }    
+    
     }
 }

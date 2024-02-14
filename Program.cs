@@ -75,6 +75,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
 //builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>();
+//builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

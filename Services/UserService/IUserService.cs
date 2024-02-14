@@ -15,5 +15,6 @@ namespace CBA.Services
 
         Task<UserResponse> GetUser(Guid userId);
         Task<UserResponse> GetAllUsers();
+        object GetUserRoles();
     }
 }

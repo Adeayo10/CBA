@@ -1,4 +1,5 @@
 using CBA.Context;
+using CBA.Enums;
 using CBA.Models;
 using CBA.Models.AuthModel;
 using FluentValidation;
@@ -299,7 +300,7 @@ public class UserService : IUserService
             };
         }
     }
-public async Task<UserResponse> GetUser(Guid userId)
+    public async Task<UserResponse> GetUser(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -433,15 +434,25 @@ public async Task<UserResponse> GetUser(Guid userId)
             return result;
         }
    
-    private  async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
+    private async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
+    {
+        var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);
+        bankBranch!.Name = UpdatedBankBranch.Name;
+        bankBranch.Region = UpdatedBankBranch.Region;
+        bankBranch.Code = UpdatedBankBranch.Code;
+        bankBranch.Description = UpdatedBankBranch.Description;
+        await _context.SaveChangesAsync();
+    }
+    public object GetUserRoles()
+    {
+        var roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
+        var mappedRoles = roles.Select(x => new
         {
-            var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);
-            bankBranch!.Name = UpdatedBankBranch.Name;
-            bankBranch.Region = UpdatedBankBranch.Region;
-            bankBranch.Code = UpdatedBankBranch.Code;
-            bankBranch.Description = UpdatedBankBranch.Description;
-            await _context.SaveChangesAsync();
-        }
+            Id = (int)x,
+            Name = x.ToString()
+        });
+        return mappedRoles;
+    }
 
     /*private async Task UpdateBranchUser(BankBranch UpdatedBankBranch, ApplicationUser userExist)
         {
