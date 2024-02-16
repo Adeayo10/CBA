@@ -8,12 +8,19 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Divider from "@mui/material/Divider";
 
-import { USER_ALLLOWED_FIELDS, USER_BRANCH_ALLOWED_FIELDS } from "../Util/constants";
+import {
+  USER_ALLLOWED_FIELDS,
+  USER_BRANCH_ALLOWED_FIELDS,
+} from "../utils/constants";
 
-import { capitalize } from "../Util/util";
+import { capitalize } from "../utils/util";
 
-
-export default function UserDetailsModal({ toggleModal, modalOpen, user, userBranch }) {
+export default function UserDetailsModal({
+  toggleModal,
+  modalOpen,
+  user,
+  userBranch,
+}) {
   if (!user || !userBranch) return <></>;
 
   return (

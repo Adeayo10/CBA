@@ -23,12 +23,12 @@ import Title from "../Components/Title";
 import UserCreateModal from "../Components/UserCreateModal";
 import UserDetailsModal from "../Components/UserDetailsModal";
 
-import { TOAST_CONFIG } from "../Util/constants";
+import { TOAST_CONFIG } from "../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { getUsers } from "../Util/users";
-import { capitalize } from "../Util/util";
+import { getUsers } from "../api/users";
+import { capitalize } from "../utils/util";
 
 export default function Users() {
   const [usersList, setUsersList] = useState([]);

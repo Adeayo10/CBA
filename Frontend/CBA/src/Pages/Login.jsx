@@ -20,8 +20,8 @@ import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { loginUser, saveTokenData, tokenExists } from "../Util/auth";
-import { TOAST_CONFIG } from "../Util/constants";
+import { loginUser, saveTokenData, tokenExists } from "../api/auth";
+import { TOAST_CONFIG } from "../utils/constants";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -131,7 +131,11 @@ export default function Login() {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link to={"/forgot-password"} component={RouterLink} variant="body2">
+              <Link
+                to={"/forgot-password"}
+                component={RouterLink}
+                variant="body2"
+              >
                 Forgot password?
               </Link>
             </Grid>

@@ -20,14 +20,14 @@ import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { forgotPassword, saveTokenData, tokenExists } from "../Util/auth";
-import { TOAST_CONFIG } from "../Util/constants";
-import { isValidEmail } from "../Util/validators";
+import { forgotPassword, saveTokenData, tokenExists } from "../api/auth";
+import { TOAST_CONFIG } from "../utils/constants";
+import { isValidEmail } from "../utils/validators";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("")
+  const [emailError, setEmailError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,8 +38,8 @@ export default function ForgotPassword() {
 
   const handleSubmit = (submitEvent) => {
     submitEvent.preventDefault();
-    if (!email || !isValidEmail){
-      validateEmail({target: {value: email}})
+    if (!email || !isValidEmail) {
+      validateEmail({ target: { value: email } });
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
     }
@@ -58,20 +58,20 @@ export default function ForgotPassword() {
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
       });
-  }
+  };
 
   const handleChange = (changeEvent) => {
     changeEvent.persist();
     const { name, value } = changeEvent.target;
     setEmail(value);
-  }
+  };
 
-  const validateEmail = (event) =>{
+  const validateEmail = (event) => {
     const { name, value } = event.target;
-    if (!value) setEmailError("Field Cannot Be Empty")
-    else if (!isValidEmail(value)) setEmailError("Invalid Email Supplied")
-    else setEmailError("")
-  }
+    if (!value) setEmailError("Field Cannot Be Empty");
+    else if (!isValidEmail(value)) setEmailError("Invalid Email Supplied");
+    else setEmailError("");
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -105,7 +105,7 @@ export default function ForgotPassword() {
             error={Boolean(emailError)}
             helperText={emailError}
           />
-          
+
           <Button
             type="submit"
             fullWidth

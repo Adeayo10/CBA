@@ -15,10 +15,10 @@ import AddIcon from "@mui/icons-material/Add";
 
 import Title from "../Components/Title";
 
-import { TOAST_CONFIG } from "../Util/constants";
+import { TOAST_CONFIG } from "../utils/constants";
 import { toast } from "react-toastify";
 
-import { getUsers } from "../Util/users";
+import { getUsers } from "../api/users";
 
 export default function UserRoles() {
   const rolesList = ["SuperAdmin", "Admin", "Manager", "User"];

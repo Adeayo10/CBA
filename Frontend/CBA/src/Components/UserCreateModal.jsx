@@ -20,13 +20,17 @@ import {
   ROLES,
   CREATE_USER_BASE,
   CREATE_USER_BRANCH_BASE,
-} from "../Util/constants";
-import { isValidEmail, isValidPhoneNumber } from "../Util/validators";
+} from "../utils/constants";
+import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
 import { toast } from "react-toastify";
-import { createUser } from "../Util/users";
-import { generateUserId, generateRandomPassword } from "../Util/util";
+import { createUser } from "../api/users";
+import { generateUserId, generateRandomPassword } from "../utils/util";
 
-export default function UserCreateModal({ toggleModal, modalOpen, refreshUsers = null }) {
+export default function UserCreateModal({
+  toggleModal,
+  modalOpen,
+  refreshUsers = null,
+}) {
   const userId = generateUserId();
 
   const [userDetails, setUserDetails] = useState({
@@ -36,7 +40,7 @@ export default function UserCreateModal({ toggleModal, modalOpen, refreshUsers =
   });
   const [userBranchDetails, setUserBranchDetails] = useState({
     ...CREATE_USER_BRANCH_BASE,
-    userId: userId
+    userId: userId,
   });
   const [formErrors, setFormErrors] = useState({});
 

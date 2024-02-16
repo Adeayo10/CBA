@@ -19,11 +19,10 @@ import StarBorder from "@mui/icons-material/StarBorder";
 import PeopleIcon from "@mui/icons-material/People";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from "@mui/icons-material/Home";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-import { DRAWER_WIDTH, ROLES } from "../Util/constants";
-
+import { DRAWER_WIDTH, ROLES } from "../utils/constants";
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",

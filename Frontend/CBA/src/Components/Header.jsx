@@ -16,8 +16,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { DRAWER_WIDTH, TOAST_CONFIG } from "../Util/constants";
-import { logoutUser, clearTokenData } from "../Util/auth";
+import { DRAWER_WIDTH, TOAST_CONFIG } from "../utils/constants";
+import { logoutUser, clearTokenData } from "../api/auth";
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -43,21 +43,20 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
 
   const logOut = (event) => {
     event.preventDefault();
-    setIsLoading(true)
+    setIsLoading(true);
     logoutUser()
       .then((data) => {
         console.log(data);
         clearTokenData();
-        if (!data.ok || data.error)
-          throw new Error(data.message || data.error);
+        if (!data.ok || data.error) throw new Error(data.message || data.error);
 
         clearTokenData();
-        setIsLoading(false)
+        setIsLoading(false);
         toast.success("Successfull", TOAST_CONFIG);
         navigate("/login");
       })
       .catch((error) => {
-        setIsLoading(false)
+        setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
       });
   };
@@ -103,14 +102,14 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
         </Button>
       </Toolbar>
       <Backdrop
-            sx={{
-              color: "#fff",
-              zIndex: (theme) => theme.zIndex.drawer + 1,
-            }}
-            open={isLoading}
-          >
-            <CircularProgress color="inherit" />
-          </Backdrop>
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+        open={isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </AppBar>
   );
 }

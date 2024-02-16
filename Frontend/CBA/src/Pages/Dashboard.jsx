@@ -17,14 +17,19 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { Outlet } from "react-router-dom";
 import SideBar from "../Components/SideBar";
-import { Link as RouterLink, useNavigate, redirect, Navigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useNavigate,
+  redirect,
+  Navigate,
+} from "react-router-dom";
 
-import { DRAWER_WIDTH } from "../Util/constants";
+import { DRAWER_WIDTH } from "../utils/constants";
 import Header from "../Components/Header";
-import { tokenExists } from "../Util/auth";
+import { tokenExists } from "../api/auth";
 
 export default function Dashboard(props) {
-  if(!tokenExists()){
+  if (!tokenExists()) {
     return <Navigate to={"/login"} replace />;
   }
 
