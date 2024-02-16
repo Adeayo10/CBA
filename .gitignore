@@ -19,6 +19,7 @@ Models/CustomerModel
 Models/PostingModels
 Data/userDataContext.cs
 Services/ValidationService/CustomerValidationService.cs
+ReadMe.md
 CBA.dll
 CBA.pdb
 *.ps1
