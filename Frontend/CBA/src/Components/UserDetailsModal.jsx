@@ -88,7 +88,7 @@ export default function UserDetailsModal({
                     {capitalize(field)}
                   </Typography>
                   <Typography variant="body" gutterBottom>
-                    {capitalize(userBranch[fieldName])}
+                    {fieldName === "code"? userBranch[fieldName]?.toUpperCase() : capitalize(userBranch[fieldName])}
                   </Typography>
                 </Grid>
               );
