@@ -61,8 +61,12 @@ export async function refreshAccessToken() {
     headers,
     body: JSON.stringify(requestBody),
   });
-  const { token, refreshToken, expiryDate } = await response.json();
+  const { token, refreshToken, expiryDate, errors } = await response.json();
+
+  if (errors) throw new Error(errors)
+
   saveTokenData(token, refreshToken, expiryDate);
+  console.log("Refreshed token");
 }
 
 export function getCurrentRole() {
@@ -106,7 +110,7 @@ export function tokenExists() {
 
 export function tokenExpired() {
   const expiryDate = retrieveExpiryDate();
-  return new Date(expiryDate).getTime() > new Date().getTime();
+  return new Date().getTime() > new Date(expiryDate).getTime();
 }
 
 function retrieveAccessToken() {
