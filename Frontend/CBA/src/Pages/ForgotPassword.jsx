@@ -23,6 +23,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { forgotPassword, saveTokenData, tokenExists } from "../api/auth";
 import { TOAST_CONFIG } from "../utils/constants";
 import { isValidEmail } from "../utils/validators";
+import Copyright from "../Components/Copyright";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -132,6 +133,7 @@ export default function ForgotPassword() {
           </Backdrop>
         </Box>
       </Box>
+      <Copyright />
     </Container>
   );
 }

@@ -27,6 +27,7 @@ import {
 import { DRAWER_WIDTH } from "../utils/constants";
 import Header from "../Components/Header";
 import { tokenExists } from "../api/auth";
+import Copyright from "../Components/Copyright";
 
 export default function Dashboard(props) {
   if (!tokenExists()) {
@@ -56,6 +57,7 @@ export default function Dashboard(props) {
       >
         <Toolbar />
         <Outlet />
+        <Copyright />
       </Box>
     </Box>
   );

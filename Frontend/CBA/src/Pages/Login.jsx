@@ -22,6 +22,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { loginUser, saveTokenData, tokenExists } from "../api/auth";
 import { TOAST_CONFIG } from "../utils/constants";
+import Copyright from "../Components/Copyright";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -40,7 +41,6 @@ export default function Login() {
     setIsLoading(true);
     loginUser({ ...loginDetails })
       .then((data) => {
-        console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
@@ -151,6 +151,7 @@ export default function Login() {
           </Backdrop>
         </Box>
       </Box>
+      <Copyright />
     </Container>
   );
 }

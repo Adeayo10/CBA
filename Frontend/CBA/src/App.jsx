@@ -41,7 +41,6 @@ function App() {
           </Route>
         </Routes>
       </Router>
-      <Copyright sx={{ mt: 8, mb: 4 }} />
     </>
   );
 }
