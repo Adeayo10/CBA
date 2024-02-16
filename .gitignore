@@ -21,4 +21,5 @@ Data/userDataContext.cs
 Services/ValidationService/CustomerValidationService.cs
 CBA.dll
 CBA.pdb
+*.ps1
 ```
