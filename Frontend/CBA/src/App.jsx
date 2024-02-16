@@ -2,8 +2,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  redirect,
-  useNavigate,
+  Navigate,
 } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,15 +12,10 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import Copyright from "./Components/Copyright";
 import Users from "./Views/Users";
-import { useEffect } from "react";
+import UserRoles from "./Views/UserRoles";
+import ForgotPassword from "./Pages/ForgotPassword";
+import { Typography } from "@mui/material";
 
-function RedirectToLogin(){
-  const navigate = useNavigate()
-  useEffect(()=>{
-    navigate("/login")
-  }, [])
-  return (<></>)
-}
 
 function App() {
   return (
@@ -30,12 +24,20 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<RedirectToLogin />} />
+          <Route path="/" element={<Navigate to={"/login"} replace />} />
           <Route path="login" element={<Login />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="dashboard" element={<Dashboard />}>
-            <Route path="" element={<Users />} />
+            <Route
+              path=""
+              element={
+                <Typography gutterBottom variant="h6" sx={{ mx: 5, my: 3 }}>
+                  Welcome To the Dashboard!
+                </Typography>
+              }
+            />
             <Route path="users" element={<Users />} />
-            <Route path="roles" element={<Login />} />
+            <Route path="user-roles" element={<UserRoles />} />
           </Route>
         </Routes>
       </Router>
