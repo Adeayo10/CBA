@@ -16,7 +16,7 @@ namespace CBA.Context
 
         public DbSet<BranchUser> BranchUser { get; set; }
 
-        public DbSet<CustomerEntity> CustomerEntity { get; set; }
+        // public DbSet<CustomerEntity> CustomerEntity { get; set; }
 
         public UserDataContext(DbContextOptions<UserDataContext> options) : base(options)
         {
