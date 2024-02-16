@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate, Navigate } from "react-router-dom";
 
-import IconButton from '@mui/material/IconButton';
+import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -11,34 +11,46 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Link from "@mui/material/Link";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
-
-import {loginUser} from "../Api/auth";
-import { TOAST_CONFIG } from "../util";
+import { loginUser, saveTokenData, tokenExists } from "../Util/auth";
+import { TOAST_CONFIG } from "../Util/constants";
 
 export default function Login() {
   const navigate = useNavigate();
   const [loginDetails, setLoginDetails] = useState({ Email: "", Password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (tokenExists()) {
+    console.log("Here");
+    return <Navigate to={"/dashboard"} replace />;
+  }
+
   function handleSubmit(submitEvent) {
     submitEvent.preventDefault();
+    setIsLoading(true);
     loginUser({ ...loginDetails })
       .then((data) => {
         console.log(data);
-        if (!data.success || data.error)
-          throw new Error(data.message || data.error);
+        if (!data.success || data.errors)
+          throw new Error(data.message || data.errors);
 
+        saveTokenData(data.token, data.refreshToken, data.expiryDate);
+        setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
         navigate("/dashboard");
       })
       .catch((error) => {
+        setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
       });
   }
@@ -105,10 +117,10 @@ export default function Login() {
               ),
             }}
           />
-          <FormControlLabel
+          {/* <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
-          />
+          /> */}
           <Button
             type="submit"
             fullWidth
@@ -119,11 +131,20 @@ export default function Login() {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link to={"/forgot-password"} component={RouterLink} variant="body2">
                 Forgot password?
               </Link>
             </Grid>
           </Grid>
+          <Backdrop
+            sx={{
+              color: "#fff",
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+            open={isLoading}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
         </Box>
       </Box>
     </Container>
