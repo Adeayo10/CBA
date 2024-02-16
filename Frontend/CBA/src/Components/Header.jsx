@@ -46,8 +46,6 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
     setIsLoading(true);
     logoutUser()
       .then((data) => {
-        console.log(data);
-        clearTokenData();
         if (!data.ok || data.error) throw new Error(data.message || data.error);
 
         clearTokenData();
@@ -57,6 +55,8 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
       })
       .catch((error) => {
         setIsLoading(false);
+        clearTokenData();
+        navigate("/login");
         toast.error(error.message, TOAST_CONFIG);
       });
   };
