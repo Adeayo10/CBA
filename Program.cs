@@ -32,10 +32,23 @@ var emailConfig = configure.GetSection("EmailConfiguration").Get<EmailConfigurat
 builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
 
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    // options.Tokens.ChangeEmailTokenProvider = "changeemail";
+    // options.Tokens.ChangePhoneNumberTokenProvider = "changepn";
+    // options.Tokens.PasswordResetTokenProvider = "resetpassword";
+    // options.Tokens.AuthenticatorTokenProvider = "authenticator";
+})
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<UserDataContext>()
 .AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(3);
+});
+
 // password settings
 // builder.Services.Configure<IdentityOptions>(options =>
 // lockout settings
@@ -44,7 +57,7 @@ var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuer = true,
     ValidateAudience = true,
-    ValidateLifetime = true,
+    ValidateLifetime = false,
     ValidateIssuerSigningKey = true,
     ValidIssuer = configure["JwtSettings:issuer"],
     ValidAudience = configure["JwtSettings:audience"],
