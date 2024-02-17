@@ -19,6 +19,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
+import {
+  Link as RouterLink,
+  useNavigate,
+  redirect,
+  Navigate,
+} from "react-router-dom";
+
 import Title from "../Components/Title";
 import UserCreateModal from "../Components/UserCreateModal";
 import UserDetailsModal from "../Components/UserDetailsModal";
@@ -29,6 +36,8 @@ import { toast } from "react-toastify";
 
 import { getUsers } from "../api/users";
 import { capitalize } from "../utils/util";
+import { ErrorTwoTone } from "@mui/icons-material";
+import { redirectIfRefreshTokenExpired } from "../api/auth";
 
 export default function Users() {
   const [usersList, setUsersList] = useState([]);
@@ -45,10 +54,12 @@ export default function Users() {
 
   const menuOpen = Boolean(currentUserElement);
 
+  const navigate = useNavigate()
+
   useEffect(() => {
     getUsers()
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
@@ -60,6 +71,7 @@ export default function Users() {
       .catch((error) => {
         toast.error(error.message, TOAST_CONFIG);
         setIsLoading(false);
+        redirectIfRefreshTokenExpired(error.message, navigate)
       });
 
     return () => {
@@ -119,6 +131,7 @@ export default function Users() {
         console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
+        redirectIfRefreshTokenExpired(error.message, navigate)
       });
   };
 
