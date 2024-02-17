@@ -61,7 +61,7 @@ namespace CBA.Controllers
 
         [HttpPost]
         [Route("Register")]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult> Register([FromBody] UserProfileDTO user)
         {
             try
@@ -105,7 +105,7 @@ namespace CBA.Controllers
 
         [HttpPut]
         [Route("UpdateUser")]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Update([FromBody] UserUpdateDTO user)
         {
             try
@@ -140,7 +140,7 @@ namespace CBA.Controllers
 
         [HttpGet]
         [Route("GetUser")]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> Get(Guid id)
         {
             try
@@ -168,7 +168,7 @@ namespace CBA.Controllers
 
         [HttpGet]
         [Route("GetAllUsers")]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetAll()
         {
             try
