@@ -15,6 +15,7 @@ import Users from "./Views/Users";
 import UserRoles from "./Views/UserRoles";
 import ForgotPassword from "./Pages/ForgotPassword";
 import { Typography } from "@mui/material";
+import ResetPassword from "./Pages/ResetPassword";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<Navigate to={"/login"} replace />} />
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="dashboard" element={<Dashboard />}>
             <Route
               path=""
