@@ -12,6 +12,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import Button from "@mui/material/Button";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import Avatar from "@mui/material/Avatar";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -70,13 +72,25 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
           pr: "24px", // keep right padding when drawer closed
         }}
       >
+        <Avatar
+          sx={{
+            m: 1,
+            bgcolor: "secondary.main",
+            marginRight: "0px",
+            marginLeft: "0px",
+            ...(sideBarOpen && { display: "none" }),
+          }}
+        >
+          <LockOutlinedIcon />
+        </Avatar>
         <IconButton
           edge="start"
           color="inherit"
           aria-label="open drawer"
           onClick={toggleSideBar}
           sx={{
-            marginRight: "36px",
+            marginRight: "25px",
+            marginLeft: "20px",
             ...(sideBarOpen && { display: "none" }),
           }}
         >

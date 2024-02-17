@@ -10,6 +10,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
+import Avatar from "@mui/material/Avatar";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import SendIcon from "@mui/icons-material/Send";
@@ -20,6 +22,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import { DRAWER_WIDTH, ROLES } from "../utils/constants";
@@ -142,10 +146,35 @@ export default function SideBar({ sideBarOpen, toggleSideBar }) {
           px: [1],
         }}
       >
+        <Box sx={{
+              
+              display: "flex",
+              marginRight: "0px",
+              marginLeft: "0px",
+              alignItems: "center",
+              flex: 1,
+              ...(!sideBarOpen && { display: "none" }),
+            }}>
+          <Avatar
+            sx={{
+              m: 1,
+              bgcolor: "secondary.main",
+            }}
+          >
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography variant="h5" gutterBottom sx={{
+              m: 1,
+              
+            }} >
+                    User
+          </Typography>
+        </Box>
         <IconButton onClick={toggleSideBar}>
           <ChevronLeftIcon />
         </IconButton>
       </Toolbar>
+      <Divider sx={{ mb: 1, width: "100%" }} />
       <List component="nav" disablePadding>
         {listItems.map(
           (
