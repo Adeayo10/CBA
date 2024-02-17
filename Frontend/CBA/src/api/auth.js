@@ -7,7 +7,7 @@ export async function loginUser(loginDetails) {
   const headers = {
     "Content-Type": "application/json",
   };
-  console.log(loginDetails);
+  //console.log(loginDetails);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
@@ -25,6 +25,7 @@ export async function logoutUser() {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
+
   return await fetch(API_URL, {
     method: "POST",
     headers,
@@ -47,6 +48,21 @@ export async function forgotPassword(email) {
   return await response.json();
 }
 
+export async function resetPassword(requestBody) {
+  const API_URL = "/api/v1/Auth/reset-password";
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  console.log(requestBody);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody),
+  });
+  return await response.json();
+}
+
+
 export async function refreshAccessToken() {
   const API_URL = "/api/v1/Token/RefreshToken";
   const headers = {
@@ -63,7 +79,7 @@ export async function refreshAccessToken() {
   });
   const { token, refreshToken, expiryDate, errors } = await response.json();
 
-  if (errors) throw new Error(errors)
+  if (errors) throw new Error(errors);
 
   saveTokenData(token, refreshToken, expiryDate);
   console.log("Refreshed token");
@@ -111,6 +127,12 @@ export function tokenExists() {
 export function tokenExpired() {
   const expiryDate = retrieveExpiryDate();
   return new Date().getTime() > new Date(expiryDate).getTime();
+}
+
+export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
+  if (!errorMessage.toLowerCase().includes("expired")) return;
+  clearTokenData()
+  navigate("/login");
 }
 
 function retrieveAccessToken() {
