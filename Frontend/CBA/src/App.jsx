@@ -16,7 +16,7 @@ import UserRoles from "./Views/UserRoles";
 import ForgotPassword from "./Pages/ForgotPassword";
 import { Typography } from "@mui/material";
 import ResetPassword from "./Pages/ResetPassword";
-
+import Profile from "./Views/Profile";
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
+          
           <Route path="dashboard" element={<Dashboard />}>
             <Route
               path=""
@@ -40,6 +41,7 @@ function App() {
             />
             <Route path="users" element={<Users />} />
             <Route path="user-roles" element={<UserRoles />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </Router>
