@@ -6,6 +6,8 @@ using CBA.Models.AuthModel;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Encodings.Web;
+using System.Web;
 
 namespace CBA.Services;
 
@@ -18,7 +20,7 @@ public class UserService : IUserService
     private readonly ILogger<UserService> _logger;
     private readonly IEmailService _emailService;
     private readonly UserDataContext _context;
-    
+
     public UserService(UserDataContext context, IPasswordService passwordService,
     ITokenService tokenService, UserManager<ApplicationUser> userManager, ILogger<UserService> logger,
     IValidator<ApplicationUser> validationService, IEmailService emailService)
@@ -35,7 +37,7 @@ public class UserService : IUserService
     public async Task<RegistrationResponse> AddUser(UserProfileDTO user)
     {
         _logger.LogInformation("AddUser method called");
-        var userExist = await _userManager.FindByEmailAsync(user.Email);         
+        var userExist = await _userManager.FindByEmailAsync(user.Email);
         if (userExist != null)
         {
             _logger.LogInformation("User already exist");
@@ -72,7 +74,7 @@ public class UserService : IUserService
         }
         var bankBranch = CreateUserBranchDetails(user.BankBranch, newUser);
         var result = await _userManager.CreateAsync(newUser, user.Password);
-        if(!result.Succeeded)
+        if (!result.Succeeded)
         {
             _logger.LogError($"Error occurred in creating user: {result.Errors.FirstOrDefault()?.Description}");
             return new RegistrationResponse
@@ -90,7 +92,7 @@ public class UserService : IUserService
         await CreateBranchUser(bankBranch, newUser);
         _logger.LogInformation($"BranchUser created successfully");
 
-        
+
         //await SendUserConfirmationEmail(newUser);
 
         await SendUserLoginCredentialsEmail(newUser);
@@ -117,7 +119,7 @@ public class UserService : IUserService
                     "User does not exist"
                 },
                 Message = "User does not exist"
-                
+
             };
         }
         string passwordhash = userExist.PasswordHash;
@@ -258,7 +260,9 @@ public class UserService : IUserService
     }
     public async Task<RegistrationResponse> ResetPassword(ResetPasswordDTO resetPassword)
     {
-        var user = await _userManager.FindByEmailAsync(resetPassword.Email!);
+        _logger.LogInformation($"ResetPassword DTO => id: {resetPassword.UserId}, token: {resetPassword.Token}, password: {resetPassword.Password}");
+        var user = await _userManager.FindByIdAsync(resetPassword.UserId!);
+        _logger.LogInformation($"User => email: {user.Email}, the rest: {user.PasswordHash}");
         if (user == null)
         {
             _logger.LogError($"Error occurred in ResetPassword method: User does not exist");
@@ -271,10 +275,24 @@ public class UserService : IUserService
                 }
             };
         }
-        var result = await _userManager.ResetPasswordAsync(user, resetPassword.Token!, resetPassword.Password!);
+
+        var decodedToken = HttpUtility.UrlDecode(resetPassword.Token!);
+        var newPass = _passwordService.HashPassword(resetPassword.Password);
+        var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPass);
+
+        user.PasswordHash = newPass;
+
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+
+        //result = await _userManager.UpdateAsync(user);
+
+        // var result = await _userManager.ResetPasswordAsync(user, resetPassword.Token!, resetPassword.Password!);
+        _logger.LogInformation($"Result: {result}");
         if (result.Succeeded)
         {
             _logger.LogInformation($"User {user.UserName} reset password successfully");
+            _logger.LogInformation($"User => email: {user.Email}, the rest: {user.PasswordHash}");
             return new RegistrationResponse()
             {
                 Success = true,
@@ -289,7 +307,7 @@ public class UserService : IUserService
                 Success = false,
                 Errors = new List<string>()
                 {
-                    "Password not reset"
+                    $"Password not reset: {result}"
                 }
             };
         }
@@ -306,11 +324,11 @@ public class UserService : IUserService
                 Success = false
             };
         }
-          
+
         _logger.LogInformation($"User {userExist?.UserName} found");
-        
+
         var isUserUpdated = UpdatedUser(userExist!, user).Result;
-        
+
         var bankBranchUpdateDetails = CreateUserBranchDetails(user.BankBranch!, userExist!);
         _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} found");
 
@@ -318,10 +336,10 @@ public class UserService : IUserService
         _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} updated successfully");
 
         if (isUserUpdated.Succeeded)
-        { 
+        {
             // await UpdateBranchUser(bankBranchUpdateDetails, userExist);
             // await _context.SaveChangesAsync();
-          
+
             _logger.LogInformation($"User {userExist?.UserName} updated successfully");
             return new RegistrationResponse()
             {
@@ -394,7 +412,7 @@ public class UserService : IUserService
             Success = true,
             Users = users,
             UserBranch = BankBranch
-           
+
         };
     }
     private static ApplicationUser CreateUserDetails(UserProfileDTO user, string hashPassword)
@@ -449,7 +467,8 @@ public class UserService : IUserService
     private async Task SendUserResetPasswordEmail(ApplicationUser user)
     {
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var callback = $"http://localhost:5173/reset-password?userId={user.Id}&token={token}";
+        var encodedToken = UrlEncoder.Default.Encode(token);
+        var callback = $"http://localhost:5173/reset-password?userId={user.Id}&token={encodedToken}";
         var message = new Message(new string[] { user.Email! }, "Reset password token", $"Hello {user.UserName},<br/><br/> To reset your password {callback} <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
@@ -462,19 +481,19 @@ public class UserService : IUserService
         await _emailService.SendEmail(message);
     }
     private async Task<IdentityResult> UpdatedUser(ApplicationUser userExist, UserUpdateDTO user)
-        {
-            userExist.Email = user.Email;
-            userExist.UserName = user.UserName;
-            userExist.Password = userExist.PasswordHash;
-            userExist.Role = user.Role;
-            userExist.PhoneNumber = user.PhoneNumber;
-            userExist.FullName = user.FullName;
-            userExist.Address = user.Address;
-            userExist.Status = user.Status;
-            var result = await _userManager.UpdateAsync(userExist);
-            return result;
-        }
-   
+    {
+        userExist.Email = user.Email;
+        userExist.UserName = user.UserName;
+        userExist.Password = userExist.PasswordHash;
+        userExist.Role = user.Role;
+        userExist.PhoneNumber = user.PhoneNumber;
+        userExist.FullName = user.FullName;
+        userExist.Address = user.Address;
+        userExist.Status = user.Status;
+        var result = await _userManager.UpdateAsync(userExist);
+        return result;
+    }
+
     private async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
     {
         var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);

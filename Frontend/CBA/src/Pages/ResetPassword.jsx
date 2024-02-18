@@ -20,14 +20,21 @@ import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { loginUser, saveTokenData, tokenExists } from "../api/auth";
+import { resetPassword, saveTokenData, tokenExists } from "../api/auth";
 import { TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
-export default function Login() {
+export default function ResetPassword() {
   const navigate = useNavigate();
-  const [loginDetails, setLoginDetails] = useState({ Email: "", Password: "" });
+  const [formDetails, setFormDetails] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [formErrors, setFormErrors] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,18 +43,72 @@ export default function Login() {
     return <Navigate to={"/dashboard"} replace />;
   }
 
+  function validateField(event) {
+    // const { name, value } = event.target;
+    // if (!value)
+    //   setFormErrors({ ...formErrors, [name]: "Field Cannot be Empty" });
+    // else if (formDetails.password !== formDetails.confirmPassword)
+    //   setFormErrors({
+    //     password: "Passwords don't match",
+    //     confirmPassword: "Passwords don't match",
+    //   });
+    // else {
+    //   setFormErrors((prevstate) => {
+    //     const newstate = { ...prevstate };
+    //     delete newstate[name];
+    //     return newstate;
+    //   });
+    // }
+    formContainsErrors()
+  }
+
+  function formContainsErrors() {
+    const { password, confirmPassword } = formDetails;
+
+    if (!password)
+      setFormErrors({ ...formErrors, password: "Field Cannot be Empty" });
+    else if (!confirmPassword)
+      setFormErrors({
+        ...formErrors,
+        confirmPassword: "Field Cannot be Empty",
+      });
+    else if (password !== confirmPassword)
+      setFormErrors({
+        password: "Passwords don't match",
+        confirmPassword: "Passwords don't match",
+      });
+    else setFormErrors({});
+
+    return !password || !confirmPassword || password !== confirmPassword;
+  }
+
   function handleSubmit(submitEvent) {
     submitEvent.preventDefault();
+
+    const { password } = formDetails;
+
+    if (formContainsErrors()) {
+      toast.error("Form contains errors", TOAST_CONFIG);
+      return;
+    }
+
     setIsLoading(true);
-    loginUser({ ...loginDetails })
+    const queryParams = new URLSearchParams(window.location.search);
+
+    const requestBody = {
+      UserId: queryParams.get("userId"),
+      Token: encodeURIComponent(queryParams.get("token")),
+      Password: password,
+    };
+
+    resetPassword(requestBody)
       .then((data) => {
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
-        saveTokenData(data.token, data.refreshToken, data.expiryDate);
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
-        navigate("/dashboard");
+        navigate("/login");
       })
       .catch((error) => {
         setIsLoading(false);
@@ -58,12 +119,17 @@ export default function Login() {
   function handleChange(changeEvent) {
     changeEvent.persist();
     const { name, value } = changeEvent.target;
-    setLoginDetails({ ...loginDetails, [name]: value });
+    setFormDetails({ ...formDetails, [name]: value });
   }
 
   function togglePasswordVisibility(clickEvent) {
     clickEvent.preventDefault();
     setShowPassword((prevState) => !prevState);
+  }
+
+  function toggleConfirmPasswordVisibility(clickEvent) {
+    clickEvent.preventDefault();
+    setShowConfirmPassword((prevState) => !prevState);
   }
 
   return (
@@ -81,30 +147,22 @@ export default function Login() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          Reset Password
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="Email"
-            autoComplete="email"
-            autoFocus
-            onChange={handleChange}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="Password"
+            name="password"
             label="Password"
             type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="current-password"
             onChange={handleChange}
+            error={Boolean(formErrors.password)}
+            helperText={formErrors.password}
+            onBlur={validateField}
             InputProps={{
               endAdornment: (
                 <IconButton
@@ -113,6 +171,31 @@ export default function Login() {
                   edge="end"
                 >
                   {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              ),
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type={showConfirmPassword ? "text" : "password"}
+            id="confirmPassword"
+            autoComplete="current-password"
+            onChange={handleChange}
+            error={Boolean(formErrors.confirmPassword)}
+            helperText={formErrors.confirmPassword}
+            onBlur={validateField}
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={toggleConfirmPasswordVisibility}
+                  edge="end"
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               ),
             }}
@@ -127,19 +210,8 @@ export default function Login() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Reset Password
           </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link
-                to={"/forgot-password"}
-                component={RouterLink}
-                variant="body2"
-              >
-                Forgot password?
-              </Link>
-            </Grid>
-          </Grid>
           <Backdrop
             sx={{
               color: "#fff",

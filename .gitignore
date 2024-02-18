@@ -22,4 +22,5 @@ Services/ValidationService/CustomerValidationService.cs
 ReadMe.md
 CBA.dll
 CBA.pdb
+*.ps1
 ```

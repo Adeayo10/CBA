@@ -33,7 +33,7 @@ public class TokenService : ITokenService
         _logger.LogInformation("GenerateToken method called");
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = CreateJwtToken(CreateClaimsIdentity(user), CreateSigningCredentials(), DateTime.Now.AddMinutes(5));
-        var  token = tokenHandler.CreateToken(tokenDescriptor);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwtToken = tokenHandler.WriteToken(token);
         var refreshToken = await CreateRefreshTokenAsync(user, token);
         _logger.LogInformation("Token generated successfully");
@@ -50,13 +50,13 @@ public class TokenService : ITokenService
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         try
-        { 
+        {
             var principal = jwtTokenHandler.ValidateToken(tokenRequest.Token, _tokenValidationParameters, out var validatedToken);
-          
+
             _logger.LogInformation("Token validation started");
             _logger.LogInformation($"Token validation result: {principal.Identity?.IsAuthenticated} with Parameters:{validatedToken}, {validatedToken?.ValidTo}, {validatedToken?.ValidFrom}");
-          
-          
+
+
             if (validatedToken is JwtSecurityToken jwtSecurityToken)
             {
                 var isValidJwtAlgorithm = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
@@ -68,10 +68,10 @@ public class TokenService : ITokenService
                     {
                         Errors = new List<string>() { "Invalid security algorithm" },
                         Success = false
-                    };                
+                    };
                 }
-            }  
-            
+            }
+
             var storedRefreshToken = await _context.RefreshToken.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
             _logger.LogInformation("Refresh token found in db: {result}", storedRefreshToken != null);
 
@@ -110,14 +110,14 @@ public class TokenService : ITokenService
                     Errors = new List<string>() { "the token doesn't match the saved token" },
                     Success = false
                 };
-            }          
+            }
             storedRefreshToken.IsUsed = true;
             _context.RefreshToken.Update(storedRefreshToken);
             await _context.SaveChangesAsync();
 
             var dbUser = await _userManager.FindByIdAsync(storedRefreshToken.UserId!);
 
-            var generatedToken =  await GenerateTokens(dbUser!);
+            var generatedToken = await GenerateTokens(dbUser!);
             return generatedToken;
         }
         catch (Exception ex)
@@ -152,7 +152,7 @@ public class TokenService : ITokenService
             IsUsed = false,
             UserId = user.Id,
             AddedDate = DateTime.Now,
-            ExpiryDate = DateTime.Now.AddYears(1),
+            ExpiryDate = DateTime.Now.AddMinutes(30),
             IsRevoked = false,
             Token = RandomString(25) + Guid.NewGuid()
         };

@@ -20,14 +20,15 @@ import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { loginUser, saveTokenData, tokenExists } from "../api/auth";
+import { forgotPassword, saveTokenData, tokenExists } from "../api/auth";
 import { TOAST_CONFIG } from "../utils/constants";
+import { isValidEmail } from "../utils/validators";
 import Copyright from "../Components/Copyright";
 
-export default function Login() {
+export default function ForgotPassword() {
   const navigate = useNavigate();
-  const [loginDetails, setLoginDetails] = useState({ Email: "", Password: "" });
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,35 +37,42 @@ export default function Login() {
     return <Navigate to={"/dashboard"} replace />;
   }
 
-  function handleSubmit(submitEvent) {
+  const handleSubmit = (submitEvent) => {
     submitEvent.preventDefault();
+    if (!email || !isValidEmail) {
+      validateEmail({ target: { value: email } });
+      toast.error("Form contains errors", TOAST_CONFIG);
+      return;
+    }
     setIsLoading(true);
-    loginUser({ ...loginDetails })
+    forgotPassword(email)
       .then((data) => {
+        console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
-        saveTokenData(data.token, data.refreshToken, data.expiryDate);
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
-        navigate("/dashboard");
+        navigate("/login");
       })
       .catch((error) => {
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
       });
-  }
+  };
 
-  function handleChange(changeEvent) {
+  const handleChange = (changeEvent) => {
     changeEvent.persist();
     const { name, value } = changeEvent.target;
-    setLoginDetails({ ...loginDetails, [name]: value });
-  }
+    setEmail(value);
+  };
 
-  function togglePasswordVisibility(clickEvent) {
-    clickEvent.preventDefault();
-    setShowPassword((prevState) => !prevState);
-  }
+  const validateEmail = (event) => {
+    const { name, value } = event.target;
+    if (!value) setEmailError("Field Cannot Be Empty");
+    else if (!isValidEmail(value)) setEmailError("Invalid Email Supplied");
+    else setEmailError("");
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -81,7 +89,7 @@ export default function Login() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          Forgot Password
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -90,53 +98,27 @@ export default function Login() {
             fullWidth
             id="email"
             label="Email Address"
-            name="Email"
+            name="email"
             autoComplete="email"
             autoFocus
             onChange={handleChange}
+            onBlur={validateEmail}
+            error={Boolean(emailError)}
+            helperText={emailError}
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="Password"
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            id="password"
-            autoComplete="current-password"
-            onChange={handleChange}
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={togglePasswordVisibility}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              ),
-            }}
-          />
-          {/* <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          /> */}
+
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Submit
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link
-                to={"/forgot-password"}
-                component={RouterLink}
-                variant="body2"
-              >
-                Forgot password?
+              <Link to={"/login"} component={RouterLink} variant="body2">
+                Remember Password?
               </Link>
             </Grid>
           </Grid>
