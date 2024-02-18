@@ -194,6 +194,45 @@ public class UserService : IUserService
             };
         }
     }
+    public async Task<RegistrationResponse> ActivateUser(ActivateUserDTO userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            _logger.LogError($"Error occurred in ActivateUser method: User does not exist");
+            return new RegistrationResponse()
+            {
+                Success = false,
+                Errors = new List<string>()
+                {
+                    "User does not exist"
+                }
+            };
+        }
+        user.Status = "Active";
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation($"User {user.UserName} activated successfully");
+            return new RegistrationResponse()
+            {
+                Success = true,
+                Message = "User activated successfully"
+            };
+        }
+        else
+        {
+            _logger.LogError($"Error occurred in ActivateUser method: User not activated");
+            return new RegistrationResponse()
+            {
+                Success = false,
+                Errors = new List<string>()
+                {
+                    "User not activated"
+                }
+            };
+        }
+    }
     public async Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());

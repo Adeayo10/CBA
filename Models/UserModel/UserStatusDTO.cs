@@ -4,4 +4,9 @@ namespace CBA.Models
     {
         public string UserId { get; set; }
     }
+
+    public class ActivateUserDTO
+    {
+        public string UserId { get; set; }
+    }
 }

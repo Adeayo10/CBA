@@ -438,5 +438,41 @@ namespace CBA.Controllers
                 });
             }
         }
+    
+        [HttpPost]
+        [Route("activate-user")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> ActivateUser([FromBody] ActivateUserDTO user)
+        {
+            try
+            {
+                _logger.LogInformation("ActivateUser method called");
+                if (user is null)
+                {
+                    _logger.LogError($"Error occurred in ActivateUser method: User object is null");
+                    return BadRequest(new AuthResult
+                    {
+                        Errors = new List<string>() { "User object is null" },
+                        Success = false
+                    });
+                }
+                var result = await _userService.ActivateUser(user);
+                return Ok(new AuthResult
+                {
+                    Success = result.Success,
+                    Errors = result.Errors,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in ActivateUser method");
+                return StatusCode(500, new AuthResult
+                {
+                    Errors = new List<string>() { ex.Message },
+                    Success = false
+                });
+            }
+        }
     }
 }
