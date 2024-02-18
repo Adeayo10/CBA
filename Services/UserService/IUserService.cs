@@ -18,5 +18,7 @@ namespace CBA.Services
         Task<UserResponse> GetAllUsers();
         object GetUserRoles();
         Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword);
+        Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO user);
+        
     }
 }
