@@ -1,26 +1,24 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Link as RouterLink, useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Link from "@mui/material/Link";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import PasswordIcon from '@mui/icons-material/Password';
 
-import { resetPassword, saveTokenData, tokenExists } from "../api/auth";
+import { resetPassword } from "../api/auth";
+import { tokenExists } from "../utils/token";
 import { TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
@@ -44,21 +42,7 @@ export default function ResetPassword() {
   }
 
   function validateField(event) {
-    // const { name, value } = event.target;
-    // if (!value)
-    //   setFormErrors({ ...formErrors, [name]: "Field Cannot be Empty" });
-    // else if (formDetails.password !== formDetails.confirmPassword)
-    //   setFormErrors({
-    //     password: "Passwords don't match",
-    //     confirmPassword: "Passwords don't match",
-    //   });
-    // else {
-    //   setFormErrors((prevstate) => {
-    //     const newstate = { ...prevstate };
-    //     delete newstate[name];
-    //     return newstate;
-    //   });
-    // }
+    event.preventDefault()
     formContainsErrors()
   }
 
@@ -144,7 +128,7 @@ export default function ResetPassword() {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
+          <PasswordIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Reset Password
@@ -158,7 +142,6 @@ export default function ResetPassword() {
             label="Password"
             type={showPassword ? "text" : "password"}
             id="password"
-            autoComplete="current-password"
             onChange={handleChange}
             error={Boolean(formErrors.password)}
             helperText={formErrors.password}
@@ -183,7 +166,6 @@ export default function ResetPassword() {
             label="Confirm Password"
             type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
-            autoComplete="current-password"
             onChange={handleChange}
             error={Boolean(formErrors.confirmPassword)}
             helperText={formErrors.confirmPassword}

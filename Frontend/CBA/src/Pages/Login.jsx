@@ -20,7 +20,8 @@ import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { loginUser, saveTokenData, tokenExists } from "../api/auth";
+import { loginUser } from "../api/auth";
+import { tokenExists, saveTokenData } from "../utils/token";
 import { TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
 

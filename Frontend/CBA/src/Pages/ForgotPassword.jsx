@@ -2,25 +2,22 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { Link as RouterLink, useNavigate, Navigate } from "react-router-dom";
 
-import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Link from "@mui/material/Link";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import PasswordIcon from '@mui/icons-material/Password';
 
-import { forgotPassword, saveTokenData, tokenExists } from "../api/auth";
+import { forgotPassword } from "../api/auth";
+import { tokenExists } from "../utils/token";
 import { TOAST_CONFIG } from "../utils/constants";
 import { isValidEmail } from "../utils/validators";
 import Copyright from "../Components/Copyright";
@@ -86,7 +83,7 @@ export default function ForgotPassword() {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-          <LockOutlinedIcon />
+          <PasswordIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Forgot Password
