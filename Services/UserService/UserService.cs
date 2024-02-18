@@ -473,7 +473,8 @@ public class UserService : IUserService
     }
     private async Task SendUserLoginCredentialsEmail(ApplicationUser user)
     {
-        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> Thank you. ");
+        var resetPasswordLink = $"http://localhost:5173/reset-password?userId={user.Id}";
+        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> To reset your password {resetPasswordLink} <br/> <br/> Thank you. ");
         await _emailService.SendEmail(message);
     }
     private async Task SendUserResetPasswordEmail(ApplicationUser user)
