@@ -4,6 +4,7 @@ using CBA.Models.AuthModel;
 using CBA.Services;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using API.Models.PasswordModel;
 
 
 namespace CBA.Controllers
@@ -240,6 +241,55 @@ namespace CBA.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        [Route("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
+        {
+            try
+            {
+                if (changePasswordDTO == null)
+                {
+                    _logger.LogError($"Error occurred in ChangePassword method: User object is null");
+                    return BadRequest(new AuthResult
+                    {
+                        Errors = new List<string>() { "User object is null" },
+                        Success = false
+                    });
+                }
+                var result = await _userService.ChangePassword(changePasswordDTO);
+                if (result.Success)
+                {
+                    return Ok(new AuthResult
+                    {
+                        Success = result.Success,
+                        Errors = result.Errors,
+                        Message = result.Message
+                    });
+                }
+                else
+                {
+                    return BadRequest(new AuthResult
+                    {
+                        Success = result.Success,
+                        Errors = result.Errors,
+                        Message = result.Message
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in ChangePassword method");
+                return StatusCode(500, new AuthResult
+                {
+                    Errors = new List<string>() { ex.Message },
+                    Success = false
+                });
+            }
+        }
+
+
 
         [HttpPost]
         [Route("reset-password")]

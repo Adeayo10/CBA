@@ -1,4 +1,5 @@
 
+using API.Models.PasswordModel;
 using CBA.Models;
 using CBA.Models.AuthModel;
 
@@ -16,5 +17,6 @@ namespace CBA.Services
         Task<UserResponse> GetUser(Guid userId);
         Task<UserResponse> GetAllUsers();
         object GetUserRoles();
+        Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword);
     }
 }

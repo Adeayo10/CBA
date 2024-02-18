@@ -1,3 +1,4 @@
+using API.Models.PasswordModel;
 using CBA.Context;
 using CBA.Enums;
 using CBA.Models;
@@ -214,6 +215,46 @@ public class UserService : IUserService
             Success = true,
             Message = "Reset password token sent successfully"
         };
+    }
+    
+    public async Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword)
+    {
+        var user = await _userManager.FindByEmailAsync(changePassword.Email!);
+        if (user == null)
+        {
+            _logger.LogError($"Error occurred in ChangePassword method: User does not exist");
+            return new RegistrationResponse()
+            {
+                Success = false,
+                Errors = new List<string>()
+                {
+                    "User does not exist"
+                }
+            };
+        }
+        var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword!, changePassword.NewPassword!);
+       
+        if (result.Succeeded)
+        {
+            _logger.LogInformation($"User {user.UserName} changed password successfully");
+            return new RegistrationResponse()
+            {
+                Success = true,
+                Message = "Password changed successfully"
+            };
+        }
+        else
+        {
+            _logger.LogError($"Error occurred in ChangePassword method: Password not changed");
+            return new RegistrationResponse()
+            {
+                Success = false,
+                Errors = new List<string>()
+                {
+                    "Password not changed"
+                }
+            };
+        }
     }
     public async Task<RegistrationResponse> ResetPassword(ResetPasswordDTO resetPassword)
     {
