@@ -194,9 +194,11 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> ActivateUser(ActivateUserDTO userId)
+    public async Task<RegistrationResponse> ActivateUser(ActivateUserDTO inactiveUser)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var userId = inactiveUser.UserId;
+        var user = await _userManager.FindByIdAsync(userId);
+        
         if (user == null)
         {
             _logger.LogError($"Error occurred in ActivateUser method: User does not exist");
@@ -233,9 +235,10 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO userId)
+    public async Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO activeUser)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        var userId = activeUser.UserId;
+        var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
             _logger.LogError($"Error occurred in DeActivateUser method: User does not exist");
