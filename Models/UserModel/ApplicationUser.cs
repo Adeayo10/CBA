@@ -8,8 +8,8 @@ public class ApplicationUser : IdentityUser
     public Role Role { get; set; }
     public required string FullName  { get; set; }
     [NotMapped]
-    public required string Password { get; set; } 
-    public new virtual required string PasswordHash { get; set; }
+    public  string Password { get; set; } 
+    public new virtual string PasswordHash { get; set; }
     public required string Address { get; set; }
     public required string Status { get; set; } 
     public int BankBranch { get; set; }

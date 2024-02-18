@@ -405,7 +405,27 @@ public class UserService : IUserService
     public async Task<UserResponse> GetAllUsers()
     {
         var users = await _userManager.Users.ToListAsync();
-        var BankBranch = await _context.BankBranch.ToListAsync();
+        var usersDT0 = users.Select(x => new ApplicationUser
+        {
+            Id = x.Id,
+            Email = x.Email,
+            UserName = x.UserName,
+            Role = x.Role,
+            PhoneNumber = x.PhoneNumber,
+            FullName = x.FullName,
+            Address = x.Address,
+            Status = x.Status,
+
+        }).ToList();
+        var bankBranch = await _context.BankBranch.ToListAsync();
+        var bankBranchDTO = bankBranch.Select(x => new BankBranch
+        {
+            UserId = x.UserId,
+            Name = x.Name,
+            Region = x.Region,
+            Code = x.Code,
+            Description = x.Description
+        }).ToList();
         if (users == null)
         {
             _logger.LogError($"Error occurred in GetAllUsers method: User does not exist");
@@ -422,8 +442,8 @@ public class UserService : IUserService
         return new UserResponse()
         {
             Success = true,
-            Users = users,
-            UserBranch = BankBranch
+            Users = usersDT0,
+            UserBranch = bankBranchDTO
 
         };
     }
