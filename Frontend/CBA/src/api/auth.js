@@ -42,7 +42,7 @@ export async function forgotPassword(email) {
   const headers = {
     "Content-Type": "application/json",
   };
-  console.log(email);
+  //console.log(email);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
@@ -56,7 +56,7 @@ export async function resetPassword(requestBody) {
   const headers = {
     "Content-Type": "application/json",
   };
-  console.log(requestBody);
+  //console.log(requestBody);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
@@ -74,7 +74,7 @@ export async function changePassword(requestBody) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(requestBody);
+  //console.log(requestBody);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,

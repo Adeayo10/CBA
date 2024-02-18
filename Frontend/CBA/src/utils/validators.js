@@ -5,7 +5,7 @@ export function isValidPhoneNumber(phoneNumber) {
     phoneNumber.slice(1).length > 9 && phoneNumber.slice(1).length < 14;
   const phoneNumberIsNumber = !isNaN(Number(phoneNumber.slice(1)));
 
-  console.log(phoneNumberHasCorrectLength);
+  //console.log(phoneNumberHasCorrectLength);
   return (
     phoneStartsWithCorrectSymbol &&
     phoneNumberHasCorrectLength &&

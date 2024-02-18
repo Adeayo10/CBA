@@ -33,7 +33,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   if (tokenExists()) {
-    console.log("Here");
+    //console.log("Here");
     return <Navigate to={"/dashboard"} replace />;
   }
 

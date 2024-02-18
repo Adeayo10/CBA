@@ -62,7 +62,7 @@ export default function UserCreateModal({
 
     createUser({ ...userDetails, bankBranch: { ...userBranchDetails } })
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 

@@ -39,7 +39,7 @@ export default function UserUpdateModal({
     if (modalOpen) {
       setUserDetails({ ...user });
       setUserBranchDetails({ ...userBranch });
-      console.log("I ran")
+      //console.log("I ran")
     }
   }, [modalOpen]);
 
@@ -59,7 +59,7 @@ export default function UserUpdateModal({
 
     updateUser({ ...userDetails, bankBranch: { ...userBranchDetails } })
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
@@ -131,7 +131,7 @@ export default function UserUpdateModal({
       <DialogContent>
         <Divider sx={{ mb: 1, width: "100%" }} />
         <Typography gutterBottom variant="h6">
-          User {user.id}
+          User
         </Typography>
         <Grid
           container

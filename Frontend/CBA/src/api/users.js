@@ -11,7 +11,7 @@ export async function getUsers(limit = 0) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(limit);
+  //console.log(limit);
   const response = await fetch(API_URL, {
     method: "GET",
     headers,
@@ -28,7 +28,7 @@ export async function getUserById(id) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(id);
+  //console.log(id);
   const response = await fetch(API_URL, {
     method: "GET",
     headers,
@@ -45,7 +45,7 @@ export async function getUserRoles() {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(id);
+  //console.log(id);
   const response = await fetch(API_URL, {
     method: "GET",
     headers,
@@ -62,7 +62,7 @@ export async function createUser(userDetails) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(userDetails);
+  //console.log(userDetails);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
@@ -80,7 +80,7 @@ export async function updateUser(userDetails) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(userDetails);
+  //console.log(userDetails);
   const response = await fetch(API_URL, {
     method: "PUT",
     headers,
@@ -98,7 +98,7 @@ export async function deactivateUser(userId){
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(userId);
+  //console.log(userId);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
@@ -116,7 +116,7 @@ export async function activateUser(userId){
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(userId);
+  //console.log(userId);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
