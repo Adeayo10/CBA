@@ -29,7 +29,7 @@ import { generateUserId, generateRandomPassword } from "../utils/util";
 export default function UserCreateModal({
   toggleModal,
   modalOpen,
-  refreshUsers = null,
+  refreshUsersList,
 }) {
   const userId = generateUserId();
 
@@ -68,7 +68,7 @@ export default function UserCreateModal({
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshUsers();
+        refreshUsersList();
         resetModal();
       })
       .catch((error) => {
@@ -191,7 +191,7 @@ export default function UserCreateModal({
               onBlur={validateField}
             />
           </Grid>
-          <Grid xs={6} item>
+          {/* <Grid xs={6} item>
             <TextField
               margin="normal"
               fullWidth
@@ -202,7 +202,7 @@ export default function UserCreateModal({
               value={userDetails.password}
               disabled
             />
-          </Grid>
+          </Grid> */}
           <Grid xs={6} item>
             <TextField
               margin="normal"
@@ -231,7 +231,7 @@ export default function UserCreateModal({
               onBlur={validateField}
             />
           </Grid>
-          <Grid xs={6} item>
+          {/* <Grid xs={6} item>
             <TextField
               margin="normal"
               required
@@ -244,7 +244,7 @@ export default function UserCreateModal({
               helperText={formErrors.status}
               onBlur={validateField}
             />
-          </Grid>
+          </Grid> */}
           <Grid xs={6} item>
             <FormControl fullWidth sx={{ my: 2 }}>
               <InputLabel id="Role-label">Role</InputLabel>
@@ -303,20 +303,6 @@ export default function UserCreateModal({
               onChange={handleUserBranchChange}
               error={Boolean(formErrors.region)}
               helperText={formErrors.region}
-              onBlur={validateField}
-            />
-          </Grid>
-          <Grid xs={6} item>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="Code"
-              label="Code"
-              name="code"
-              onChange={handleUserBranchChange}
-              error={Boolean(formErrors.code)}
-              helperText={formErrors.code}
               onBlur={validateField}
             />
           </Grid>
