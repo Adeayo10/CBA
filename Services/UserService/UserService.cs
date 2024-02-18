@@ -574,8 +574,10 @@ public class UserService : IUserService
     }
     private async Task SendUserLoginCredentialsEmail(ApplicationUser user)
     {
-        var resetPasswordLink = $"http://localhost:5173/reset-password?userId={user.Id}";
-        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> To reset your password {resetPasswordLink} <br/> <br/> Thank you. ");
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var encodedToken = UrlEncoder.Default.Encode(token);
+        var resetPasswordLink = $"http://localhost:5173/reset-password?userId={user.Id}&token={encodedToken}";
+        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> To reset your password <a href=\"{resetPasswordLink}\" target=\"_blank\">Click Here</a> <br/> <br/> Thank you. ");
         await _emailService.SendEmail(message);
     }
     private async Task SendUserResetPasswordEmail(ApplicationUser user)
@@ -583,7 +585,7 @@ public class UserService : IUserService
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = UrlEncoder.Default.Encode(token);
         var callback = $"http://localhost:5173/reset-password?userId={user.Id}&token={encodedToken}";
-        var message = new Message(new string[] { user.Email! }, "Reset password token", $"Hello {user.UserName},<br/><br/> To reset your password {callback} <br/><br/>Thank you");
+        var message = new Message(new string[] { user.Email! }, "Reset password token", $"Hello {user.UserName},<br/><br/> To reset your password <a href=\"{callback}\" target=\"_blank\">Click Here</a> <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
     private async Task SendUserConfirmationEmail(ApplicationUser user)
