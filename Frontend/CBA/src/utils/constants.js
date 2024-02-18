@@ -13,7 +13,13 @@ export const DRAWER_WIDTH = 280;
 export const ROLES = {
   SUPER_ADMIN: "SuperAdmin",
   ADMIN: "Admin",
+  MANAGER: "Manager",
   USER: "User",
+};
+
+export const USER_STATUS = {
+  ACTIVE: "Active",
+  DEACTIVATED: "Deactivated",
 };
 
 export const USER_ALLLOWED_FIELDS = [
@@ -29,7 +35,12 @@ export const USER_ALLLOWED_FIELDS = [
   "two Factor Enabled",
 ];
 
-export const USER_BRANCH_ALLOWED_FIELDS = ["name", "region", "code", "description"];
+export const USER_BRANCH_ALLOWED_FIELDS = [
+  "name",
+  "region",
+  "code",
+  "description",
+];
 
 export const CREATE_USER_BASE = {
   id: "",
@@ -39,7 +50,7 @@ export const CREATE_USER_BASE = {
   fullName: "",
   address: "",
   phoneNumber: "",
-  status: "",
+  status: "Active",
   role: ROLES.USER,
 };
 
@@ -47,6 +58,6 @@ export const CREATE_USER_BRANCH_BASE = {
   userId: "",
   name: "",
   region: "",
-  code: "",
+  code: "default",
   description: "",
 };
