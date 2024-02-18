@@ -40,6 +40,7 @@ import {
 
 import { toast } from "react-toastify";
 
+import { forgotPassword } from "../api/auth";
 import { getUsers, deactivateUser, activateUser } from "../api/users";
 import { capitalize, extractUpdateFields } from "../utils/util";
 import { ErrorTwoTone } from "@mui/icons-material";
@@ -159,7 +160,7 @@ export default function Users() {
     setIsLoading(true);
     deactivateUser(userId)
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (data.errors || !data.success)
           throw new Error(data.message || data.errors);
 
@@ -168,7 +169,7 @@ export default function Users() {
         refreshUsersList();
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
@@ -190,7 +191,7 @@ export default function Users() {
     setIsLoading(true);
     activateUser(String(userId))
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (data.errors || !data.success)
           throw new Error(data.message || data.errors);
 
@@ -199,7 +200,7 @@ export default function Users() {
         refreshUsersList();
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
@@ -212,7 +213,7 @@ export default function Users() {
     setIsLoading(true);
     getUsers()
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
@@ -222,12 +223,46 @@ export default function Users() {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.log(error);
+        //console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
   };
+
+
+  const resetUserPassword = (event) =>{
+    event.preventDefault()
+
+    const userIndex = currentUserElement.name;
+    if(!userIndex){
+      toast.error("Unable to Get User", TOAST_CONFIG);
+      return;
+    }
+    const email = usersList[userIndex]?.email;
+
+    if(!email){
+      toast.error("Unable to Get User", TOAST_CONFIG);
+      return;
+    }
+
+    setIsLoading(true);
+
+    forgotPassword(email)
+      .then((data) => {
+        //console.log(data);
+        if (!data.success || data.errors)
+          throw new Error(data.message || data.errors);
+
+        setIsLoading(false);
+        toast.success(data.message, TOAST_CONFIG);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+      });
+      closeMenu();
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -312,7 +347,7 @@ export default function Users() {
                         <TableCell style={disabledText}>{role}</TableCell>
                         <TableCell style={disabledText}>{status}</TableCell>
                         <TableCell style={disabledText}>
-                          {userBranch.code}
+                          {userBranch.name}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
@@ -346,6 +381,7 @@ export default function Users() {
                 horizontal: "left",
               }}
             >
+              <MenuItem onClick={resetUserPassword}>Reset Password</MenuItem>
               <MenuItem onClick={showUpdateModal}>Uptate User</MenuItem>
               <MenuItem onClick={showUserInfo}>View User</MenuItem>
               {currentUserElement !== null &&
