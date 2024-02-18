@@ -19,3 +19,14 @@ export function generateRandomPassword() {
 export function generateUserId() {
   return crypto.randomUUID();
 }
+
+export function extractUpdateFields(dataObject, targetObject, excluded=[]){
+  const output = {};
+
+  for (const key of Object.keys(targetObject)) {
+    if (excluded.includes(key)) continue;
+    output[key] = dataObject[key];
+  }
+
+  return output
+}
