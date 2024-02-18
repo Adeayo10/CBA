@@ -10,7 +10,7 @@ WeatherForecastController.cs
 
 appsettings*
 .vs
-obj
+obj**
 .github
 CBA.csproj.user
 Services/customerService
