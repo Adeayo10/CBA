@@ -218,7 +218,7 @@ public class UserService : IUserService
             Message = "Reset password token sent successfully"
         };
     }
-    
+
     public async Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword)
     {
         var user = await _userManager.FindByEmailAsync(changePassword.Email!);
@@ -234,8 +234,23 @@ public class UserService : IUserService
                 }
             };
         }
-        var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword!, changePassword.NewPassword!);
-       
+
+        var currentDBPassword = _context.Users.FirstOrDefault(x => x.Email == changePassword.Email)?.PasswordHash;
+        var validPassword = _passwordService.IsValidPassword(changePassword.CurrentPassword!, currentDBPassword!);
+        if (!validPassword)
+        {
+            _logger.LogError($"Error occurred in ChangePassword method: Invalid password");
+            return new RegistrationResponse()
+            {
+                Success = false,
+                Errors = new List<string>()
+                {
+                    "Invalid password"
+                }
+            };
+        }
+        user.PasswordHash = _passwordService.HashPassword(changePassword.NewPassword!);
+        var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
             _logger.LogInformation($"User {user.UserName} changed password successfully");
@@ -262,7 +277,7 @@ public class UserService : IUserService
     {
         _logger.LogInformation($"ResetPassword DTO => id: {resetPassword.UserId}, token: {resetPassword.Token}, password: {resetPassword.Password}");
         var user = await _userManager.FindByIdAsync(resetPassword.UserId!);
-        _logger.LogInformation($"User => email: {user.Email}, the rest: {user.PasswordHash}");
+        _logger.LogInformation($"User => email: {user!.Email}, the rest: {user.PasswordHash}");
         if (user == null)
         {
             _logger.LogError($"Error occurred in ResetPassword method: User does not exist");
@@ -277,17 +292,14 @@ public class UserService : IUserService
         }
 
         var decodedToken = HttpUtility.UrlDecode(resetPassword.Token!);
-        var newPass = _passwordService.HashPassword(resetPassword.Password);
-        var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPass);
+        var newPassword = _passwordService.HashPassword(resetPassword.Password!);
+        var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
 
-        user.PasswordHash = newPass;
+        user.PasswordHash = newPassword;
 
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
 
-        //result = await _userManager.UpdateAsync(user);
-
-        // var result = await _userManager.ResetPasswordAsync(user, resetPassword.Token!, resetPassword.Password!);
         _logger.LogInformation($"Result: {result}");
         if (result.Succeeded)
         {

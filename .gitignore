@@ -23,4 +23,6 @@ ReadMe.md
 CBA.dll
 CBA.pdb
 *.ps1
+CBA.AssemblyInfo.cs
+CBA.AssemblyInfoInputs.cache
 ```

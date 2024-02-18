@@ -338,7 +338,7 @@ namespace CBA.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("ConfirmEmail")]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
@@ -382,26 +382,26 @@ namespace CBA.Controllers
         }
 
         [HttpGet]
-    [Route("get-roles")]
-    [AllowAnonymous]
-    public IActionResult GetRoles()
-    {
-        try
+        [Route("get-roles")]
+        [AllowAnonymous]
+        public IActionResult GetRoles()
         {
-            _logger.LogInformation("GetRoles method called");
-            var result = _userService.GetUserRoles();
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred in GetRoles method");
-            return StatusCode(500, new AuthResult
+            try
             {
-                Errors = new List<string>() { ex.Message },
-                Success = false
-            });
+                _logger.LogInformation("GetRoles method called");
+                var result = _userService.GetUserRoles();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in GetRoles method");
+                return StatusCode(500, new AuthResult
+                {
+                    Errors = new List<string>() { ex.Message },
+                    Success = false
+                });
+            }
         }
-    }    
-    
+
     }
 }

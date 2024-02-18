@@ -8,7 +8,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -35,10 +34,6 @@ builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
-    // options.Tokens.ChangeEmailTokenProvider = "changeemail";
-    // options.Tokens.ChangePhoneNumberTokenProvider = "changepn";
-    // options.Tokens.PasswordResetTokenProvider = "resetpassword";
-    // options.Tokens.AuthenticatorTokenProvider = "authenticator";
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<UserDataContext>()
@@ -49,10 +44,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
     options.TokenLifespan = TimeSpan.FromHours(3);
 });
 
-// password settings
-// builder.Services.Configure<IdentityOptions>(options =>
-// lockout settings
-// builder.Services.Configure<IdentityOptions>(options =>
 var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuer = true,
