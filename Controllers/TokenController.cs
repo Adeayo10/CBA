@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using CBA.Models.AuthModel;
 using CBA.Models.TokenModel;
-using FluentValidation;
 using Asp.Versioning;
-using Microsoft.AspNetCore.Authorization; // for TokenValidationParameters
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace CBA.Controllers;
 [ApiVersion("1.0")]
@@ -30,6 +30,7 @@ public class TokenController : ControllerBase
     
     [HttpPost]
     [Route("RefreshToken")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenRequest tokenRequest)
     {
         if (ModelState.IsValid)
@@ -80,15 +81,24 @@ public class TokenController : ControllerBase
     {
         _logger.LogInformation("RevokeToken method called");
         var userName = User.Identity?.Name;
-        var user = await _userManager.FindByNameAsync(userName??string.Empty);
+        var user = await _userManager.FindByNameAsync(userName ?? string.Empty);
         if (user == null)
         {
-            _logger.LogError($"Error occured in RevokeToken method: User does not exist");
-            return BadRequest();     
+            _logger.LogError($"Error occurred in RevokeToken method: User does not exist");
+            return BadRequest();
         }
-        _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
-        await _context.SaveChangesAsync();
+
+        var refreshToken = _context.RefreshToken.FirstOrDefault(u => u.UserId == user.Id);
+        if (refreshToken != null)
+        {
+            refreshToken.IsRevoked = true;
+            refreshToken.IsUsed = true;
+            _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
+            await _context.SaveChangesAsync();
+        }
+
         _logger.LogInformation($"Refresh token revoked for user: {userName}");
+        await _userManager.UpdateSecurityStampAsync(user);    
         await _userManager.UpdateAsync(user);
         _logger.LogInformation($"User updated");
         return NoContent();
