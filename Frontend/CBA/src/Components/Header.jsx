@@ -14,12 +14,14 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Avatar from "@mui/material/Avatar";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Person2Icon from '@mui/icons-material/Person2';
 
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { DRAWER_WIDTH, TOAST_CONFIG } from "../utils/constants";
-import { logoutUser, clearTokenData } from "../api/auth";
+import { clearTokenData } from "../utils/token";
+import { logoutUser } from "../api/auth";
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -72,17 +74,19 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
           pr: "24px", // keep right padding when drawer closed
         }}
       >
-        <Avatar
-          sx={{
-            m: 1,
-            bgcolor: "secondary.main",
-            marginRight: "0px",
-            marginLeft: "0px",
-            ...(sideBarOpen && { display: "none" }),
-          }}
-        >
-          <LockOutlinedIcon />
-        </Avatar>
+        <RouterLink to={"/dashboard/profile"}>
+          <Avatar
+            sx={{
+              m: 1,
+              bgcolor: "secondary.main",
+              marginRight: "0px",
+              marginLeft: "0px",
+              ...(sideBarOpen && { display: "none" }),
+            }}
+          >
+            <Person2Icon />
+          </Avatar>
+        </RouterLink>
         <IconButton
           edge="start"
           color="inherit"

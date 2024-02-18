@@ -12,6 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import Avatar from "@mui/material/Avatar";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Person2Icon from '@mui/icons-material/Person2';
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import SendIcon from "@mui/icons-material/Send";
@@ -24,9 +25,12 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import { DRAWER_WIDTH, ROLES } from "../utils/constants";
+import { retrieveUserFromToken } from "../utils/token";
+import { capitalize } from "../utils/util";
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -136,6 +140,7 @@ function ListElement({
 }
 
 export default function SideBar({ sideBarOpen, toggleSideBar }) {
+  const [loggedInUser, setLoggedInUser] = useState(retrieveUserFromToken());
   return (
     <Drawer variant="permanent" open={sideBarOpen}>
       <Toolbar
@@ -146,30 +151,36 @@ export default function SideBar({ sideBarOpen, toggleSideBar }) {
           px: [1],
         }}
       >
-        <Box sx={{
-              
+        <RouterLink to={"/dashboard/profile"} style={{flex: 1,}}>
+          <Box
+            sx={{
               display: "flex",
               marginRight: "0px",
               marginLeft: "0px",
               alignItems: "center",
-              flex: 1,
+              
               ...(!sideBarOpen && { display: "none" }),
-            }}>
-          <Avatar
-            sx={{
-              m: 1,
-              bgcolor: "secondary.main",
             }}
           >
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography variant="h5" gutterBottom sx={{
-              m: 1,
-              
-            }} >
-                    User
-          </Typography>
-        </Box>
+            <Avatar
+              sx={{
+                m: 1,
+                bgcolor: "secondary.main",
+              }}
+            >
+              <Person2Icon />
+            </Avatar>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                m: 1,
+              }}
+            >
+              {capitalize(loggedInUser?.username)}
+            </Typography>
+          </Box>
+        </RouterLink>
         <IconButton onClick={toggleSideBar}>
           <ChevronLeftIcon />
         </IconButton>
