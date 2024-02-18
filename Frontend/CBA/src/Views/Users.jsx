@@ -29,15 +29,21 @@ import {
 import Title from "../Components/Title";
 import UserCreateModal from "../Components/UserCreateModal";
 import UserDetailsModal from "../Components/UserDetailsModal";
+import UserUpdateModal from "../Components/UserUpdateModal";
 
-import { TOAST_CONFIG } from "../utils/constants";
+import {
+  TOAST_CONFIG,
+  USER_STATUS,
+  CREATE_USER_BASE,
+  CREATE_USER_BRANCH_BASE,
+} from "../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { getUsers } from "../api/users";
-import { capitalize } from "../utils/util";
+import { getUsers, deactivateUser, activateUser } from "../api/users";
+import { capitalize, extractUpdateFields } from "../utils/util";
 import { ErrorTwoTone } from "@mui/icons-material";
-import { redirectIfRefreshTokenExpired } from "../api/auth";
+import { redirectIfRefreshTokenExpired } from "../utils/token";
 
 export default function Users() {
   const [usersList, setUsersList] = useState([]);
@@ -48,13 +54,18 @@ export default function Users() {
     userBranch: {},
   });
 
+  const [currentUpdateUser, setCurrentUpdateUser] = useState({
+    user: {},
+    userBranch: {},
+  });
+
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const menuOpen = Boolean(currentUserElement);
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUsers()
@@ -71,7 +82,7 @@ export default function Users() {
       .catch((error) => {
         toast.error(error.message, TOAST_CONFIG);
         setIsLoading(false);
-        redirectIfRefreshTokenExpired(error.message, navigate)
+        redirectIfRefreshTokenExpired(error.message, navigate);
       });
 
     return () => {
@@ -88,33 +99,116 @@ export default function Users() {
   };
 
   const showUserInfo = (event) => {
+    event.preventDefault()
     const userIndex = currentUserElement.name;
     const user = usersList[userIndex];
     const userBranch = userBranchList.filter(
       (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
     )[0];
     setCurrentUserDetails({ user, userBranch });
-    toggleUserModal();
+    toggleDetailsModal();
     closeMenu();
   };
 
-  const toggleUserModal = () => {
-    setDetailsModalOpen(!detailsModalOpen);
-  };
-
-  const toggleDisableUser = (event) => {
+  const showUpdateModal = (event) => {
+    event.preventDefault()
     const userIndex = currentUserElement.name;
-    let usersListCopy = [...usersList];
-    usersListCopy[userIndex].disabled = !usersListCopy[userIndex].disabled;
-    setUsersList([...usersListCopy]);
+    if(!userIndex){
+      toast.error("Unable to Get User", TOAST_CONFIG);
+      return;
+    }
+    const user = extractUpdateFields(usersList[userIndex], CREATE_USER_BASE, [
+      "password",
+    ]);
+    const userBranch = extractUpdateFields(
+      userBranchList.filter(
+        (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
+      )[0],
+      CREATE_USER_BRANCH_BASE
+    );
+
+    // console.log({user})
+    // console.log({userBranch})
+    setCurrentUpdateUser({ user, userBranch });
+    toggleUpdateModal();
     closeMenu();
+  };
+
+  const toggleDetailsModal = () => {
+    setDetailsModalOpen(!detailsModalOpen);
   };
 
   const toggleCreateModal = () => {
     setCreateModalOpen(!createModalOpen);
   };
 
-  const refreshUsers = () => {
+  const toggleUpdateModal = () => {
+    setUpdateModalOpen(!updateModalOpen);
+  };
+
+  const disableUser = (event) => {
+    const userIndex = currentUserElement.name;
+    const userId = usersList[userIndex]?.id;
+
+    if (!userId) {
+      toast.error("Invalid User Selected", TOAST_CONFIG);
+      return;
+    }
+
+    event.preventDefault();
+    setIsLoading(true);
+    deactivateUser(userId)
+      .then((data) => {
+        console.log(data);
+        if (data.errors || !data.success)
+          throw new Error(data.message || data.errors);
+
+        toast.success(data.message, TOAST_CONFIG);
+        setIsLoading(false);
+        refreshUsersList();
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+        redirectIfRefreshTokenExpired(error.message, navigate);
+      });
+
+    closeMenu();
+  };
+
+  const enableUser = (event) => {
+    const userIndex = currentUserElement.name;
+    const userId = usersList[userIndex]?.id;
+
+    if (!userId) {
+      toast.error("Invalid User Selected", TOAST_CONFIG);
+      return;
+    }
+
+    event.preventDefault();
+    setIsLoading(true);
+    activateUser(String(userId))
+      .then((data) => {
+        console.log(data);
+        if (data.errors || !data.success)
+          throw new Error(data.message || data.errors);
+
+        toast.success(data.message, TOAST_CONFIG);
+        setIsLoading(false);
+        refreshUsersList();
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+        redirectIfRefreshTokenExpired(error.message, navigate);
+      });
+
+    closeMenu();
+  };
+
+  const refreshUsersList = () => {
     setIsLoading(true);
     getUsers()
       .then((data) => {
@@ -122,7 +216,7 @@ export default function Users() {
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        toast.success("Successfull", TOAST_CONFIG);
+        // toast.success("Successfull", TOAST_CONFIG);
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
         setIsLoading(false);
@@ -131,7 +225,7 @@ export default function Users() {
         console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
-        redirectIfRefreshTokenExpired(error.message, navigate)
+        redirectIfRefreshTokenExpired(error.message, navigate);
       });
   };
 
@@ -146,7 +240,7 @@ export default function Users() {
                 variant="contained"
                 startIcon={<RefreshIcon />}
                 sx={{ ml: 1 }}
-                onClick={refreshUsers}
+                onClick={refreshUsersList}
               >
                 Refresh
               </Button>
@@ -168,6 +262,8 @@ export default function Users() {
                   <TableCell>Email</TableCell>
                   <TableCell>Phone</TableCell>
                   <TableCell>Permission</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Branch</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -181,7 +277,7 @@ export default function Users() {
                       email,
                       phoneNumber,
                       role,
-                      disabled,
+                      status,
                     },
                     index
                   ) => {
@@ -193,11 +289,17 @@ export default function Users() {
                     firstName = capitalize(firstName);
                     lastName = capitalize(lastName);
 
-                    const disabledText = disabled ? { color: "#575757" } : {};
-                    const disabledRow = disabled
-                      ? { backgroundColor: "#c9c9c9" }
-                      : {};
+                    const disabledText =
+                      status !== USER_STATUS.ACTIVE ? { color: "#575757" } : {};
+                    const disabledRow =
+                      status !== USER_STATUS.ACTIVE
+                        ? { backgroundColor: "#c9c9c9" }
+                        : {};
 
+                    const userBranch = userBranchList.filter(
+                      (branch) =>
+                        branch.userId.toLowerCase() === id.toLowerCase()
+                    )[0];
                     return (
                       <TableRow key={id} style={disabledRow}>
                         <TableCell style={disabledText}>{firstName}</TableCell>
@@ -208,12 +310,15 @@ export default function Users() {
                           {phoneNumber}
                         </TableCell>
                         <TableCell style={disabledText}>{role}</TableCell>
+                        <TableCell style={disabledText}>{status}</TableCell>
+                        <TableCell style={disabledText}>
+                          {userBranch.code}
+                        </TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="Show user actions"
                             onClick={openMenu}
                             name={index}
-                            edge="end"
                           >
                             <MoreVertIcon />
                           </IconButton>
@@ -241,25 +346,34 @@ export default function Users() {
                 horizontal: "left",
               }}
             >
+              <MenuItem onClick={showUpdateModal}>Uptate User</MenuItem>
               <MenuItem onClick={showUserInfo}>View User</MenuItem>
-              <MenuItem onClick={toggleDisableUser}>
-                {currentUserElement &&
-                usersList[currentUserElement.name].disabled
-                  ? "Enable"
-                  : "Disable"}{" "}
-                User
-              </MenuItem>
+              {currentUserElement !== null &&
+              currentUserElement.name !== undefined &&
+              usersList[currentUserElement.name].status ==
+                USER_STATUS.ACTIVE ? (
+                <MenuItem onClick={disableUser}>Disable User</MenuItem>
+              ) : (
+                <MenuItem onClick={enableUser}>Enable User</MenuItem>
+              )}
             </Menu>
             <UserDetailsModal
               modalOpen={detailsModalOpen}
-              toggleModal={toggleUserModal}
+              toggleModal={toggleDetailsModal}
               user={currentUserDetails.user}
               userBranch={currentUserDetails.userBranch}
             />
             <UserCreateModal
               toggleModal={toggleCreateModal}
               modalOpen={createModalOpen}
-              refreshUsers={refreshUsers}
+              refreshUsersList={refreshUsersList}
+            />
+            <UserUpdateModal
+              modalOpen={updateModalOpen}
+              toggleModal={toggleUpdateModal}
+              user={currentUpdateUser.user}
+              userBranch={currentUpdateUser.userBranch}
+              refreshUsersList={refreshUsersList}
             />
             <Backdrop
               sx={{
