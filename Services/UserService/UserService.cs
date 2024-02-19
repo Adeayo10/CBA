@@ -419,7 +419,15 @@ public class UserService : IUserService
         }
 
         _logger.LogInformation($"User {userExist?.UserName} found");
-
+        if(userExist.Status == "Deactivated")
+        {
+            _logger.LogError($"Error occurred in Update method: User is deactivated");
+            return new RegistrationResponse
+            {
+                Errors = new List<string>() { "Deactivated user cannot be updated" },
+                Success = false
+            };
+        }
         var isUserUpdated = UpdatedUser(userExist!, user).Result;
 
         var bankBranchUpdateDetails = CreateUserBranchDetails(user.BankBranch!, userExist!);
