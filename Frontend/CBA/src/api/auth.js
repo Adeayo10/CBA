@@ -103,7 +103,7 @@ export async function refreshAccessToken() {
   if (errors) throw new Error(errors);
 
   saveTokenData(token, refreshToken, expiryDate);
-  console.log("Refreshed token");
+  //console.log("Refreshed token");
 }
 
 export function getAuthorizationHeader() {
