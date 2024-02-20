@@ -100,7 +100,7 @@ export default function Users() {
   };
 
   const showUserInfo = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     const userIndex = currentUserElement.name;
     const user = usersList[userIndex];
     const userBranch = userBranchList.filter(
@@ -112,9 +112,9 @@ export default function Users() {
   };
 
   const showUpdateModal = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     const userIndex = currentUserElement.name;
-    if(!userIndex){
+    if (!userIndex) {
       toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
@@ -230,18 +230,17 @@ export default function Users() {
       });
   };
 
-
-  const resetUserPassword = (event) =>{
-    event.preventDefault()
+  const resetUserPassword = (event) => {
+    event.preventDefault();
 
     const userIndex = currentUserElement.name;
-    if(!userIndex){
+    if (!userIndex) {
       toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
     const email = usersList[userIndex]?.email;
 
-    if(!email){
+    if (!email) {
       toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
@@ -261,8 +260,8 @@ export default function Users() {
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
       });
-      closeMenu();
-  }
+    closeMenu();
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -335,6 +334,7 @@ export default function Users() {
                       (branch) =>
                         branch.userId.toLowerCase() === id.toLowerCase()
                     )[0];
+
                     return (
                       <TableRow key={id} style={disabledRow}>
                         <TableCell style={disabledText}>{firstName}</TableCell>
@@ -381,17 +381,51 @@ export default function Users() {
                 horizontal: "left",
               }}
             >
-              <MenuItem onClick={resetUserPassword}>Reset Password</MenuItem>
-              <MenuItem onClick={showUpdateModal}>Uptate User</MenuItem>
-              <MenuItem onClick={showUserInfo}>View User</MenuItem>
               {currentUserElement !== null &&
-              currentUserElement.name !== undefined &&
-              usersList[currentUserElement.name].status ==
-                USER_STATUS.ACTIVE ? (
-                <MenuItem onClick={disableUser}>Disable User</MenuItem>
-              ) : (
-                <MenuItem onClick={enableUser}>Enable User</MenuItem>
-              )}
+              currentUserElement.name !== undefined
+                ? usersList[currentUserElement.name].status ==
+                  USER_STATUS.ACTIVE
+                  ? [
+                      <MenuItem
+                        onClick={showUserInfo}
+                        key={`${currentUserElement.name}_view_enabled`}
+                      >
+                        View User
+                      </MenuItem>,
+                      <MenuItem
+                        onClick={resetUserPassword}
+                        key={`${currentUserElement.name}_reset`}
+                      >
+                        Reset Password
+                      </MenuItem>,
+                      <MenuItem
+                        onClick={showUpdateModal}
+                        key={`${currentUserElement.name}_update`}
+                      >
+                        Uptate User
+                      </MenuItem>,
+                      <MenuItem
+                        onClick={disableUser}
+                        key={`${currentUserElement.name}_disable`}
+                      >
+                        Disable User
+                      </MenuItem>,
+                    ]
+                  : [
+                      <MenuItem
+                        onClick={showUserInfo}
+                        key={`${currentUserElement.name}_view_disabled`}
+                      >
+                        View User
+                      </MenuItem>,
+                      <MenuItem
+                        onClick={enableUser}
+                        key={`${currentUserElement.name}_enable`}
+                      >
+                        Enable User
+                      </MenuItem>,
+                    ]
+                : ""}
             </Menu>
             <UserDetailsModal
               modalOpen={detailsModalOpen}
