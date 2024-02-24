@@ -169,12 +169,12 @@ namespace CBA.Controllers
 
         [HttpGet]
         [Route("GetAllUsers")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> GetAll()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll(int pageNumber, int pageSize)
         {
             try
             {
-                var result = await _userService.GetAllUsers();
+                var result = await _userService.GetAllUsers(pageNumber, pageSize);
                 _logger.LogInformation("GetAll method called");
                 return Ok(new UserResponse
                 {

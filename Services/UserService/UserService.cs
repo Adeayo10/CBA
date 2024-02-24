@@ -55,13 +55,12 @@ public class UserService : IUserService
         _logger.LogInformation($"Hashed password: {hashPassword}");
 
         var newUser = CreateUserDetails(user, hashPassword);
-
-        var validUserDetails = await _validatorService.ValidateAsync(newUser);
-        _logger.LogInformation($"User details isValid: {validUserDetails.IsValid}");
-
-        if (!validUserDetails.IsValid)
+        
+        var validUserDetails = await ValidateUserDetails(newUser);
+        _logger.LogInformation($"User details isValid: {validUserDetails.Success}");
+        if (!validUserDetails.Success)
         {
-            var errorMessage = validUserDetails.Errors.FirstOrDefault()?.ErrorMessage;
+            var errorMessage = validUserDetails.Errors.FirstOrDefault();
             _logger.LogError($"Error occurred validating userDetails: {errorMessage}");
             return new RegistrationResponse()
             {
@@ -91,7 +90,6 @@ public class UserService : IUserService
 
         await CreateBranchUser(bankBranch, newUser);
         _logger.LogInformation($"BranchUser created successfully");
-
 
         //await SendUserConfirmationEmail(newUser);
 
@@ -382,6 +380,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
 
         _logger.LogInformation($"Result: {result}");
+        
         if (result.Succeeded)
         {
             _logger.LogInformation($"User {user.UserName} reset password successfully");
@@ -400,7 +399,7 @@ public class UserService : IUserService
                 Success = false,
                 Errors = new List<string>()
                 {
-                    $"Password not reset: {result}"
+                    $"Password not reset: {result.Errors.FirstOrDefault()?.Description}"
                 }
             };
         }
@@ -410,7 +409,7 @@ public class UserService : IUserService
         var userExist = await _userManager.FindByIdAsync(user.Id.ToString());
         if (userExist is null)
         {
-            _logger.LogError($"Error occurred in Update method: User does not exist");
+            _logger.LogError($"Error occurred in UpdateUser method: User does not exist");
             return new RegistrationResponse
             {
                 Errors = new List<string>() { "User was not found" },
@@ -419,16 +418,17 @@ public class UserService : IUserService
         }
 
         _logger.LogInformation($"User {userExist?.UserName} found");
-        if(userExist.Status == "Deactivated")
+        if (userExist.Status == "Deactivated")
         {
-            _logger.LogError($"Error occurred in Update method: User is deactivated");
+            _logger.LogError($"Error occurred in UpdateUser method: User is deactivated");
             return new RegistrationResponse
             {
                 Errors = new List<string>() { "Deactivated user cannot be updated" },
                 Success = false
             };
         }
-        var isUserUpdated = UpdatedUser(userExist!, user).Result;
+
+        var isUserUpdated = await UpdatedUser(userExist!, user);
 
         var bankBranchUpdateDetails = CreateUserBranchDetails(user.BankBranch!, userExist!);
         _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} found");
@@ -438,9 +438,6 @@ public class UserService : IUserService
 
         if (isUserUpdated.Succeeded)
         {
-            // await UpdateBranchUser(bankBranchUpdateDetails, userExist);
-            // await _context.SaveChangesAsync();
-
             _logger.LogInformation($"User {userExist?.UserName} updated successfully");
             return new RegistrationResponse()
             {
@@ -491,9 +488,11 @@ public class UserService : IUserService
             }
         };
     }
-    public async Task<UserResponse> GetAllUsers()
+    public async Task<UserResponse> GetAllUsers(int pageNumber, int pageSize)
     {
-        var users = await _userManager.Users.ToListAsync();
+        var users = await _userManager.Users.Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         var usersDT0 = users.Select(x => new ApplicationUser
         {
             Id = x.Id,
@@ -567,7 +566,8 @@ public class UserService : IUserService
     }
     private static string GenerateCode(string region, string branch)
     {
-        var code = $"{region.Substring(0, 1).ToUpper()}{branch.Substring(0, 1).ToUpper()}{new Random().Next(0, 9)}";
+        var random = new Random();
+        var code = $"{region[0].ToString().ToUpper()}{branch[0].ToString().ToUpper()}{random.Next(0, 9)}";
         return code;
     }
     private async Task CreateBranchUser(BankBranch bankBranch, ApplicationUser user)
@@ -604,6 +604,23 @@ public class UserService : IUserService
         var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> Please confirm your account by clicking this link: <a href='{confirmationLink}'>link</a> <br/> <br/> Thank you. ");
         await _emailService.SendEmail(message);
     }
+    private async Task<UserResponse> ValidateUserDetails(ApplicationUser user)
+    {
+        var validationResult = await _validatorService.ValidateAsync(user);
+        if (validationResult.IsValid)
+        {
+            return new UserResponse
+            {
+                Success = true
+            };
+        }
+        var errors = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
+        return new UserResponse
+        {
+            Success = false,
+            Errors = errors
+        };
+    }
     private async Task<IdentityResult> UpdatedUser(ApplicationUser userExist, UserUpdateDTO user)
     {
         userExist.Email = user.Email;
@@ -617,7 +634,6 @@ public class UserService : IUserService
         var result = await _userManager.UpdateAsync(userExist);
         return result;
     }
-
     private async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
     {
         var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);
