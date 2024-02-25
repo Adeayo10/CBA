@@ -7,6 +7,7 @@ namespace CBA.Models
         public string? AccountCategory { get; set; }
         public string? AccountDescription { get; set; }
         public string? AccountStatus { get; set; }
+        public decimal? Balance { get; set; }
 
     }
 }

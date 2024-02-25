@@ -11,15 +11,15 @@ namespace CBA.Controllers;
 public class LedgerController : ControllerBase
 {
     private readonly ILedgerService _ledgerService;
-    
+
     public LedgerController(ILedgerService ledgerService)
-   {
+    {
         _ledgerService = ledgerService;
-   }
-   
+    }
+
     [HttpPost]
     [Route("createGLAccount")]
-    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = "Bearer")]
 
     public async Task<IActionResult> Post(LedgerRequestDTO ledgerRequestDTO)
     {
@@ -34,7 +34,7 @@ public class LedgerController : ControllerBase
                 });
             }
             var response = await _ledgerService.AddGLAccount(ledgerRequestDTO);
-            if(response.Status == false)
+            if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
                 {
@@ -66,7 +66,7 @@ public class LedgerController : ControllerBase
 
     [HttpGet]
     [Route("getGLAccounts")]
-    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> GetAll()
     {
         try
@@ -97,10 +97,10 @@ public class LedgerController : ControllerBase
         }
     }
 
-        
+
     [HttpPut]
     [Route("updateGLAccount")]
-    [AllowAnonymous]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> Update(LedgerRequestDTO ledgerRequestDTO)
     {
         try
@@ -127,7 +127,7 @@ public class LedgerController : ControllerBase
                 Message = "Account updated successfully",
                 Status = true
             });
-           
+
         }
         catch (Exception ex)
         {
@@ -138,6 +138,169 @@ public class LedgerController : ControllerBase
             });
         }
     }
+    [HttpPost]
+    [Route("linkUserToGLAccount")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> LinkUserToGLAccount(UserLedgerDto userLedgerDto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Invalid request",
+                    Status = false
+                });
+            }
+            var response = await _ledgerService.LinkUserToGLAccount(userLedgerDto);
+            if (response.Status == false)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "User does not exist",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "User linked to account successfully",
+                Status = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
+
+    [HttpPost]
+    [Route("unLinkUserToGLAccount")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> UnLinkUserToGLAccount(UserLedgerDto userLedgerDto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Invalid request",
+                    Status = false
+                });
+            }
+            var response = await _ledgerService.UnLinkUserToGLAccount(userLedgerDto);
+            if (response.Status == false)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "User does not exist",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "User unlinked from account successfully",
+                Status = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
+
+    [HttpPost]
+    [Route("changeAccountStatus")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> ChangeAccountStatus(int id)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Invalid request",
+                    Status = false
+                });
+            }
+            var response = await _ledgerService.ChangeAccountStatus(id);
+            if (response.Status == false)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Account does not exist",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "Account status changed successfully",
+                Status = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
+
+    [HttpGet]
+    [Route("viewLedgerAccountBalance")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> ViewLedgerAccountBalance(string accountNumber)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Invalid request",
+                    Status = false
+                });
+            }
+            var response = await _ledgerService.ViewLedgerAccountBalance(accountNumber);
+            if (response.Status == false)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "Account does not exist",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "Account balance found",
+                Status = true,
+                Data = response.Data
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
+
 }
 
-    
+
+
+
