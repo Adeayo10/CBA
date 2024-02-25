@@ -15,7 +15,7 @@ namespace CBA.Services
         Task<RegistrationResponse> UpdateUser(UserUpdateDTO user);
 
         Task<UserResponse> GetUser(Guid userId);
-        Task<UserResponse> GetAllUsers();
+        Task<UserResponse> GetAllUsers(int pageNumber, int pageSize);
         object GetUserRoles();
         Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword);
         Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO user);
