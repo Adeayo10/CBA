@@ -78,8 +78,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
-//builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>();
-//builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IPostingService, PostingService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
