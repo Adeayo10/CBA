@@ -176,11 +176,11 @@ public class CustomerService : ICustomerService
             Customer = customerEntity
         };
     }
-    public async Task<IEnumerable<CustomerEntity>> GetCustomers()
-    {
+    public async Task<IEnumerable<CustomerEntity>> GetCustomers(int pageNumber, int pageSize, string filterValue)
+    {   
         _logger.LogInformation("Getting customers");
-        var customers = await _context.CustomerEntity.ToListAsync();
-        var filteredcustomersCurrentAndSavings = customers.Where(x => x.AccountType == CustomerAccountType.Current || x.AccountType == CustomerAccountType.Savings).ToList();
+        var customers = await _context.CustomerEntity.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var filteredcustomersCurrentAndSavings = customers.Where(x => x.AccountType == Enum.Parse<CustomerAccountType>(filterValue)).ToList();
         var filteredcustomers = filteredcustomersCurrentAndSavings.Select(x => new CustomerEntity
         {
             Id = x.Id,

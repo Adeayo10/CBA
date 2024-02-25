@@ -95,12 +95,12 @@ public class CustomerController : ControllerBase
     [HttpGet]
     [Route("GetAllCustomers")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize,[FromQuery] string filterValue)
     {
         try
         {
             _logger.LogInformation("Getting all customers");
-            var result = await _customerService.GetCustomers();
+            var result = await _customerService.GetCustomers(pageNumber, pageSize, filterValue);
             return Ok(result);
         }
         catch (Exception ex)
