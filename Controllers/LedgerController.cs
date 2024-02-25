@@ -97,6 +97,38 @@ public class LedgerController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("getGLAccountById")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        try
+        {
+            var response = await _ledgerService.GetGLAccountById(id);
+            if (response.Status == false)
+            {
+                return NotFound(new LedgerResponse()
+                {
+                    Message = "No account found",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "Account found",
+                Status = true,
+                Data = response.Data
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
 
     [HttpPut]
     [Route("updateGLAccount")]

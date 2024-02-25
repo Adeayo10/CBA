@@ -75,6 +75,32 @@ public class LedgerService : ILedgerService
             Data = mappedData
         };
     }
+    public async Task<LedgerResponse> GetGLAccountById(int id)
+    {
+        var glAccount = await _context.GLAccounts.FirstOrDefaultAsync(x => x.Id == id);
+        if (glAccount == null)
+        {
+            return new LedgerResponse()
+            {
+                Message = "Account does not exist",
+                Status = false
+            };
+        }
+        var mappedData = new LedgerData
+        {
+            AccountName = glAccount.AccountName,
+            AccountNumber = glAccount.AccountNumber,
+            AccountCategory = glAccount.AccountCategory,
+            AccountDescription = glAccount.AccountDescription,
+            AccountStatus = glAccount.AccountStatus
+        };
+        return new LedgerResponse()
+        {
+            Message = "Account found",
+            Status = true,
+            Data = mappedData
+        };
+    }
     public async Task<LedgerResponse> UpdateGLAccount(LedgerRequestDTO ledgerRequestDTO)
     {
         var glAccount = await _context.GLAccounts.FirstOrDefaultAsync(X => X.Id == ledgerRequestDTO.Id);
