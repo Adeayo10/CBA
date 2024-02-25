@@ -67,11 +67,11 @@ public class LedgerController : ControllerBase
     [HttpGet]
     [Route("getGLAccounts")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery]int pageNumber, [FromQuery]int pageSize/* [FromQuery]string filter*/)
     {
         try
         {
-            var response = await _ledgerService.GetGlAccount();
+            var response = await _ledgerService.GetGlAccount(pageNumber, pageSize/*, filter*/);
             if (response.Status == false)
             {
                 return NotFound(new LedgerResponse()

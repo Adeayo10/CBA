@@ -5,7 +5,7 @@ namespace CBA.Services;
 public interface ILedgerService
 {
 Task<LedgerResponse> AddGLAccount(LedgerRequestDTO ledgerRequestDTO);
-Task<LedgerResponse> GetGlAccount();
+Task<LedgerResponse> GetGlAccount(int pageNumber, int pageSize /*string filter*/);
 Task<LedgerResponse> UpdateGLAccount(LedgerRequestDTO ledgerRequestDTO);
 Task<decimal> GetMostRecentLedgerEnteryBalance();
 Task<CustomerResponse> LinkUserToGLAccount(UserLedgerDto userLedger);

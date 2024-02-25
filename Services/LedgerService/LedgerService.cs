@@ -48,10 +48,10 @@ public class LedgerService : ILedgerService
         };
         return Task.FromResult(glAccount);
     }
-    public async Task<LedgerResponse> GetGlAccount()
+    public async Task<LedgerResponse> GetGlAccount(int pageNumber, int pageSize /*string filterValue*/)
     {
-        var glAccount = await _context.GLAccounts.ToListAsync();
-        if (glAccount == null)
+        var glAccount = await _context.GLAccounts/*.Where(x => x.AccountName.Contains(filterValue) || x.AccountNumber.Contains(filterValue))*/.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        if (glAccount.Count == 0)
         {
             return new LedgerResponse()
             {
@@ -68,6 +68,15 @@ public class LedgerService : ILedgerService
             mappedData.AccountDescription = account.AccountDescription;
             mappedData.AccountStatus = account.AccountStatus;
         }
+        /*var mappedData = glAccount.Select(account => new LedgerData
+        {
+            AccountName = account.AccountName,
+            AccountNumber = account.AccountNumber,
+            AccountCategory = account.AccountCategory,
+            AccountDescription = account.AccountDescription,
+            AccountStatus = account.AccountStatus
+        });*/
+        
         return new LedgerResponse()
         {
             Message = "Account found",
