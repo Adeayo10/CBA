@@ -170,7 +170,7 @@ namespace CBA.Controllers
         [HttpGet]
         [Route("GetAllUsers")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetAll([FromQuery]int pageNumber, int pageSize)
         {
             try
             {
