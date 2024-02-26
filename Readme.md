@@ -4,7 +4,7 @@
 
 ## Description
 
-A brief description of your project goes here. Explain what the project does, its purpose, and any key features.
+Core-banking system is a back-end application that processes daily banking transactions. It is a simple banking system that allows customers to create an account, deposit, withdraw, and transfer money. It also allows the bank staff to view all accounts and view a specific account. The bank staff can also print a report of all transactions for a specific account.
 
 ## Table of Contents
 

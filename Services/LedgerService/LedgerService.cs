@@ -59,6 +59,26 @@ public class LedgerService : ILedgerService
                 Status = false
             };
         }
+        LedgerData mappedData = MapCollectionOfLedgerData(glAccount);
+        /*var mappedData = glAccount.Select(account => new LedgerData
+        {
+            AccountName = account.AccountName,
+            AccountNumber = account.AccountNumber,
+            AccountCategory = account.AccountCategory,
+            AccountDescription = account.AccountDescription,
+            AccountStatus = account.AccountStatus
+        });*/
+
+        return new LedgerResponse()
+        {
+            Message = "Account found",
+            Status = true,
+            Data = mappedData
+        };
+    }
+
+    private static LedgerData MapCollectionOfLedgerData(List<GLAccounts> glAccount)
+    {
         var mappedData = new LedgerData();
         foreach (var account in glAccount)
         {
@@ -68,25 +88,13 @@ public class LedgerService : ILedgerService
             mappedData.AccountDescription = account.AccountDescription;
             mappedData.AccountStatus = account.AccountStatus;
         }
-        /*var mappedData = glAccount.Select(account => new LedgerData
-        {
-            AccountName = account.AccountName,
-            AccountNumber = account.AccountNumber,
-            AccountCategory = account.AccountCategory,
-            AccountDescription = account.AccountDescription,
-            AccountStatus = account.AccountStatus
-        });*/
-        
-        return new LedgerResponse()
-        {
-            Message = "Account found",
-            Status = true,
-            Data = mappedData
-        };
+
+        return mappedData;
     }
+
     public async Task<LedgerResponse> GetGLAccountById(int id)
     {
-        var glAccount = await _context.GLAccounts.FirstOrDefaultAsync(x => x.Id == id);
+        var glAccount = await _context.GLAccounts.SingleOrDefaultAsync(x => x.Id == id);
         if (glAccount == null)
         {
             return new LedgerResponse()
@@ -95,14 +103,7 @@ public class LedgerService : ILedgerService
                 Status = false
             };
         }
-        var mappedData = new LedgerData
-        {
-            AccountName = glAccount.AccountName,
-            AccountNumber = glAccount.AccountNumber,
-            AccountCategory = glAccount.AccountCategory,
-            AccountDescription = glAccount.AccountDescription,
-            AccountStatus = glAccount.AccountStatus
-        };
+        LedgerData mappedData = MapLedgerData(glAccount);
         return new LedgerResponse()
         {
             Message = "Account found",
@@ -110,6 +111,19 @@ public class LedgerService : ILedgerService
             Data = mappedData
         };
     }
+
+    private static LedgerData MapLedgerData(GLAccounts? glAccount)
+    {
+        return new LedgerData
+        {
+            AccountName = glAccount.AccountName,
+            AccountNumber = glAccount.AccountNumber,
+            AccountCategory = glAccount.AccountCategory,
+            AccountDescription = glAccount.AccountDescription,
+            AccountStatus = glAccount.AccountStatus
+        };
+    }
+
     public async Task<LedgerResponse> UpdateGLAccount(LedgerRequestDTO ledgerRequestDTO)
     {
         var glAccount = await _context.GLAccounts.FirstOrDefaultAsync(X => X.Id == ledgerRequestDTO.Id);
@@ -156,10 +170,10 @@ public class LedgerService : ILedgerService
         var isGLAccountExist = await _context.GLAccounts.AnyAsync(x => x.AccountNumber == accountNumber || x.AccountName == accountName.ToLower());
         return isGLAccountExist;
     }
-    public Task<decimal> GetMostRecentLedgerEnteryBalance()
+    public async Task<decimal> GetMostRecentLedgerEnteryBalance(string accountNumber)
     {
-        var LedgerBalance = _context.GLAccounts.Where(x => x.AccountCategory == "Assets").OrderByDescending(x => x.TransactionDate).FirstOrDefault()!.Balance;
-        return Task.FromResult(LedgerBalance);
+        var LedgerBalance = await _context.GLAccounts.Where(x => x.AccountNumber == accountNumber).OrderByDescending(x => x.TransactionDate).Select(x => x.Balance).SingleAsync();
+        return LedgerBalance;
     }
     public async Task<LedgerResponse> ChangeAccountStatus(int id)
     {
@@ -302,6 +316,7 @@ public class LedgerService : ILedgerService
     /*public async Task<decimal> CalculateLedgerAccountBalance()
     {
         var glAccount = await _context.GLAccounts.ToListAsync();
+        glAccount.filter(x => x.AccountCategory == "Assets");
         decimal totalBalance = 0;
         foreach (var account in glAccount)
         {
