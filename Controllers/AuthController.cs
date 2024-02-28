@@ -150,8 +150,8 @@ namespace CBA.Controllers
                 var result = await _userService.GetUser(id);
                 return Ok(new UserResponse
                 {
-                    Success = true,
-                    Errors = null,
+                    Success = result.Success,
+                    Errors = result.Errors,
                     Users = result.Users,
                     UserBranch = result.UserBranch
                 });
@@ -288,8 +288,6 @@ namespace CBA.Controllers
                 });
             }
         }
-
-
 
         [HttpPost]
         [Route("reset-password")]
