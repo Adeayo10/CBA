@@ -71,7 +71,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            var response = await _ledgerService.GetGlAccount(pageNumber, pageSize/*, filter*/);
+            var response = await _ledgerService.GetGlAccounts(pageNumber, pageSize/*, filter*/);
             if (response.Status == false)
             {
                 return NotFound(new LedgerResponse()
@@ -213,7 +213,7 @@ public class LedgerController : ControllerBase
     [HttpPost]
     [Route("unLinkUserToGLAccount")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> UnLinkUserToGLAccount(UserLedgerDto userLedgerDto)
+    public async Task<IActionResult> UnLinkUserToGLAccount(UserLedgerid userLedgerid)
     {
         try
         {
@@ -225,7 +225,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.UnLinkUserToGLAccount(userLedgerDto);
+            var response = await _ledgerService.UnLinkUserToGLAccount(userLedgerid);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()

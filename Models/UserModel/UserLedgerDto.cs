@@ -4,3 +4,8 @@ public class UserLedgerDto
     public string? Userid { get; set; }
     public string? GLAccountid { get; set; }
 }
+
+public class UserLedgerid
+{
+    public Guid? Userid { get; set; }
+}
