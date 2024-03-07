@@ -4,7 +4,6 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace CBA.Services;
-
 public class CustomerService : ICustomerService
 {
     private readonly UserDataContext _context;
@@ -19,41 +18,81 @@ public class CustomerService : ICustomerService
     }
     public async Task<CustomerResponse> CreateCustomer(CustomerDTO customer)
     {
-        _logger.LogInformation("Creating customer");
-        var CustomerExists = _context.CustomerEntity.Where(x => x.PhoneNumber == customer.PhoneNumber || x.Email == customer.Email).FirstOrDefault();
-        if (CustomerExists != null)
+        async Task SaveCustomer(CustomerEntity customerEntity, CustomerBalance customerBalance)
         {
-            _logger
-            .LogInformation("Customer with this phonenumber or Email already exists");
-            return new CustomerResponse
-            {
-                Message = "Customer with this phonenumber or Email already exists",
-                Status = false,
-                Errors = new List<string> { "Customer already exists" }
-            };
+            await _context.CustomerEntity.AddAsync(customerEntity);
+            await _context.CustomerBalance.AddAsync(customerBalance);
         }
+
+        return await ProcessCustomer(customer, SaveCustomer);
+    }
+    private async Task<CustomerResponse> ProcessCustomer(CustomerDTO customer, Func<CustomerEntity, CustomerBalance, Task> saveCustomer)
+    {
+        var customerExists = await _context.CustomerEntity
+            .FirstOrDefaultAsync(x => x.PhoneNumber == customer.PhoneNumber || x.Email == customer.Email);
+
+        if (customerExists is not null)
+        {
+            return CreateCustomerExistsResponse();
+        }
+
+        var validationResult = ValidateCustomer(customer);
+        if (!validationResult.Status)
+        {
+            return validationResult;
+        }
+
+        var customerEntity = CreateCustomerEntity(customer);
+        var customerBalance = CreateCustomerBalanceEntity(customerEntity);
+
+        _logger.LogInformation("Creating customer");
+        _logger.LogInformation("Creating customer balance");
+
+        await saveCustomer(customerEntity, customerBalance);
+        await _context.SaveChangesAsync();
+
+        return CreateCustomerCreatedResponse();
+    }
+    private CustomerResponse ValidateCustomer(CustomerDTO customer)
+    {
         var validationResult = _CustomerValidator.Validate(CreateCustomerEntity(customer));
         if (!validationResult.IsValid)
         {
-            _logger.LogInformation("Customer validation failed");
-            return new CustomerResponse
-            {
-                Message = "Customer validation failed",
-                Status = false,
-                Errors = validationResult.Errors.Select(x => x.ErrorMessage).ToList()
-            };
+            var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
+            return CreateCustomerValidationFailedResponse(errorMessages);
         }
-        var customerEntity = CreateCustomerEntity(customer);
-        var customerBalance = CreateCustomerBalanceEntity(customerEntity);
-        _logger.LogInformation("Creating customer");
-        _logger.LogInformation("Creating customer balance");
-        await _context.CustomerEntity.AddAsync(customerEntity);
-        await _context.CustomerBalance.AddAsync(customerBalance);
-        await _context.SaveChangesAsync();
-        await _context.SaveChangesAsync();
-
+        
+        return new CustomerResponse
+        {
+            Message = "Customer validation successful",
+            Status = true
+        };
+    }
+    private CustomerResponse CreateCustomerValidationFailedResponse(List<string> errorMessages)
+    {
+        _logger.LogInformation("Customer validation failed");
+        return new CustomerResponse
+        {
+            Message = "Customer validation failed",
+            Status = false,
+            Errors = errorMessages
+        };
+    }
+    private CustomerResponse CreateCustomerExistsResponse()
+    {
+        _logger.LogInformation("Customer with this phonenumber or Email already exists");
+        return new CustomerResponse
+        {
+            Message = "Customer with this phonenumber or Email already exists",
+            Status = false,
+            Errors = new List<string> { "Customer already exists" }
+        };
+    }
+    private CustomerResponse CreateCustomerCreatedResponse()
+    {
         _logger.LogInformation("Customer created successfully");
         _logger.LogInformation("Customer balance created successfully");
+
         return new CustomerResponse
         {
             Message = "Customer created successfully",
@@ -62,13 +101,14 @@ public class CustomerService : ICustomerService
     }
     private static CustomerEntity CreateCustomerEntity(CustomerDTO customer)
     {
+        var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
         var customerEntity = new CustomerEntity
         {
             FullName = customer.FullName,
             Email = customer.Email,
             PhoneNumber = customer.PhoneNumber,
             Address = customer.Address,
-            AccountNumber = GenerateAccountNumber(customer.PhoneNumber!),
+            AccountNumber = accountNumber,
             Balance = 0,
             Gender = customer.Gender,
             Branch = customer.Branch,
@@ -96,56 +136,52 @@ public class CustomerService : ICustomerService
     {
         return PhoneNumber.Substring(1, 10);
     }
-    public async Task<CustomerResponse> UpdateCustomerDetails(CustomerDTO customer)
+    public async Task<CustomerResponse> UpdateCustomer(CustomerDTO customer)
     {
         var customerEntity = await _context.CustomerEntity.FindAsync(customer.Id);
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
-            return new CustomerResponse
-            {
-                Message = "Customer not found",
-                Status = false,
-                Errors = new List<string> { "Customer not found" }
-            };
+            return CreateCustomerNotFoundResponse();
         }
-        var validationResult = _CustomerValidator.Validate(CreateCustomerEntity(customer));
-        if (!validationResult.IsValid)
+        var validationResult = ValidateCustomer(customer);
+        if (!validationResult.Status)
         {
-            _logger.LogInformation("Customer validation failed");
-            return new CustomerResponse
-            {
-                Message = "Customer validation failed",
-                Status = false,
-                Errors = validationResult.Errors.Select(x => x.ErrorMessage).ToList()
-            };
+            return validationResult;
         }
-        _logger.LogInformation("Updating customer details");
+        UpdateCustomerEntity(customerEntity, customer);
+      
+        _logger.LogInformation("Customer details updated successfully");
+        
+        return CreateCustomerDetailsUpdatedResponse();
+    }
+    private static CustomerResponse CreateCustomerNotFoundResponse() => new()
+    {
+        Message = "Customer not found",
+        Status = false,
+        Errors = new List<string> { "Customer not found" }
+    };
+    private async void UpdateCustomerEntity(CustomerEntity customerEntity, CustomerDTO customer)
+    {
         customerEntity.FullName = customer.FullName;
         customerEntity.Email = customer.Email;
         customerEntity.PhoneNumber = customer.PhoneNumber;
         customerEntity.Address = customer.Address;
-        _context.CustomerEntity.Update(customerEntity);
         await _context.SaveChangesAsync();
-        _logger.LogInformation("Customer details updated successfully");
-        return new CustomerResponse
-        {
+        
+    }
+    private static CustomerResponse CreateCustomerDetailsUpdatedResponse() => new()
+    {
             Message = "Customer details updated successfully",
             Status = true
-        };
-    }
+    };
     public async Task<CustomerResponse> GetCustomerById(Guid id)
     {
         var customerEntity = await _context.CustomerEntity.FindAsync(id);
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
-            return new CustomerResponse
-            {
-                Message = "Customer not found",
-                Status = false,
-                Errors = new List<string> { "Customer not found" }
-            };
+            return CreateCustomerNotFoundResponse();
         }
         _logger.LogInformation("Customer found");
         return new CustomerResponse
@@ -157,16 +193,11 @@ public class CustomerService : ICustomerService
     }
     public async Task<CustomerResponse> ValidateCustomerByAccountNumber(string accountNumber)
     {
-        var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == accountNumber).FirstOrDefaultAsync();
+        var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == accountNumber).SingleAsync();
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
-            return new CustomerResponse
-            {
-                Message = "Customer not found",
-                Status = false,
-                Errors = new List<string> { "Customer not found" }
-            };
+            return CreateCustomerNotFoundResponse();
         }
         _logger.LogInformation("Customer found");
         return new CustomerResponse
@@ -177,37 +208,52 @@ public class CustomerService : ICustomerService
         };
     }
     public async Task<IEnumerable<CustomerEntity>> GetCustomers(int pageNumber, int pageSize, string filterValue)
-    {   
+    {
         _logger.LogInformation("Getting customers");
-        var customers = await _context.CustomerEntity.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-        var filteredcustomersCurrentAndSavings = customers.Where(x => x.AccountType == Enum.Parse<CustomerAccountType>(filterValue)).ToList();
-        var filteredcustomers = filteredcustomersCurrentAndSavings.Select(x => new CustomerEntity
-        {
-            Id = x.Id,
-            FullName = x.FullName,
-            Email = x.Email,
-            PhoneNumber = x.PhoneNumber,
-            Address = x.Address,
-            AccountNumber = x.AccountNumber,
-            Balance = x.Balance
-        }).ToList();
+
+        var customers = await _context.CustomerEntity
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var filteredCustomers = customers
+            .Where(x => x.AccountType == Enum.Parse<CustomerAccountType>(filterValue))
+            .Select(x => new CustomerEntity
+            {
+                Id = x.Id,
+                FullName = x.FullName,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                Address = x.Address,
+                AccountNumber = x.AccountNumber,
+                Balance = x.Balance
+            })
+            .ToList();
+
         _logger.LogInformation("Customers found");
-        return  filteredcustomers;
+        return filteredCustomers;
     }
     public async Task<CustomerResponse> GetCustomerAccountBalance(Guid id)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(id);
+        var getCustomer = await GetCustomerById(id);
+        var customerEntity = getCustomer.Customer;
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
+            return CreateCustomerNotFoundResponse();
+        }
+
+        var customerBalance = await _context.CustomerBalance.SingleAsync(x => x.AccountNumber == customerEntity.AccountNumber);
+        if (customerBalance is null)
+        {
+            _logger.LogInformation("Customer balance not found");
             return new CustomerResponse
             {
-                Message = "Customer not found",
-                Status = false,
-                Errors = new List<string> { "Customer not found" }
+                Message = "Customer balance not found",
+                Status = false
             };
         }
-        var customerBalance = await _context.CustomerBalance.Where(x => x.AccountNumber == customerEntity.AccountNumber).FirstOrDefaultAsync();
+
         var customerBalanceDTO = new CustomerBalanceDTO
         {
             AccountName = customerBalance.AccountName,
@@ -217,12 +263,13 @@ public class CustomerService : ICustomerService
             AvailableBalance = customerBalance.AvailableBalance,
             WithdrawableBalance = customerBalance.WithdrawableBalance
         };
+
         _logger.LogInformation("Customer balance found");
         return new CustomerResponse
         {
             Message = "Customer balance found",
             Status = true,
-            Data =  customerBalanceDTO
+            Data = customerBalanceDTO
         };
     }
     public async Task<CustomerResponse> ChangeAccountStatus(Guid id)
@@ -236,15 +283,17 @@ public class CustomerService : ICustomerService
                 Status = false
             };
         }
+
         customerEntity.Status = customerEntity.Status == "Active" ? "Inactive" : "Active";
         await _context.SaveChangesAsync();
+
         return new CustomerResponse()
         {
             Message = "Account status changed successfully",
             Status = true
         };
     }
-    public  object GetAccountTypes()
+    public object GetAccountTypes()
     {
         var accountTypes = Enum.GetValues(typeof(CustomerAccountType)).Cast<CustomerAccountType>().ToList();
         var mappedAccountTypes = accountTypes.Select(x => new
@@ -256,28 +305,25 @@ public class CustomerService : ICustomerService
     }
     public async Task<CustomerResponse> GetTransactions(TransactionDTO transaction)
     {
-        var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == transaction.AccountNumber).FirstOrDefaultAsync();
+        var customerEntity = await _context.CustomerEntity.SingleOrDefaultAsync(x => x.AccountNumber == transaction.AccountNumber);
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
-            return new CustomerResponse
-            {
-                Message = "Customer not found",
-                Status = false,
-                Errors = new List<string> { "Customer not found" }
-            };
+            return CreateCustomerNotFoundResponse();
         }
-        var transactions = await _context.Transaction.Where(x => x.CustomerId == customerEntity.Id).ToListAsync();
-        var filteredTransactions = transactions.Where(x => x.TransactionDate >= transaction.StartDate && x.TransactionDate <= transaction.EndDate).ToList();
+
+        var transactions = await _context.Transaction
+            .Where(x => x.CustomerId == customerEntity.Id && x.TransactionDate >= transaction.StartDate && x.TransactionDate <= transaction.EndDate)
+            .ToListAsync();
+
         _logger.LogInformation("Transactions found");
         return new CustomerResponse
         {
             Message = "Transactions found",
             Status = true,
-            Transaction = filteredTransactions
+            Transaction = transactions
         };
     }
-        
 
     //public async Task<CustomerResponse> UpdateCustomerBalance(Guid id, decimal amount)
     //     {

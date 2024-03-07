@@ -55,7 +55,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _customerService.UpdateCustomerDetails(customer);
+            var result = await _customerService.UpdateCustomer(customer);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status=result.Status, Errors = result.Errors });
