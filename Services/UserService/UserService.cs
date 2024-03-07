@@ -104,26 +104,25 @@ public class UserService : IUserService
     }
     public async Task<LoginResponse> LoginUser(UserLoginRequest user)
     {
+
         var userExist = await _userManager.FindByEmailAsync(user.Email);
-        //await _userManager.IsEmailConfirmedAsync(userExist);
+
         if (userExist == null)
         {
             _logger.LogError($"Error occurred in Login method: User does not exist");
             return new LoginResponse()
             {
                 Success = false,
-                Errors = new List<string>()
-                {
-                    "User does not exist"
-                },
+                Errors = new List<string>() { "User does not exist" },
                 Message = "User does not exist"
-
             };
         }
-        string passwordhash = userExist.PasswordHash;
-        var validPassword = _passwordService.IsValidPassword(user.Password, passwordhash);
+
+        string passwordHash = userExist.PasswordHash;
+        bool validPassword = _passwordService.IsValidPassword(user.Password, passwordHash);
 
         _logger.LogInformation($"Password is valid: {validPassword}");
+
         if (validPassword)
         {
             var token = _tokenService.GenerateTokens(userExist);
@@ -144,15 +143,10 @@ public class UserService : IUserService
             return new LoginResponse
             {
                 Success = false,
-                Errors = new List<string>()
-                {
-                    "Invalid password"
-                },
+                Errors = new List<string>() { "Invalid password" },
                 Message = "Invalid password"
-
             };
         }
-
     }
     public async Task<RegistrationResponse> ConfirmEmail(string userId, string token)
     {
@@ -297,7 +291,6 @@ public class UserService : IUserService
             Message = "Reset password token sent successfully"
         };
     }
-
     public async Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword)
     {
         var user = await _userManager.FindByEmailAsync(changePassword.Email!);
