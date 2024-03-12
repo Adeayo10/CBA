@@ -39,14 +39,12 @@ namespace CBA.Controllers
                     });
                 }
                 var result = await _userService.LoginUser(user);
-                return Ok(new AuthResult
+                return Ok(new LoginResponse
                 {
                     Success = result.Success,
-                    Errors = null,
+                    Errors = result.Errors,
                     Message = result.Message,
-                    Token = result.Token,
-                    RefreshToken = result.RefreshToken,
-                    ExpiryDate = result.ExpiryDate
+                   
                 });
             }
             catch (Exception ex)
@@ -60,6 +58,43 @@ namespace CBA.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("verify-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyToken([FromBody] ApplicationUser user, string token)
+        {
+            try
+            {
+                _logger.LogInformation("VerifyEmail method called");
+                if (user is null)
+                {
+                    return BadRequest(new AuthResult
+                    {
+                        Errors = new List<string>() { "User object is null" },
+                        Success = false
+                    });
+                }
+                var result = await _userService.ConfirmUserToken(user,token);
+                return Ok(new AuthResult
+                {
+                    Success = result.Success,
+                    Errors = result.Errors,
+                    Message = result.Message,
+                    Token = result.Token,
+                    RefreshToken = result.RefreshToken,
+                    ExpiryDate = result.ExpiryDate
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in VerifyEmail method");
+                return StatusCode(500, new AuthResult
+                {
+                    Errors = new List<string>() { ex.Message },
+                    Success = false
+                });
+            }
+        }
 
 
         [HttpPost]

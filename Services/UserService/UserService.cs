@@ -126,18 +126,14 @@ public class UserService : IUserService
 
         if (validPassword)
         {
-            
-            var token = _tokenService.GenerateTokens(userExist);
-            _logger.LogInformation($"Token generated");
-
+            _logger.LogInformation($"User {userExist.UserName} logged in successfully");
+            await SendUserTokenEmail(userExist);
             return new LoginResponse
             {
                 Success = true,
-                Token = token.Result.Token,
-                RefreshToken = token.Result.RefreshToken,
-                Message = "Login successful!",
-                ExpiryDate = token.Result.ExpiryDate
+                Message = "Check your email for verification Token",
             };
+            
         }
         else
         {
@@ -175,6 +171,7 @@ public class UserService : IUserService
             };
         }
     }
+    
     public async Task<RegistrationResponse> ConfirmEmail(string userId, string token)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -618,11 +615,52 @@ public class UserService : IUserService
     }
     private async Task SendUserConfirmationEmail(ApplicationUser user)
     {
-        _logger.LogInformation("send confirmation email method called");
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirmationLink = $"http://localhost:5256/api/auth/confirmemail?userId={user.Id}&token={token}";
-        var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> Please confirm your account by clicking this link: <a href='{confirmationLink}'>link</a> <br/> <br/> Thank you. ");
+        var encodedToken = UrlEncoder.Default.Encode(token);
+        var callback = $"http://localhost:5173/confirm-email?userId={user.Id}&token={encodedToken}";
+        var message = new Message(new string[] { user.Email! }, "Confirm Email", $"Hello {user.UserName},<br/><br/> Please confirm your account by clicking <a href=\"{callback}\" target=\"_blank\">here</a> <br/><br/>Thank you");
         await _emailService.SendEmail(message);
+    }
+    private async Task SendUserTokenEmail(ApplicationUser user)
+    {
+        var token = GenerateSixDigitToken();
+        var tokenExpiry = DateTime.Now.AddMinutes(5);
+        var callback = $"http://localhost:5173/verify-token?userId={user.Id}&token={token}";
+        var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
+        await _emailService.SendEmail(message);
+    }
+    public async Task<AuthResult> ConfirmUserToken(ApplicationUser user, string token)
+    {
+        var result = await _userManager.VerifyUserTokenAsync(user, "Default", "TwoFactor", token);
+        if (result)
+        {
+            _logger.LogInformation($"User {user.UserName} verified token successfully");
+            var generateUserToken = _tokenService.GenerateTokens(user);
+            _logger.LogInformation($"Token generated");
+            return new AuthResult
+            {
+                Success = true,
+                Token = generateUserToken.Result.Token,
+                RefreshToken = generateUserToken.Result.RefreshToken,
+                ExpiryDate = generateUserToken.Result.ExpiryDate
+            };
+        }
+        else
+        {
+            _logger.LogError($"Error occurred in ConfirmUserToken method: Token not verified");
+            return new AuthResult
+            {
+                Success = false,
+                Errors = new List<string>() { "Token not verified" }
+            };
+        }
+    }
+
+    private static string GenerateSixDigitToken()
+    {
+        var random = new Random();
+        var token = random.Next(100000, 999999).ToString();
+        return token;
     }
     private async Task<UserResponse> ValidateUserDetails(ApplicationUser user)
     {

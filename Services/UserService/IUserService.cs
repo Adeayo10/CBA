@@ -21,6 +21,8 @@ namespace CBA.Services
         Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO user);
         Task<RegistrationResponse> ActivateUser(ActivateUserDTO user);
         Task<LogoutResponse> LogoutUser(string userName);
+        Task<AuthResult> ConfirmUserToken(ApplicationUser user, string token);
+
         
     }
 }
