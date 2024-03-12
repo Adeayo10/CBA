@@ -576,12 +576,12 @@ public class UserService : IUserService
             UserId = user.Id,
             Name = branch.Name,
             Region = branch.Region,
-            Code = GenerateCode(branch.Region, branch.Name),
+            Code = GenerateBankCode(branch.Region, branch.Name),
             Description = branch.Description
         };
         return bankBranch;
     }
-    private static string GenerateCode(string region, string branch)
+    private static string GenerateBankCode(string region, string branch)
     {
         var random = new Random();
         var code = $"{region[0].ToString().ToUpper()}{branch[0].ToString().ToUpper()}{random.Next(0, 9)}";
@@ -628,6 +628,10 @@ public class UserService : IUserService
         var callback = $"http://localhost:5173/verify-token?userId={user.Id}&token={token}";
         var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
         await _emailService.SendEmail(message);
+    }
+    public async Task ResendToken(ApplicationUser user)
+    {
+        await SendUserTokenEmail(user);
     }
     public async Task<AuthResult> ConfirmUserToken(ApplicationUser user, string token)
     {

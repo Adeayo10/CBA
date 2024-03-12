@@ -96,6 +96,40 @@ namespace CBA.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("resend-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResendToken([FromBody] ApplicationUser user)
+        {
+            try
+            {
+                _logger.LogInformation("ResendToken method called");
+                if (user is null)
+                {
+                    return BadRequest(new AuthResult
+                    {
+                        Errors = new List<string>() { "User object is null" },
+                        Success = false
+                    });
+                }
+                await _userService.ResendToken(user);
+                return Ok(new AuthResult
+                {
+                    Success = true,
+                    Errors = null,
+                    Message = "Token resent successfully!"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in ResendToken method");
+                return StatusCode(500, new AuthResult
+                {
+                    Errors = new List<string>() { ex.Message },
+                    Success = false
+                });
+            }
+        }
 
         [HttpPost]
         [Route("Logout")]
