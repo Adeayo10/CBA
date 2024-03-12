@@ -4,6 +4,7 @@ using CBA.Enums;
 using CBA.Models;
 using CBA.Models.AuthModel;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Encodings.Web;
@@ -125,6 +126,7 @@ public class UserService : IUserService
 
         if (validPassword)
         {
+            
             var token = _tokenService.GenerateTokens(userExist);
             _logger.LogInformation($"Token generated");
 
@@ -145,6 +147,31 @@ public class UserService : IUserService
                 Success = false,
                 Errors = new List<string>() { "Invalid password" },
                 Message = "Invalid password"
+            };
+        }
+    }
+    
+    public async Task<LogoutResponse> LogoutUser(string userName)
+    {
+        var result = await _tokenService.RevokeToken(userName);
+        if (result.Success)
+        {
+            _logger.LogInformation("User logged out successfully");
+            return new LogoutResponse()
+            {
+                Message = "User logged out successfully",
+                StatusCode = "200",
+                Success = true
+            };
+        }
+        else
+        {
+            _logger.LogError("Error occurred in LogoutUser method: User not logged out");
+            return new LogoutResponse()
+            {
+                Message = "User not logged out",
+                StatusCode = "400",
+                Success = false
             };
         }
     }

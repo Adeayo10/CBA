@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 
 
+
 namespace CBA.Services;
 public class TokenService : ITokenService
 {
@@ -162,6 +163,41 @@ public class TokenService : ITokenService
 
         return refreshToken;
 
+    }
+    public async Task<LogoutResponse>  RevokeToken(string userName)
+    {
+        _logger.LogInformation("RevokeToken method called");
+       
+        var user = await _userManager.FindByNameAsync(userName ?? string.Empty);
+        if (user == null)
+        {
+            _logger.LogError($"Error occurred in RevokeToken method: User does not exist");
+            return new LogoutResponse()
+            {
+                Message = "User does not exist",
+                StatusCode = "404",
+                Success = false
+            }; 
+        }
+        var refreshToken = _context.RefreshToken.FirstOrDefault(u => u.UserId == user.Id);
+        if (refreshToken != null)
+        {
+            refreshToken.IsRevoked = true;
+            refreshToken.IsUsed = true;
+            _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
+            await _context.SaveChangesAsync();
+        }
+
+        _logger.LogInformation($"Refresh token revoked for user: {userName}");
+        await _userManager.UpdateSecurityStampAsync(user);    
+        await _userManager.UpdateAsync(user);
+        _logger.LogInformation($"User updated");
+        return new LogoutResponse()
+        {
+            Message = "User logged out successfully",
+            StatusCode = "200",
+            Success = true
+        };
     }
     private static string RandomString(int length)
     {

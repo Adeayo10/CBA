@@ -20,7 +20,7 @@ export async function loginUser(loginDetails) {
 }
 
 export async function logoutUser() {
-  const API_URL = "/api/v1/Token/RevokeToken";
+  const API_URL = "/api/v1/Auth/Logout";
 
   if (tokenExpired()) await refreshAccessToken();
 

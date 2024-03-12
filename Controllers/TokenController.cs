@@ -77,30 +77,45 @@ public class TokenController : ControllerBase
     [HttpPost] 
     [Route("RevokeToken")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> RevokeToken()
+    public async Task<IActionResult> RevokeToken([FromBody] string UserName)
     {
-        _logger.LogInformation("RevokeToken method called");
-        var userName = User.Identity?.Name;
-        var user = await _userManager.FindByNameAsync(userName ?? string.Empty);
-        if (user == null)
+        if (ModelState.IsValid)
         {
-            _logger.LogError($"Error occurred in RevokeToken method: User does not exist");
-            return BadRequest();
+            _logger.LogInformation("RevokeToken method called");
+            var response = await  _tokenService.RevokeToken(UserName);
+            if(response.Success)
+            {
+                _logger.LogInformation($"Token revoked");
+                return Ok(new AuthResult
+                {
+                    Token = null,
+                    RefreshToken = null,
+                    Success = response.Success,
+                    Errors = null,
+                    ExpiryDate = null,
+                    Message = response.Message,
+                });
+            }
+            _logger.LogError($"Error occured in RevokeToken method: Token is invalid");
+            return BadRequest(new AuthResult
+            {
+                Token = null,
+                RefreshToken = null,
+                Success = response.Success,
+                Errors = null,
+                ExpiryDate = null,
+                Message = response.Message,
+            });
         }
-
-        var refreshToken = _context.RefreshToken.FirstOrDefault(u => u.UserId == user.Id);
-        if (refreshToken != null)
+        _logger.LogError($"Error occured in RevokeToken method: Model state is invalid");
+        return BadRequest(new AuthResult
         {
-            refreshToken.IsRevoked = true;
-            refreshToken.IsUsed = true;
-            _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
-            await _context.SaveChangesAsync();
-        }
-
-        _logger.LogInformation($"Refresh token revoked for user: {userName}");
-        await _userManager.UpdateSecurityStampAsync(user);    
-        await _userManager.UpdateAsync(user);
-        _logger.LogInformation($"User updated");
-        return NoContent();
+            Token = null,
+            RefreshToken = null,
+            Success = false,
+            Errors = new List<string> {"Invalid payload"},
+            ExpiryDate = null,
+            Message = "Invalid payload",
+        });
     }
 }

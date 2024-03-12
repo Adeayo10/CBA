@@ -20,6 +20,7 @@ namespace CBA.Services
         Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword);
         Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO user);
         Task<RegistrationResponse> ActivateUser(ActivateUserDTO user);
+        Task<LogoutResponse> LogoutUser(string userName);
         
     }
 }

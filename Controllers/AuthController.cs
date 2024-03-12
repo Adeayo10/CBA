@@ -60,6 +60,50 @@ namespace CBA.Controllers
             }
         }
 
+
+
+        [HttpPost]
+        [Route("Logout")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                _logger.LogInformation("Logout method called");
+                var userName = User.Identity?.Name;
+                var result = await _userService.LogoutUser(userName);
+
+                if (result.Success)
+                {
+                
+                    return NoContent();
+                }
+                else
+                {
+                    var response = new LogoutResponse
+                    {
+                        Message = result.Message,
+                        StatusCode = result.StatusCode,
+                        Success = result.Success
+                    };
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in Logout method");
+                var response = new LogoutResponse
+                {
+                    Message = ex.Message,
+                    StatusCode = "500",
+                    Success = false
+                };
+                return StatusCode(500, response);
+            }
+        }
+
+    
+
         [HttpPost]
         [Route("Register")]
         [Authorize(AuthenticationSchemes = "Bearer")]

@@ -8,4 +8,5 @@ public interface ITokenService
 {
     Task<AuthResult> GenerateTokens(ApplicationUser user);
     Task<AuthResult> VerifyToken(TokenRequest tokenRequest);
+    Task<LogoutResponse>  RevokeToken(string userName);
 }
