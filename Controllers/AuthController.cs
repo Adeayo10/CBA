@@ -39,12 +39,17 @@ namespace CBA.Controllers
                     });
                 }
                 var result = await _userService.LoginUser(user);
-                return Ok(new LoginResponse
-                {
+                if(result.Success){
+                    return Ok(new LoginResponse{
                     Success = result.Success,
                     Errors = result.Errors,
                     Message = result.Message,
-                   
+                    });
+                }
+                return BadRequest(new LoginResponse{
+                    Success = result.Success,
+                    Errors = result.Errors,
+                    Message = result.Message,
                 });
             }
             catch (Exception ex)
