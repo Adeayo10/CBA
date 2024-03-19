@@ -29,7 +29,7 @@ public class TokenService : ITokenService
         _userManager = userManager;
         _logger.LogInformation("TokenService constructor called");
     }
-    public async Task<AuthResult> GenerateTokens(ApplicationUser user)
+    public async Task<AuthResult> GenerateTokensAsync(ApplicationUser user)
     {
         _logger.LogInformation("GenerateToken method called");
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -47,7 +47,7 @@ public class TokenService : ITokenService
             ExpiryDate = token.ValidTo.ToLocalTime(),
         };
     }
-    public async Task<AuthResult> VerifyToken(TokenRequest tokenRequest)
+    public async Task<AuthResult> VerifyTokenAsync(TokenRequest tokenRequest)
     {
         var jwtTokenHandler = new JwtSecurityTokenHandler();
         try
@@ -118,7 +118,7 @@ public class TokenService : ITokenService
 
             var dbUser = await _userManager.FindByIdAsync(storedRefreshToken.UserId!);
 
-            var generatedToken = await GenerateTokens(dbUser!);
+            var generatedToken = await GenerateTokensAsync(dbUser!);
             return generatedToken;
         }
         catch (Exception ex)
@@ -164,7 +164,7 @@ public class TokenService : ITokenService
         return refreshToken;
 
     }
-    public async Task<LogoutResponse>  RevokeToken(string userName)
+    public async Task<LogoutResponse>  RevokeTokenAsync(string userName)
     {
         _logger.LogInformation("RevokeToken method called");
        

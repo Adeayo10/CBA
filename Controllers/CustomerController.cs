@@ -30,7 +30,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage))});
             }
-            var result = await _customerService.CreateCustomer(customer);
+            var result = await _customerService.CreateCustomerAsync(customer);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Errors = result.Errors });
@@ -55,7 +55,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _customerService.UpdateCustomer(customer);
+            var result = await _customerService.UpdateCustomerAsync(customer);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status=result.Status, Errors = result.Errors });
@@ -77,7 +77,7 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Getting customer");
-            var result = await _customerService.GetCustomerById(id);
+            var result = await _customerService.GetCustomerByIdAsync(id);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -100,7 +100,7 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Getting all customers");
-            var result = await _customerService.GetCustomers(pageNumber, pageSize, filterValue);
+            var result = await _customerService.GetCustomersAsync(pageNumber, pageSize, filterValue);
             return Ok(result);
         }
         catch (Exception ex)
@@ -123,7 +123,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _customerService.ValidateCustomerByAccountNumber(accountNumber);
+            var result = await _customerService.ValidateCustomerByAccountNumberAsync(accountNumber);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -145,7 +145,7 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Getting customer account balance");
-            var result = await _customerService.GetCustomerAccountBalance(id);
+            var result = await _customerService.GetCustomerAccountBalanceAsync(id);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -171,7 +171,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _customerService.ChangeAccountStatus(id);
+            var result = await _customerService.ChangeAccountStatusAsync(id);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -212,7 +212,7 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Getting customer transactions");
-            var result = await _customerService.GetTransactions(transaction);
+            var result = await _customerService.GetTransactionsAsync(transaction);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });

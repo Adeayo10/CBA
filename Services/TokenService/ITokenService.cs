@@ -6,7 +6,7 @@ using CBA.Models.TokenModel;
 namespace CBA.Services;
 public interface ITokenService
 {
-    Task<AuthResult> GenerateTokens(ApplicationUser user);
-    Task<AuthResult> VerifyToken(TokenRequest tokenRequest);
-    Task<LogoutResponse>  RevokeToken(string userName);
+    Task<AuthResult> GenerateTokensAsync(ApplicationUser user);
+    Task<AuthResult> VerifyTokenAsync(TokenRequest tokenRequest);
+    Task<LogoutResponse>  RevokeTokenAsync(string userName);
 }

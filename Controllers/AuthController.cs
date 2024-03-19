@@ -38,7 +38,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.LoginUser(user);
+                var result = await _userService.LoginUserAsync(user);
                 if(result.Success){
                     return Ok(new LoginResponse{
                     Success = result.Success,
@@ -79,7 +79,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.ConfirmUserToken(user,token);
+                var result = await _userService.ConfirmUserTokenAsync(user,token);
                 return Ok(new AuthResult
                 {
                     Success = result.Success,
@@ -117,7 +117,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                await _userService.ResendToken(user);
+                await _userService.ResendTokenAsync(user);
                 return Ok(new AuthResult
                 {
                     Success = true,
@@ -145,7 +145,7 @@ namespace CBA.Controllers
             {
                 _logger.LogInformation("Logout method called");
                 var userName = User.Identity?.Name;
-                var result = await _userService.LogoutUser(userName);
+                var result = await _userService.LogoutUserAsync(userName);
 
                 if (result.Success)
                 {
@@ -195,7 +195,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var results = await _userService.AddUser(user);
+                var results = await _userService.AddUserAsync(user);
                 if (!results.Success)
                 {
                     return BadRequest(new AuthResult
@@ -238,7 +238,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                await _userService.UpdateUser(user);
+                await _userService.UpdateUserAsync(user);
                 return Ok(new AuthResult
                 {
                     Success = true,
@@ -265,7 +265,7 @@ namespace CBA.Controllers
             try
             {
                 // remove ID from the parameter since it is already in the route  
-                var result = await _userService.GetUser(id);
+                var result = await _userService.GetUserAsync(id);
                 return Ok(new UserResponse
                 {
                     Success = result.Success,
@@ -292,7 +292,7 @@ namespace CBA.Controllers
         {
             try
             {
-                var result = await _userService.GetAllUsers(pageNumber, pageSize);
+                var result = await _userService.GetAllUsersAsync(pageNumber, pageSize);
                 _logger.LogInformation("GetAll method called");
                 return Ok(new UserResponse
                 {
@@ -329,7 +329,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.ForgetPassword(forgetPasswordDTO.Email!);
+                var result = await _userService.ForgetPasswordAsync(forgetPasswordDTO.Email!);
                 if (result.Success)
                 {
                     return Ok(new AuthResult
@@ -376,7 +376,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.ChangePassword(changePasswordDTO);
+                var result = await _userService.ChangePasswordAAsync(changePasswordDTO);
                 if (result.Success)
                 {
                     return Ok(new AuthResult
@@ -423,7 +423,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.ResetPassword(resetPasswordDTO);
+                var result = await _userService.ResetPasswordAsync(resetPasswordDTO);
                 if (result.Success)
                 {
                     return Ok(new AuthResult
@@ -466,7 +466,7 @@ namespace CBA.Controllers
                 {
                     return NotFound();
                 }
-                var result = await _userService.ConfirmEmail(userId, token);
+                var result = await _userService.ConfirmEmailAsync(userId, token);
                 if (result.Success)
                 {
                     return Ok(new AuthResult
@@ -536,7 +536,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.DeActivateUser(user);
+                var result = await _userService.DeActivateUserAsync(user);
                 return Ok(new AuthResult
                 {
                     Success = result.Success,
@@ -572,7 +572,7 @@ namespace CBA.Controllers
                         Success = false
                     });
                 }
-                var result = await _userService.ActivateUser(user);
+                var result = await _userService.ActivateUserAsync(user);
                 return Ok(new AuthResult
                 {
                     Success = result.Success,

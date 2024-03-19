@@ -2,14 +2,14 @@ using CBA.Models;
 namespace CBA.Services;
 public interface ICustomerService
 {
-    Task<CustomerResponse> CreateCustomer(CustomerDTO customer);
-    Task<CustomerResponse> GetCustomerById(Guid id);
-    Task <CustomerResponse> ValidateCustomerByAccountNumber(string accountNumber);
-    Task<IEnumerable<CustomerEntity>> GetCustomers(int pageNumber, int pageSize, string filterValue);
-    Task<CustomerResponse> UpdateCustomer(CustomerDTO customer);
-    Task<CustomerResponse> GetCustomerAccountBalance(Guid id);
-    Task<CustomerResponse> ChangeAccountStatus(Guid id);
+    Task<CustomerResponse> CreateCustomerAsync(CustomerDTO customer);
+    Task<CustomerResponse> GetCustomerByIdAsync(Guid id);
+    Task <CustomerResponse> ValidateCustomerByAccountNumberAsync(string accountNumber);
+    Task<IEnumerable<CustomerEntity>> GetCustomersAsync(int pageNumber, int pageSize, string filterValue);
+    Task<CustomerResponse> UpdateCustomerAsync(CustomerDTO customer);
+    Task<CustomerResponse> GetCustomerAccountBalanceAsync(Guid id);
+    Task<CustomerResponse> ChangeAccountStatusAsync(Guid id);
     object GetAccountTypes();
-    Task<CustomerResponse> GetTransactions(TransactionDTO transaction);
+    Task<CustomerResponse> GetTransactionsAsync(TransactionDTO transaction);
 
 }

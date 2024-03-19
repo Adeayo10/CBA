@@ -4,15 +4,15 @@ namespace CBA.Services;
 
 public interface ILedgerService
 {
-Task<LedgerResponse> AddGLAccount(LedgerRequestDTO ledgerRequestDTO);
-Task<LedgerResponse> GetGlAccounts(int pageNumber, int pageSize /*string filter*/);
-Task<LedgerResponse> UpdateGLAccount(LedgerRequestDTO ledgerRequestDTO);
-Task<decimal> GetMostRecentLedgerEnteryBalance(string accountNumber);
-Task<CustomerResponse> LinkUserToGLAccount(UserLedgerDto userLedger);
-Task<CustomerResponse> UnLinkUserToGLAccount(UserLedgerid userLedger);
-Task<LedgerResponse> ChangeAccountStatus(int id);
+Task<LedgerResponse> AddGLAccountAsync(LedgerRequestDTO ledgerRequestDTO);
+Task<LedgerResponse> GetGlAccountsAsync(int pageNumber, int pageSize /*string filter*/);
+Task<LedgerResponse> UpdateGLAccountAsync(LedgerRequestDTO ledgerRequestDTO);
+Task<decimal> GetMostRecentLedgerEnteryBalanceAsync(string accountNumber);
+Task<CustomerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger);
+Task<CustomerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedger);
+Task<LedgerResponse> ChangeAccountStatusAsync(int id);
 
-Task<LedgerResponse> ViewLedgerAccountBalance(string accountNumber);
-Task<LedgerResponse> GetGLAccountById(int id);
+Task<LedgerResponse> ViewLedgerAccountBalanceAsync(string accountNumber);
+Task<LedgerResponse> GetGLAccountByIdAsync(int id);
 
 }

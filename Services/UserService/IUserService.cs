@@ -7,21 +7,21 @@ namespace CBA.Services
 {
     public interface IUserService
     {
-        Task<RegistrationResponse> AddUser(UserProfileDTO user);
-        Task<LoginResponse> LoginUser(UserLoginRequest user);
-        Task<RegistrationResponse> ConfirmEmail(string userId, string token);
-        Task<RegistrationResponse> ForgetPassword(string email);
-        Task<RegistrationResponse> ResetPassword(ResetPasswordDTO resetPassword);
-        Task<RegistrationResponse> UpdateUser(UserUpdateDTO user);
+        Task<RegistrationResponse> AddUserAsync(UserProfileDTO user);
+        Task<LoginResponse> LoginUserAsync(UserLoginRequest user);
+        Task<RegistrationResponse> ConfirmEmailAsync(string userId, string token);
+        Task<RegistrationResponse> ForgetPasswordAsync(string email);
+        Task<RegistrationResponse> ResetPasswordAsync(ResetPasswordDTO resetPassword);
+        Task<RegistrationResponse> UpdateUserAsync(UserUpdateDTO user);
 
-        Task<UserResponse> GetUser(Guid userId);
-        Task<UserResponse> GetAllUsers(int pageNumber, int pageSize);
+        Task<UserResponse> GetUserAsync(Guid userId);
+        Task<UserResponse> GetAllUsersAsync(int pageNumber, int pageSize);
         object GetUserRoles();
-        Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword);
-        Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO user);
-        Task<RegistrationResponse> ActivateUser(ActivateUserDTO user);
-        Task<LogoutResponse> LogoutUser(string userName);
-        Task<AuthResult> ConfirmUserToken(ApplicationUser user, string token);
-        Task ResendToken(ApplicationUser user);
+        Task<RegistrationResponse> ChangePasswordAAsync(ChangePasswordDTO changePassword);
+        Task<RegistrationResponse> DeActivateUserAsync(DeActivateUserDTO user);
+        Task<RegistrationResponse> ActivateUserAsync(ActivateUserDTO user);
+        Task<LogoutResponse> LogoutUserAsync(string userName);
+        Task<AuthResult> ConfirmUserTokenAsync(ApplicationUser user, string token);
+        Task ResendTokenAsync(ApplicationUser user);
     }
 }

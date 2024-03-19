@@ -35,7 +35,7 @@ public class UserService : IUserService
         _emailService = emailService;
         _logger.LogInformation("UserService constructor called");
     }
-    public async Task<RegistrationResponse> AddUser(UserProfileDTO user)
+    public async Task<RegistrationResponse> AddUserAsync(UserProfileDTO user)
     {
         _logger.LogInformation("AddUser method called");
         var userExist = await _userManager.FindByEmailAsync(user.Email);
@@ -57,7 +57,7 @@ public class UserService : IUserService
 
         var newUser = CreateUserDetails(user, hashPassword);
         
-        var validUserDetails = await ValidateUserDetails(newUser);
+        var validUserDetails = await ValidateUserDetailsAsync(newUser);
         _logger.LogInformation($"User details isValid: {validUserDetails.Success}");
         if (!validUserDetails.Success)
         {
@@ -89,12 +89,12 @@ public class UserService : IUserService
         await _context.BankBranch.AddAsync(bankBranch);
         await _context.SaveChangesAsync();
 
-        await CreateBranchUser(bankBranch, newUser);
+        await CreateBranchUserAsync(bankBranch, newUser);
         _logger.LogInformation($"BranchUser created successfully");
 
         //await SendUserConfirmationEmail(newUser);
 
-        await SendUserLoginCredentialsEmail(newUser);
+        await SendUserLoginCredentialsEmailAsync(newUser);
         _logger.LogInformation($"Email sent successfully");
 
         return new RegistrationResponse()
@@ -103,7 +103,7 @@ public class UserService : IUserService
             Message = "User created successfully"
         };
     }
-    public async Task<LoginResponse> LoginUser(UserLoginRequest user)
+    public async Task<LoginResponse> LoginUserAsync(UserLoginRequest user)
     {
 
         var userExist = await _userManager.FindByEmailAsync(user.Email);
@@ -127,7 +127,7 @@ public class UserService : IUserService
         if (validPassword)
         {
             _logger.LogInformation($"User {userExist.UserName} logged in successfully");
-            await SendUserTokenEmail(userExist);
+            await SendUserTokenEmailAsync(userExist);
             return new LoginResponse
             {
                 Success = true,
@@ -147,9 +147,9 @@ public class UserService : IUserService
         }
     }
     
-    public async Task<LogoutResponse> LogoutUser(string userName)
+    public async Task<LogoutResponse> LogoutUserAsync(string userName)
     {
-        var result = await _tokenService.RevokeToken(userName);
+        var result = await _tokenService.RevokeTokenAsync(userName);
         if (result.Success)
         {
             _logger.LogInformation("User logged out successfully");
@@ -172,7 +172,7 @@ public class UserService : IUserService
         }
     }
     
-    public async Task<RegistrationResponse> ConfirmEmail(string userId, string token)
+    public async Task<RegistrationResponse> ConfirmEmailAsync(string userId, string token)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
@@ -210,7 +210,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> ActivateUser(ActivateUserDTO inactiveUser)
+    public async Task<RegistrationResponse> ActivateUserAsync(ActivateUserDTO inactiveUser)
     {
         var userId = inactiveUser.UserId;
         var user = await _userManager.FindByIdAsync(userId);
@@ -251,7 +251,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> DeActivateUser(DeActivateUserDTO activeUser)
+    public async Task<RegistrationResponse> DeActivateUserAsync(DeActivateUserDTO activeUser)
     {
         var userId = activeUser.UserId;
         var user = await _userManager.FindByIdAsync(userId);
@@ -291,7 +291,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> ForgetPassword(string email)
+    public async Task<RegistrationResponse> ForgetPasswordAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
@@ -307,7 +307,7 @@ public class UserService : IUserService
             };
         }
 
-        await SendUserResetPasswordEmail(user);
+        await SendUserResetPasswordEmailAsync(user);
         _logger.LogInformation($"Reset password token sent to {email}");
         return new RegistrationResponse()
         {
@@ -315,7 +315,7 @@ public class UserService : IUserService
             Message = "Reset password token sent successfully"
         };
     }
-    public async Task<RegistrationResponse> ChangePassword(ChangePasswordDTO changePassword)
+    public async Task<RegistrationResponse> ChangePasswordAAsync(ChangePasswordDTO changePassword)
     {
         var user = await _userManager.FindByEmailAsync(changePassword.Email!);
         if (user == null)
@@ -369,7 +369,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> ResetPassword(ResetPasswordDTO resetPassword)
+    public async Task<RegistrationResponse> ResetPasswordAsync(ResetPasswordDTO resetPassword)
     {
         _logger.LogInformation($"ResetPassword DTO => id: {resetPassword.UserId}, token: {resetPassword.Token}, password: {resetPassword.Password}");
         var user = await _userManager.FindByIdAsync(resetPassword.UserId!);
@@ -421,7 +421,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<RegistrationResponse> UpdateUser(UserUpdateDTO user)
+    public async Task<RegistrationResponse> UpdateUserAsync(UserUpdateDTO user)
     {
         var userExist = await _userManager.FindByIdAsync(user.Id.ToString());
         if (userExist is null)
@@ -445,12 +445,12 @@ public class UserService : IUserService
             };
         }
 
-        var isUserUpdated = await UpdatedUser(userExist!, user);
+        var isUserUpdated = await UpdatedUserAsync(userExist!, user);
 
         var bankBranchUpdateDetails = CreateUserBranchDetails(user.BankBranch!, userExist!);
         _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} found");
 
-        await UpdateBankBranch(bankBranchUpdateDetails, userExist!);
+        await UpdateBankBranchAsync(bankBranchUpdateDetails, userExist!);
         _logger.LogInformation($"BankBranch {bankBranchUpdateDetails.Name} updated successfully");
 
         if (isUserUpdated.Succeeded)
@@ -474,7 +474,7 @@ public class UserService : IUserService
             };
         }
     }
-    public async Task<UserResponse> GetUser(Guid userId)
+    public async Task<UserResponse> GetUserAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -505,7 +505,7 @@ public class UserService : IUserService
             }
         };
     }
-    public async Task<UserResponse> GetAllUsers(int pageNumber, int pageSize)
+    public async Task<UserResponse> GetAllUsersAsync(int pageNumber, int pageSize)
     {
         var users = await _userManager.Users.Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -587,7 +587,7 @@ public class UserService : IUserService
         var code = $"{region[0].ToString().ToUpper()}{branch[0].ToString().ToUpper()}{random.Next(0, 9)}";
         return code;
     }
-    private async Task CreateBranchUser(BankBranch bankBranch, ApplicationUser user)
+    private async Task CreateBranchUserAsync(BankBranch bankBranch, ApplicationUser user)
     {
         var branchUser = new BranchUser()
         {
@@ -597,7 +597,7 @@ public class UserService : IUserService
         await _context.BranchUser.AddAsync(branchUser);
         await _context.SaveChangesAsync();
     }
-    private async Task SendUserLoginCredentialsEmail(ApplicationUser user)
+    private async Task SendUserLoginCredentialsEmailAsync(ApplicationUser user)
     {
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = UrlEncoder.Default.Encode(token);
@@ -605,7 +605,7 @@ public class UserService : IUserService
         var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> To reset your password <a href=\"{resetPasswordLink}\" target=\"_blank\">Click Here</a> <br/> <br/> Thank you. ");
         await _emailService.SendEmail(message);
     }
-    private async Task SendUserResetPasswordEmail(ApplicationUser user)
+    private async Task SendUserResetPasswordEmailAsync(ApplicationUser user)
     {
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = UrlEncoder.Default.Encode(token);
@@ -613,7 +613,7 @@ public class UserService : IUserService
         var message = new Message(new string[] { user.Email! }, "Reset password token", $"Hello {user.UserName},<br/><br/> To reset your password <a href=\"{callback}\" target=\"_blank\">Click Here</a> <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
-    private async Task SendUserConfirmationEmail(ApplicationUser user)
+    private async Task SendUserConfirmationEmailAsync(ApplicationUser user)
     {
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = UrlEncoder.Default.Encode(token);
@@ -621,7 +621,7 @@ public class UserService : IUserService
         var message = new Message(new string[] { user.Email! }, "Confirm Email", $"Hello {user.UserName},<br/><br/> Please confirm your account by clicking <a href=\"{callback}\" target=\"_blank\">here</a> <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
-    private async Task SendUserTokenEmail(ApplicationUser user)
+    private async Task SendUserTokenEmailAsync(ApplicationUser user)
     {
         var token = GenerateSixDigitToken();
         var tokenExpiry = DateTime.Now.AddMinutes(5);
@@ -629,17 +629,17 @@ public class UserService : IUserService
         var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
-    public async Task ResendToken(ApplicationUser user)
+    public async Task ResendTokenAsync(ApplicationUser user)
     {
-        await SendUserTokenEmail(user);
+        await SendUserTokenEmailAsync(user);
     }
-    public async Task<AuthResult> ConfirmUserToken(ApplicationUser user, string token)
+    public async Task<AuthResult> ConfirmUserTokenAsync(ApplicationUser user, string token)
     {
         var result = await _userManager.VerifyUserTokenAsync(user, "Default", "TwoFactor", token);
         if (result)
         {
             _logger.LogInformation($"User {user.UserName} verified token successfully");
-            var generateUserToken = _tokenService.GenerateTokens(user);
+            var generateUserToken = _tokenService.GenerateTokensAsync(user);
             _logger.LogInformation($"Token generated");
             return new AuthResult
             {
@@ -666,7 +666,7 @@ public class UserService : IUserService
         var token = random.Next(100000, 999999).ToString();
         return token;
     }
-    private async Task<UserResponse> ValidateUserDetails(ApplicationUser user)
+    private async Task<UserResponse> ValidateUserDetailsAsync(ApplicationUser user)
     {
         var validationResult = await _validatorService.ValidateAsync(user);
         if (validationResult.IsValid)
@@ -683,7 +683,7 @@ public class UserService : IUserService
             Errors = errors
         };
     }
-    private async Task<IdentityResult> UpdatedUser(ApplicationUser userExist, UserUpdateDTO user)
+    private async Task<IdentityResult> UpdatedUserAsync(ApplicationUser userExist, UserUpdateDTO user)
     {
         userExist.Email = user.Email;
         userExist.UserName = user.UserName;
@@ -696,7 +696,7 @@ public class UserService : IUserService
         var result = await _userManager.UpdateAsync(userExist);
         return result;
     }
-    private async Task UpdateBankBranch(BankBranch UpdatedBankBranch, ApplicationUser userExist)
+    private async Task UpdateBankBranchAsync(BankBranch UpdatedBankBranch, ApplicationUser userExist)
     {
         var bankBranch = _context.BankBranch.FirstOrDefault(x => x.UserId == userExist.Id);
         bankBranch!.Name = UpdatedBankBranch.Name;

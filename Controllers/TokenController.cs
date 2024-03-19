@@ -36,7 +36,7 @@ public class TokenController : ControllerBase
         if (ModelState.IsValid)
         {
             _logger.LogInformation("RefreshToken method called");
-            var response = await  _tokenService.VerifyToken(tokenRequest);
+            var response = await  _tokenService.VerifyTokenAsync(tokenRequest);
             if (response == null)
             {
                 _logger.LogError($"Error occured in RefreshToken method: Token is invalid");
@@ -82,7 +82,7 @@ public class TokenController : ControllerBase
         if (ModelState.IsValid)
         {
             _logger.LogInformation("RevokeToken method called");
-            var response = await  _tokenService.RevokeToken(UserName);
+            var response = await  _tokenService.RevokeTokenAsync(UserName);
             if(response.Success)
             {
                 _logger.LogInformation($"Token revoked");

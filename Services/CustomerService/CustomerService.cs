@@ -16,7 +16,7 @@ public class CustomerService : ICustomerService
         _logger = logger;
         _logger.LogInformation("Customer Service has been created");
     }
-    public async Task<CustomerResponse> CreateCustomer(CustomerDTO customer)
+    public async Task<CustomerResponse> CreateCustomerAsync(CustomerDTO customer)
     {
         async Task SaveCustomer(CustomerEntity customerEntity, CustomerBalance customerBalance)
         {
@@ -24,9 +24,9 @@ public class CustomerService : ICustomerService
             await _context.CustomerBalance.AddAsync(customerBalance);
         }
 
-        return await ProcessCustomer(customer, SaveCustomer);
+        return await ProcessCustomerAsync(customer, SaveCustomer);
     }
-    private async Task<CustomerResponse> ProcessCustomer(CustomerDTO customer, Func<CustomerEntity, CustomerBalance, Task> saveCustomer)
+    private async Task<CustomerResponse> ProcessCustomerAsync(CustomerDTO customer, Func<CustomerEntity, CustomerBalance, Task> saveCustomer)
     {
         var customerExists = await _context.CustomerEntity
             .FirstOrDefaultAsync(x => x.PhoneNumber == customer.PhoneNumber || x.Email == customer.Email);
@@ -136,7 +136,7 @@ public class CustomerService : ICustomerService
     {
         return PhoneNumber.Substring(1, 10);
     }
-    public async Task<CustomerResponse> UpdateCustomer(CustomerDTO customer)
+    public async Task<CustomerResponse> UpdateCustomerAsync(CustomerDTO customer)
     {
         var customerEntity = await _context.CustomerEntity.FindAsync(customer.Id);
         if (customerEntity is null)
@@ -149,7 +149,7 @@ public class CustomerService : ICustomerService
         {
             return validationResult;
         }
-        UpdateCustomerEntity(customerEntity, customer);
+        UpdateCustomerEntityAsync(customerEntity, customer);
       
         _logger.LogInformation("Customer details updated successfully");
         
@@ -161,7 +161,7 @@ public class CustomerService : ICustomerService
         Status = false,
         Errors = new List<string> { "Customer not found" }
     };
-    private async void UpdateCustomerEntity(CustomerEntity customerEntity, CustomerDTO customer)
+    private async void UpdateCustomerEntityAsync(CustomerEntity customerEntity, CustomerDTO customer)
     {
         customerEntity.FullName = customer.FullName;
         customerEntity.Email = customer.Email;
@@ -175,7 +175,7 @@ public class CustomerService : ICustomerService
             Message = "Customer details updated successfully",
             Status = true
     };
-    public async Task<CustomerResponse> GetCustomerById(Guid id)
+    public async Task<CustomerResponse> GetCustomerByIdAsync(Guid id)
     {
         var customerEntity = await _context.CustomerEntity.FindAsync(id);
         if (customerEntity is null)
@@ -191,7 +191,7 @@ public class CustomerService : ICustomerService
             Customer = customerEntity
         };
     }
-    public async Task<CustomerResponse> ValidateCustomerByAccountNumber(string accountNumber)
+    public async Task<CustomerResponse> ValidateCustomerByAccountNumberAsync(string accountNumber)
     {
         var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == accountNumber).SingleAsync();
         if (customerEntity is null)
@@ -207,7 +207,7 @@ public class CustomerService : ICustomerService
             Customer = customerEntity
         };
     }
-    public async Task<IEnumerable<CustomerEntity>> GetCustomers(int pageNumber, int pageSize, string filterValue)
+    public async Task<IEnumerable<CustomerEntity>> GetCustomersAsync(int pageNumber, int pageSize, string filterValue)
     {
         _logger.LogInformation("Getting customers");
 
@@ -233,9 +233,9 @@ public class CustomerService : ICustomerService
         _logger.LogInformation("Customers found");
         return filteredCustomers;
     }
-    public async Task<CustomerResponse> GetCustomerAccountBalance(Guid id)
+    public async Task<CustomerResponse> GetCustomerAccountBalanceAsync(Guid id)
     {
-        var getCustomer = await GetCustomerById(id);
+        var getCustomer = await GetCustomerByIdAsync(id);
         var customerEntity = getCustomer.Customer;
         if (customerEntity is null)
         {
@@ -272,7 +272,7 @@ public class CustomerService : ICustomerService
             Data = customerBalanceDTO
         };
     }
-    public async Task<CustomerResponse> ChangeAccountStatus(Guid id)
+    public async Task<CustomerResponse> ChangeAccountStatusAsync(Guid id)
     {
         var customerEntity = await _context.CustomerEntity.FirstOrDefaultAsync(x => x.Id == id);
         if (customerEntity == null)
@@ -303,7 +303,7 @@ public class CustomerService : ICustomerService
         }).ToList();
         return mappedAccountTypes;
     }
-    public async Task<CustomerResponse> GetTransactions(TransactionDTO transaction)
+    public async Task<CustomerResponse> GetTransactionsAsync(TransactionDTO transaction)
     {
         var customerEntity = await _context.CustomerEntity.SingleOrDefaultAsync(x => x.AccountNumber == transaction.AccountNumber);
         if (customerEntity is null)

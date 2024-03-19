@@ -33,7 +33,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.AddGLAccount(ledgerRequestDTO);
+            var response = await _ledgerService.AddGLAccountAsync(ledgerRequestDTO);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
@@ -71,7 +71,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            var response = await _ledgerService.GetGlAccounts(pageNumber, pageSize/*, filter*/);
+            var response = await _ledgerService.GetGlAccountsAsync(pageNumber, pageSize/*, filter*/);
             if (response.Status == false)
             {
                 return NotFound(new LedgerResponse()
@@ -104,7 +104,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            var response = await _ledgerService.GetGLAccountById(id);
+            var response = await _ledgerService.GetGLAccountByIdAsync(id);
             if (response.Status == false)
             {
                 return NotFound(new LedgerResponse()
@@ -145,7 +145,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.UpdateGLAccount(ledgerRequestDTO);
+            var response = await _ledgerService.UpdateGLAccountAsync(ledgerRequestDTO);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
@@ -185,7 +185,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.LinkUserToGLAccount(userLedgerDto);
+            var response = await _ledgerService.LinkUserToGLAccountAsync(userLedgerDto);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
@@ -225,7 +225,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.UnLinkUserToGLAccount(userLedgerid);
+            var response = await _ledgerService.UnLinkUserToGLAccountAsync(userLedgerid);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
@@ -265,7 +265,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.ChangeAccountStatus(id);
+            var response = await _ledgerService.ChangeAccountStatusAsync(id);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()
@@ -305,7 +305,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            var response = await _ledgerService.ViewLedgerAccountBalance(accountNumber);
+            var response = await _ledgerService.ViewLedgerAccountBalanceAsync(accountNumber);
             if (response.Status == false)
             {
                 return BadRequest(new LedgerResponse()

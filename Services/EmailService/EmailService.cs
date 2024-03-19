@@ -50,8 +50,7 @@ public class EmailService : IEmailService
         }
         catch
         {
-            //log an error message or throw an exception, or both.
-            throw;
+            throw new Exception("Email sending failed");
         }
         finally
         {

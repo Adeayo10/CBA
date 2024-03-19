@@ -30,7 +30,7 @@ public class PostingController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _postingService.Deposit(customerDeposit);
+            var result = await _postingService.DepositAsync(customerDeposit);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -56,7 +56,7 @@ public class PostingController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _postingService.Withdraw(customerWithdraw);
+            var result = await _postingService.WithdrawAsync(customerWithdraw);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
@@ -82,7 +82,7 @@ public class PostingController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _postingService.Transfer(customerTransfer);
+            var result = await _postingService.TransferAsync(customerTransfer);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
