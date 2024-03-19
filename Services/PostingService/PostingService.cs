@@ -7,11 +7,13 @@ public class PostingService : IPostingService
     private readonly UserDataContext _context;
     private readonly ILogger<PostingService> _logger;
     private readonly ILedgerService _ledgerService;
-    public PostingService(UserDataContext context, ILogger<PostingService> logger, ILedgerService ledgerService)
+    private readonly IEmailService _emailService;
+    public PostingService(UserDataContext context, ILogger<PostingService> logger, ILedgerService ledgerService, IEmailService emailService)
     {
         _context = context;
         _logger = logger;
         _ledgerService = ledgerService;
+        _emailService = emailService;
     }
     public async Task<CustomerResponse> Deposit(PostingDTO customerDeposit)
     {
@@ -44,6 +46,8 @@ public class PostingService : IPostingService
         _logger.LogInformation("Depositing into customer account");
         await PerformDeposit(LedgerBalance, customerDeposit, customerEntity, LedgerEntity, customerBalance);
         _logger.LogInformation("Deposit successful");
+        await SendEmailReceipt(customerEntity);
+        _logger.LogInformation("Email sent");
         return new CustomerResponse
         {
             Message = "Deposit successful",
@@ -108,6 +112,41 @@ public class PostingService : IPostingService
         };
     }
 
+    private static string GenerateReceiptTableRo(CustomerEntity customer)
+    {
+        return $@"
+        <tr>
+            <td>{customer.AccountNumber}</td>
+            <td>{customer.FullName}</td>
+            <td>{customer.Balance}</td>
+            <td>{customer.Branch}</td>
+            <td>{DateTime.Now}</td>
+        </tr>";
+    }
+
+    private async Task SendEmailReceipt(CustomerEntity customerEntity)
+    {
+        var receiptTableRows = GenerateReceiptTableRo(customerEntity);
+        
+        var htmlReceiptTable = $@"
+        <table>
+            <thead>
+                <tr>
+                    <th>Account Number</th>
+                    <th>Full Name</th>
+                    <th>Balance</th>
+                    <th>Branch</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {receiptTableRows}
+            </tbody>
+        </table>";
+
+        var message = new Message(new string[] { customerEntity.Email }, "Transaction Receipt", htmlReceiptTable);
+        await _emailService.SendEmail(message);
+    }
     public async Task<CustomerResponse> Withdraw(PostingDTO customerWithdraw)
     {
         var customerEntity = await _context.CustomerEntity.FindAsync(customerWithdraw.CustomerAccountNumber);
@@ -139,6 +178,8 @@ public class PostingService : IPostingService
         _logger.LogInformation("Withdrawing from customer account");
         await PerformWithdraw(LedgerBalance, customerWithdraw, customerEntity, customerBalance, LedgerEntity);
         _logger.LogInformation("Withdrawal successful");
+        await SendEmailReceipt(customerEntity);
+        _logger.LogInformation("Email sent");
         return new CustomerResponse
         {
             Message = "Withdrawal successful",
