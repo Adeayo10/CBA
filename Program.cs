@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 var emailConfig = configure.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
 
-
+builder.Services.AddSession();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -142,6 +142,7 @@ app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
+app.UseSession();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

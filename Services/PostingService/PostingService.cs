@@ -6,7 +6,7 @@ public class PostingService : IPostingService
 {
     private readonly UserDataContext _context;
     private readonly ILogger<PostingService> _logger;
-    private readonly ILedgerService _ledgerService;
+    private readonly ILedgerService _ledgerService; 
     private readonly IEmailService _emailService;
     public PostingService(UserDataContext context, ILogger<PostingService> logger, ILedgerService ledgerService, IEmailService emailService)
     {
@@ -29,7 +29,7 @@ public class PostingService : IPostingService
             };
         }
 
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.AccountNumber);
+        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.AccountNumber!);
         var LedgerEntity = await _context.GLAccounts.FindAsync(customerDeposit.AccountNumber);
         var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
 
@@ -44,7 +44,7 @@ public class PostingService : IPostingService
             };
         }
         _logger.LogInformation("Depositing into customer account");
-        await PerformDepositAsync(LedgerBalance, customerDeposit, customerEntity, LedgerEntity, customerBalance);
+        await PerformDepositAsync(LedgerBalance, customerDeposit, customerEntity, LedgerEntity!, customerBalance!);
         _logger.LogInformation("Deposit successful");
         await SendEmailReceiptAsync(customerEntity);
         _logger.LogInformation("Email sent");
@@ -67,7 +67,7 @@ public class PostingService : IPostingService
         await DatabasePersistenceForDepositAsync(customerEntity, customerBalance, postingEntity, transaction);
     }
 
-    private async Task DatabasePersistenceForDepositAsync(CustomerEntity? customerEntity, CustomerBalance? customerBalance, PostingEntity postingEntity, Transaction transaction)
+    private async Task DatabasePersistenceForDepositAsync(CustomerEntity customerEntity, CustomerBalance customerBalance, PostingEntity postingEntity, Transaction transaction)
     {
         await _context.Transaction.AddAsync(transaction);
         await _context.PostingEntities.AddAsync(postingEntity);
@@ -77,7 +77,7 @@ public class PostingService : IPostingService
         _logger.LogInformation("Deposit successful");
     }
 
-    private static Transaction TransactionEntityForDeposit(PostingDTO customerDeposit, CustomerEntity? customerEntity, GLAccounts? LedgerEntity)
+    private static Transaction TransactionEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         return new Transaction
         {
@@ -89,7 +89,7 @@ public class PostingService : IPostingService
         };
     }
 
-    private static PostingEntity PostingEntityForDeposit(PostingDTO customerDeposit, CustomerEntity? customerEntity, GLAccounts? LedgerEntity)
+    private static PostingEntity PostingEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         return new PostingEntity
         {
@@ -161,10 +161,10 @@ public class PostingService : IPostingService
             };
         }
 
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.AccountNumber);
-        var LedgerEntity = await _context.GLAccounts.FindAsync(customerWithdraw.AccountNumber);
-        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
-
+        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.AccountNumber!);
+        var LedgerEntity = await _context.GLAccounts.FindAsync(customerWithdraw.AccountNumber) ?? throw new ArgumentException(nameof(customerWithdraw));
+        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber)??  throw new ArgumentNullException(nameof(customerEntity));
+            
         if (customerEntity.Balance < customerWithdraw.Amount)
         {
             _logger.LogInformation("Insufficient funds");
@@ -198,7 +198,7 @@ public class PostingService : IPostingService
         Transaction transaction = TransactionEntityForWithdraw(customerWithdraw, customerEntity, LedgerEntity);
         await DatabasePersistenceForWithdrawAsync(customerEntity, customerBalance, postingEntity, transaction);
     }
-    private async Task DatabasePersistenceForWithdrawAsync(CustomerEntity? customerEntity, CustomerBalance? customerBalance, PostingEntity postingEntity, Transaction transaction)
+    private async Task DatabasePersistenceForWithdrawAsync(CustomerEntity customerEntity, CustomerBalance customerBalance, PostingEntity postingEntity, Transaction transaction)
     {
         await _context.Transaction.AddAsync(transaction);
         await _context.PostingEntities.AddAsync(postingEntity);
@@ -207,7 +207,7 @@ public class PostingService : IPostingService
         await _context.SaveChangesAsync();
         _logger.LogInformation("Withdrawal successful");
     }
-    private static Transaction TransactionEntityForWithdraw(PostingDTO customerWithdraw, CustomerEntity? customerEntity, GLAccounts? LedgerEntity)
+    private static Transaction TransactionEntityForWithdraw(PostingDTO customerWithdraw, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         return new Transaction
         {
@@ -242,8 +242,8 @@ public class PostingService : IPostingService
     }
     public async Task<CustomerResponse> TransferAsync(CustomerTransferDTO customerTransfer)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(customerTransfer.SenderAccountNumber);
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerTransfer.SenderAccountNumber);
+        var customerEntity = await _context.CustomerEntity.FindAsync(customerTransfer.SenderAccountNumber)?? throw new ArgumentNullException(nameof(customerTransfer));
+        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerTransfer.SenderAccountNumber!);
         var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
 
         if (customerEntity is null)
@@ -285,13 +285,16 @@ public class PostingService : IPostingService
         recipient.Balance += customerTransfer.Amount;
         LedgerBalance += customerTransfer.Amount;
 
-        customerBalance.LedgerBalance += LedgerBalance;
-        customerBalance.AvailableBalance -= customerTransfer.Amount;
-        customerBalance.WithdrawableBalance -= customerTransfer.Amount;
+        if (customerBalance != null)
+        {
+            customerBalance.LedgerBalance += LedgerBalance;
+            customerBalance.AvailableBalance -= customerTransfer.Amount;
+            customerBalance.WithdrawableBalance -= customerTransfer.Amount;
+            _context.CustomerBalance.Update(customerBalance);
+        }
 
         _context.CustomerEntity.Update(customerEntity);
         _context.CustomerEntity.Update(recipient);
-        _context.CustomerBalance.Update(customerBalance);
         await _context.SaveChangesAsync();
         _logger.LogInformation("Transfer successful");
 

@@ -22,9 +22,11 @@ public class UserService : IUserService
     private readonly IEmailService _emailService;
     private readonly UserDataContext _context;
 
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
     public UserService(UserDataContext context, IPasswordService passwordService,
     ITokenService tokenService, UserManager<ApplicationUser> userManager, ILogger<UserService> logger,
-    IValidator<ApplicationUser> validationService, IEmailService emailService)
+    IValidator<ApplicationUser> validationService, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
     {
         _tokenService = tokenService;
         _passwordService = passwordService;
@@ -33,6 +35,7 @@ public class UserService : IUserService
         _logger = logger;
         _context = context;
         _emailService = emailService;
+        _httpContextAccessor = httpContextAccessor;
         _logger.LogInformation("UserService constructor called");
     }
     public async Task<RegistrationResponse> AddUserAsync(UserProfileDTO user)
@@ -624,10 +627,29 @@ public class UserService : IUserService
     private async Task SendUserTokenEmailAsync(ApplicationUser user)
     {
         var token = GenerateSixDigitToken();
+        await StoreUserTokenAsync(user, token);
         var tokenExpiry = DateTime.Now.AddMinutes(5);
         var callback = $"http://localhost:5173/verify-token?userId={user.Id}&token={token}";
         var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
         await _emailService.SendEmail(message);
+    }
+    private async Task StoreUserTokenAsync(ApplicationUser user, string token)
+    {
+        var session = _httpContextAccessor.HttpContext!.Session;
+        session.SetString("UserToken", token);
+        
+    }
+    private async Task<string> RetrieveUserTokenAsync(ApplicationUser user)
+    {
+        var session = _httpContextAccessor.HttpContext!.Session;
+        var token = session.GetString("UserToken");
+        return token;
+
+    }
+    private async Task removeUserToken(ApplicationUser user)
+    {
+        var session = _httpContextAccessor.HttpContext!.Session;
+        session.Remove("UserToken");
     }
     public async Task ResendTokenAsync(ApplicationUser user)
     {
@@ -635,12 +657,14 @@ public class UserService : IUserService
     }
     public async Task<AuthResult> ConfirmUserTokenAsync(ApplicationUser user, string token)
     {
-        var result = await _userManager.VerifyUserTokenAsync(user, "Default", "TwoFactor", token);
+        var userToken =  await RetrieveUserTokenAsync(user);
+        var result = token == userToken;
         if (result)
         {
             _logger.LogInformation($"User {user.UserName} verified token successfully");
             var generateUserToken = _tokenService.GenerateTokensAsync(user);
             _logger.LogInformation($"Token generated");
+            removeUserToken(user); 
             return new AuthResult
             {
                 Success = true,
