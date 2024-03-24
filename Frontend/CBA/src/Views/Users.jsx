@@ -18,6 +18,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import Pagination from "@mui/material/Pagination";
 
 import {
   Link as RouterLink,
@@ -33,7 +34,7 @@ import UserUpdateModal from "../Components/UserUpdateModal";
 
 import {
   TOAST_CONFIG,
-  USER_STATUS,
+  STATUS,
   CREATE_USER_BASE,
   CREATE_USER_BRANCH_BASE,
 } from "../utils/constants";
@@ -50,6 +51,7 @@ export default function Users() {
   const [usersList, setUsersList] = useState([]);
   const [userBranchList, setUserBranchList] = useState([]);
   const [currentUserElement, setCurrentUserElement] = useState(null);
+
   const [currentUserDetails, setCurrentUserDetails] = useState({
     user: {},
     userBranch: {},
@@ -65,15 +67,13 @@ export default function Users() {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [currentPage, setCurrentPage] = useState(1);
+
   const mappedUserBranch = useMemo(() => {
-    return usersList.map((user) => {
-      return {
-        [user.id]: userBranchList.filter(
-          (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
-        )[0],
-      };
-    });
-  }, [usersList, userBranchList]);
+    const map = {};
+    userBranchList.forEach((branch) => (map[branch.userId] = branch));
+    return map;
+  }, [userBranchList]);
 
   const menuOpen = Boolean(currentUserElement);
   const navigate = useNavigate();
@@ -111,16 +111,13 @@ export default function Users() {
     event.preventDefault();
     const userIndex = currentUserElement.name;
     const user = usersList[userIndex];
-    const userBranch = userBranchList.filter(
-      (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
-    )[0];
+    const userBranch = mappedUserBranch[user.id];
     setCurrentUserDetails({ user, userBranch });
     toggleDetailsModal();
     closeMenu();
   };
 
   const showUpdateModal = (event) => {
-    console.log(mappedUserBranch);
     event.preventDefault();
     const userIndex = currentUserElement.name;
     if (!userIndex) {
@@ -131,9 +128,7 @@ export default function Users() {
       "password",
     ]);
     const userBranch = extractUpdateFields(
-      userBranchList.filter(
-        (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
-      )[0],
+      mappedUserBranch[user.id],
       CREATE_USER_BRANCH_BASE
     );
 
@@ -218,7 +213,7 @@ export default function Users() {
 
   const refreshUsersList = () => {
     setIsLoading(true);
-    getUsers()
+    getUsers(currentPage)
       .then((data) => {
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
@@ -266,6 +261,26 @@ export default function Users() {
         toast.error(error.message, TOAST_CONFIG);
       });
     closeMenu();
+  };
+
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+    setIsLoading(true);
+    getUsers(page)
+      .then((data) => {
+        if (data.errors || !data.users)
+          throw new Error(data.message || data.errors);
+
+        toast.success("Successfull", TOAST_CONFIG);
+        setUsersList(data.users);
+        setUserBranchList(data.userBranch);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+        redirectIfRefreshTokenExpired(error.message, navigate);
+      });
   };
 
   return (
@@ -329,16 +344,15 @@ export default function Users() {
                     lastName = capitalize(lastName);
 
                     const disabledText =
-                      status !== USER_STATUS.ACTIVE ? { color: "#575757" } : {};
+                      status !== STATUS.ACTIVE ? { color: "#575757" } : {};
                     const disabledRow =
-                      status !== USER_STATUS.ACTIVE
+                      status !== STATUS.ACTIVE
                         ? { backgroundColor: "#c9c9c9" }
                         : {};
 
-                    const userBranch = userBranchList.filter(
-                      (branch) =>
-                        branch.userId.toLowerCase() === id.toLowerCase()
-                    )[0];
+                    const userBranch = mappedUserBranch[id];
+
+                    // console.log(mappedUserBranch)
 
                     return (
                       <TableRow key={id} style={disabledRow}>
@@ -388,8 +402,7 @@ export default function Users() {
             >
               {currentUserElement !== null &&
               currentUserElement.name !== undefined
-                ? usersList[currentUserElement.name].status ==
-                  USER_STATUS.ACTIVE
+                ? usersList[currentUserElement.name].status == STATUS.ACTIVE
                   ? [
                       <MenuItem
                         onClick={showUserInfo}
@@ -459,9 +472,13 @@ export default function Users() {
             >
               <CircularProgress color="inherit" />
             </Backdrop>
-            <Link color="primary" href="#" onClick={null} sx={{ mt: 3 }}>
-              See more users
-            </Link>
+            <Pagination
+              sx={{ mt: 3, ml: "auto" }}
+              count={10}
+              variant="outlined"
+              shape="rounded"
+              onChange={handlePageChange}
+            />
           </Paper>
         </Grid>
       </Grid>
