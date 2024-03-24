@@ -34,7 +34,7 @@ export default function Login() {
 
   if (tokenExists()) {
     //console.log("Here");
-    return <Navigate to={"/dashboard"} replace />;
+    return <Navigate to={"/authenticate"} replace />;
   }
 
   function handleSubmit(submitEvent) {

@@ -51,6 +51,10 @@ export async function forgotPassword(email) {
   return await response.json();
 }
 
+export async function authorizeCode(code){
+  
+}
+
 export async function resetPassword(requestBody) {
   const API_URL = "/api/v1/Auth/reset-password";
   const headers = {

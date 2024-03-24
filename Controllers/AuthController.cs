@@ -66,7 +66,7 @@ namespace CBA.Controllers
         [HttpPost]
         [Route("verify-token")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyToken([FromBody] ApplicationUser user, string token)
+        public async Task<IActionResult> VerifyToken([FromBody] LoginTokenDTO user, string token)
         {
             try
             {

@@ -136,7 +136,7 @@ public class UserService : IUserService
                 Success = true,
                 Message = "Check your email for verification Token",
             };
-            
+
         }
         else
         {
@@ -217,7 +217,7 @@ public class UserService : IUserService
     {
         var userId = inactiveUser.UserId;
         var user = await _userManager.FindByIdAsync(userId);
-        
+
         if (user == null)
         {
             _logger.LogError($"Error occurred in ActivateUser method: User does not exist");
@@ -400,7 +400,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
 
         _logger.LogInformation($"Result: {result}");
-        
+
         if (result.Succeeded)
         {
             _logger.LogInformation($"User {user.UserName} reset password successfully");
@@ -655,16 +655,19 @@ public class UserService : IUserService
     {
         await SendUserTokenEmailAsync(user);
     }
-    public async Task<AuthResult> ConfirmUserTokenAsync(ApplicationUser user, string token)
+    public async Task<AuthResult> ConfirmUserToken(LoginTokenDTO tokenUser, string token)
     {
+        ApplicationUser user = await _userManager.FindByIdAsync(tokenUser.UserId.ToString());
+        _logger.LogInformation($"User {user.Email} gotten successfully");
         var userToken =  await RetrieveUserTokenAsync(user);
         var result = token == userToken;
+        _logger.LogInformation($"Token value = {token}");
         if (result)
         {
             _logger.LogInformation($"User {user.UserName} verified token successfully");
             var generateUserToken = _tokenService.GenerateTokensAsync(user);
             _logger.LogInformation($"Token generated");
-            removeUserToken(user); 
+            RemoveUserToken(user); 
             return new AuthResult
             {
                 Success = true,

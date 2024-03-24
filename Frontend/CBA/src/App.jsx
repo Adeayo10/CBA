@@ -17,6 +17,7 @@ import ForgotPassword from "./Pages/ForgotPassword";
 import { Typography } from "@mui/material";
 import ResetPassword from "./Pages/ResetPassword";
 import Profile from "./Views/Profile";
+import VerifyToken from "./Pages/VerifyToken";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to={"/login"} replace />} />
           <Route path="login" element={<Login />} />
+          <Route path="verify-token" element={<VerifyToken />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
           

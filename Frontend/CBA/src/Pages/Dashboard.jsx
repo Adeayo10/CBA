@@ -10,9 +10,9 @@ import { tokenExists } from "../utils/token";
 import Copyright from "../Components/Copyright";
 
 export default function Dashboard(props) {
-  if (!tokenExists()) {
-    return <Navigate to={"/login"} replace />;
-  }
+  // if (!tokenExists()) {
+  //   return <Navigate to={"/login"} replace />;
+  // }
 
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const toggleSideBar = () => {

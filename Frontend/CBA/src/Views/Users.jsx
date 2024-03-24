@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -65,17 +65,25 @@ export default function Users() {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const mappedUserBranch = useMemo(() => {
+    return usersList.map((user) => {
+      return {
+        [user.id]: userBranchList.filter(
+          (branch) => branch.userId.toLowerCase() === user.id.toLowerCase()
+        )[0],
+      };
+    });
+  }, [usersList, userBranchList]);
+
   const menuOpen = Boolean(currentUserElement);
   const navigate = useNavigate();
 
   useEffect(() => {
     getUsers()
       .then((data) => {
-        //console.log(data);
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        // toast.success(data.message, TOAST_CONFIG);
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
         setIsLoading(false);
@@ -112,6 +120,7 @@ export default function Users() {
   };
 
   const showUpdateModal = (event) => {
+    console.log(mappedUserBranch);
     event.preventDefault();
     const userIndex = currentUserElement.name;
     if (!userIndex) {
@@ -191,7 +200,6 @@ export default function Users() {
     setIsLoading(true);
     activateUser(String(userId))
       .then((data) => {
-        //console.log(data);
         if (data.errors || !data.success)
           throw new Error(data.message || data.errors);
 
@@ -200,7 +208,6 @@ export default function Users() {
         refreshUsersList();
       })
       .catch((error) => {
-        //console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
@@ -213,17 +220,15 @@ export default function Users() {
     setIsLoading(true);
     getUsers()
       .then((data) => {
-        //console.log(data);
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        // toast.success("Successfull", TOAST_CONFIG);
+        toast.success("Successfull", TOAST_CONFIG);
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
         setIsLoading(false);
       })
       .catch((error) => {
-        //console.log(error);
         setIsLoading(false);
         toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
