@@ -18,6 +18,12 @@ import { Typography } from "@mui/material";
 import ResetPassword from "./Pages/ResetPassword";
 import Profile from "./Views/Profile";
 import VerifyToken from "./Pages/VerifyToken";
+import AccountStatement from "./Views/AccountStatement";
+import CustomerAccount from "./Views/CustomerAccount";
+import CustomerInformation from "./Views/CustomerInformation";
+import GeneralLedger from "./Views/GeneralLedger";
+import { ROUTES, ACCOUNT_TYPES } from "./utils/constants";
+import Accounts from "./Views/Accounts";
 
 function App() {
   return (
@@ -26,13 +32,16 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to={"/login"} replace />} />
-          <Route path="login" element={<Login />} />
-          <Route path="verify-token" element={<VerifyToken />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route path="reset-password" element={<ResetPassword />} />
-          
-          <Route path="dashboard" element={<Dashboard />}>
+          <Route
+            path={ROUTES.BASE_PATH}
+            element={<Navigate to={ROUTES.LOGIN} replace />}
+          />
+          <Route path={ROUTES.LOGIN} element={<Login />} />
+          <Route path={ROUTES.VERIFY_TOKEN} element={<VerifyToken />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ResetPassword />} />
+
+          <Route path={ROUTES.DASHBOARD} element={<Dashboard />}>
             <Route
               path=""
               element={
@@ -41,9 +50,34 @@ function App() {
                 </Typography>
               }
             />
-            <Route path="users" element={<Users />} />
-            <Route path="user-roles" element={<UserRoles />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path={ROUTES.USERS} element={<Users />} />
+            <Route path={ROUTES.USER_ROLES} element={<UserRoles />} />
+            <Route path={ROUTES.PROFILE} element={<Profile />} />
+            <Route
+              path={ROUTES.ACCOUNT_STATEMENT}
+              element={<AccountStatement />}
+            />
+            <Route
+              path={ROUTES.CURRENT_ACCOUNTS}
+              element={<Accounts accountType={ACCOUNT_TYPES.CURRENT} />}
+            />
+            <Route
+              path={ROUTES.SAVINGS_ACCOUNTS}
+              element={<Accounts accountType={ACCOUNT_TYPES.SAVINGS} />}
+            />
+            <Route
+              path={ROUTES.CUSTOMER_ACCOUNTS}
+              element={<CustomerAccount />}
+            />
+            <Route
+              path={ROUTES.CUSTOMER_INFO}
+              element={<CustomerInformation />}
+            />
+            <Route path={ROUTES.GENERAL_LEDGER} element={<GeneralLedger />} />
+            {/* <Route
+              path={ROUTES.LOANS}
+              element={<Accounts accountType={ACCOUNT_TYPES.LOAN} />}
+            /> */}
           </Route>
         </Routes>
       </Router>
