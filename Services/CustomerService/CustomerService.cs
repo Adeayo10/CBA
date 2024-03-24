@@ -55,13 +55,18 @@ public class CustomerService : ICustomerService
     }
     private CustomerResponse ValidateCustomer(CustomerDTO customer)
     {
-        var validationResult = _CustomerValidator.Validate(CreateCustomerEntity(customer));
+        CustomerEntity customerEntity = CreateCustomerEntity(customer);
+
+        _logger.LogInformation($"Customer phone: {customerEntity.PhoneNumber}");
+        _logger.LogInformation($"Customer status: {customerEntity.Status}");
+
+        var validationResult = _CustomerValidator.Validate(customerEntity);
         if (!validationResult.IsValid)
         {
             var errorMessages = validationResult.Errors.Select(x => x.ErrorMessage).ToList();
             return CreateCustomerValidationFailedResponse(errorMessages);
         }
-        
+
         return new CustomerResponse
         {
             Message = "Customer validation successful",
@@ -101,6 +106,7 @@ public class CustomerService : ICustomerService
     }
     private static CustomerEntity CreateCustomerEntity(CustomerDTO customer)
     {
+
         var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
         var customerEntity = new CustomerEntity
         {
@@ -134,7 +140,7 @@ public class CustomerService : ICustomerService
     }
     private static string GenerateAccountNumber(string PhoneNumber)
     {
-        return PhoneNumber.Substring(1, 10);
+        return PhoneNumber[^10..];
     }
     public async Task<CustomerResponse> UpdateCustomerAsync(CustomerDTO customer)
     {
@@ -150,9 +156,9 @@ public class CustomerService : ICustomerService
             return validationResult;
         }
         UpdateCustomerEntityAsync(customerEntity, customer);
-      
+
         _logger.LogInformation("Customer details updated successfully");
-        
+
         return CreateCustomerDetailsUpdatedResponse();
     }
     private static CustomerResponse CreateCustomerNotFoundResponse() => new()
@@ -168,12 +174,12 @@ public class CustomerService : ICustomerService
         customerEntity.PhoneNumber = customer.PhoneNumber;
         customerEntity.Address = customer.Address;
         await _context.SaveChangesAsync();
-        
+
     }
     private static CustomerResponse CreateCustomerDetailsUpdatedResponse() => new()
     {
-            Message = "Customer details updated successfully",
-            Status = true
+        Message = "Customer details updated successfully",
+        Status = true
     };
     public async Task<CustomerResponse> GetCustomerByIdAsync(Guid id)
     {
@@ -217,7 +223,10 @@ public class CustomerService : ICustomerService
             .ToListAsync();
 
         var filteredCustomers = customers
-            .Where(x => x.AccountType == Enum.Parse<CustomerAccountType>(filterValue))
+            .Where(x => x.AccountType == Enum.GetValues(typeof(CustomerAccountType))
+                .Cast<CustomerAccountType>()
+                .FirstOrDefault(x => x.ToString().ToLower() == filterValue.ToLower())
+            )
             .Select(x => new CustomerEntity
             {
                 Id = x.Id,
