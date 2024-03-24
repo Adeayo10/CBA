@@ -16,11 +16,18 @@ export function generateRandomPassword() {
   );
 }
 
-export function generateUserId() {
+export function generateId() {
   return crypto.randomUUID();
 }
 
-export function extractUpdateFields(dataObject, targetObject, excluded=[]){
+export function generateAccountNumber(){
+  const min = 1
+  const max = 100000000000
+  const randNum = Math.floor(Math.random() * (max - min)) + min
+  return randNum.toString().padStart(10, "0")
+}
+
+export function extractUpdateFields(dataObject, targetObject, excluded = []) {
   const output = {};
 
   for (const key of Object.keys(targetObject)) {
@@ -28,5 +35,5 @@ export function extractUpdateFields(dataObject, targetObject, excluded=[]){
     output[key] = dataObject[key];
   }
 
-  return output
+  return output;
 }
