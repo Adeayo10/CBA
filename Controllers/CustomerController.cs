@@ -162,7 +162,7 @@ public class CustomerController : ControllerBase
     [HttpPost]
     [Route("ChangeCustomerAccountStatus")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> ChangeCustomerAccountStatus([FromBody] Guid id)
+    public async Task<IActionResult> ChangeCustomerAccountStatus([FromBody] CustomerRequestDTO request)
     {
         try
         {
@@ -171,7 +171,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
             }
-            var result = await _customerService.ChangeAccountStatusAsync(id);
+            var result = await _customerService.ChangeAccountStatusAsync(request.CustomerId);
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
