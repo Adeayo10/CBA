@@ -44,6 +44,7 @@ namespace CBA.Controllers
                     Success = result.Success,
                     Errors = result.Errors,
                     Message = result.Message,
+                    UserId = result.UserId
                     });
                 }
                 return BadRequest(new LoginResponse{

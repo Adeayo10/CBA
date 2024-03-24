@@ -59,7 +59,7 @@ public class UserService : IUserService
         _logger.LogInformation($"Hashed password: {hashPassword}");
 
         var newUser = CreateUserDetails(user, hashPassword);
-        
+
         var validUserDetails = await ValidateUserDetailsAsync(newUser);
         _logger.LogInformation($"User details isValid: {validUserDetails.Success}");
         if (!validUserDetails.Success)
@@ -123,18 +123,22 @@ public class UserService : IUserService
         }
 
         string passwordHash = userExist.PasswordHash;
+        string userExistId = userExist.Id;
         bool validPassword = _passwordService.IsValidPassword(user.Password, passwordHash);
 
         _logger.LogInformation($"Password is valid: {validPassword}");
 
         if (validPassword)
         {
-            _logger.LogInformation($"User {userExist.UserName} logged in successfully");
+
+            _logger.LogInformation($"User {userExistId} logged in successfully");
+
             await SendUserTokenEmailAsync(userExist);
             return new LoginResponse
             {
+                UserId = userExistId,
                 Success = true,
-                Message = "Check your email for verification Token",
+                Message = $"Check your email for verification Token"
             };
 
         }
@@ -149,7 +153,7 @@ public class UserService : IUserService
             };
         }
     }
-    
+
     public async Task<LogoutResponse> LogoutUserAsync(string userName)
     {
         var result = await _tokenService.RevokeTokenAsync(userName);
@@ -174,7 +178,7 @@ public class UserService : IUserService
             };
         }
     }
-    
+
     public async Task<RegistrationResponse> ConfirmEmailAsync(string userId, string token)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -637,7 +641,7 @@ public class UserService : IUserService
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         session.SetString("UserToken", token);
-        
+
     }
     private async Task<string> RetrieveUserTokenAsync(ApplicationUser user)
     {
@@ -646,7 +650,7 @@ public class UserService : IUserService
         return token;
 
     }
-    private async Task removeUserToken(ApplicationUser user)
+    private async Task RemoveUserToken(ApplicationUser user)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         session.Remove("UserToken");
@@ -655,11 +659,11 @@ public class UserService : IUserService
     {
         await SendUserTokenEmailAsync(user);
     }
-    public async Task<AuthResult> ConfirmUserToken(LoginTokenDTO tokenUser, string token)
+    public async Task<AuthResult> ConfirmUserTokenAsync(LoginTokenDTO tokenUser, string token)
     {
         ApplicationUser user = await _userManager.FindByIdAsync(tokenUser.UserId.ToString());
         _logger.LogInformation($"User {user.Email} gotten successfully");
-        var userToken =  await RetrieveUserTokenAsync(user);
+        var userToken = await RetrieveUserTokenAsync(user);
         var result = token == userToken;
         _logger.LogInformation($"Token value = {token}");
         if (result)
@@ -667,7 +671,7 @@ public class UserService : IUserService
             _logger.LogInformation($"User {user.UserName} verified token successfully");
             var generateUserToken = _tokenService.GenerateTokensAsync(user);
             _logger.LogInformation($"Token generated");
-            RemoveUserToken(user); 
+            await RemoveUserToken(user);
             return new AuthResult
             {
                 Success = true,

@@ -3,7 +3,8 @@ namespace CBA.Models.AuthModel
 {
     public class  LoginResponse: AuthResult
     {
-      
+        public string? UserId {get; set;}
+
     }
     public class LogoutResponse
     {
