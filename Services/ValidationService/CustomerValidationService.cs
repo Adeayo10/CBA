@@ -18,13 +18,13 @@ public partial class CustomerValidatorService : AbstractValidator<CustomerEntity
     }
     private static bool HasValidStatus(string? status)
     {
-        var regex = MyRegex1();
+        var regex = MyRegex2();
         return regex.IsMatch(status!);
     }
 
     private static bool HasValidPhoneNumber(string phoneNumber)
     {
-        var regex = MyRegex2();
+        var regex = MyRegex1();
         return regex.IsMatch(phoneNumber);
     }
     private static bool HasValidAccountType(string accountType)
