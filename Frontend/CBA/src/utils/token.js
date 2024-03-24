@@ -1,11 +1,24 @@
 import Cookies from "universal-cookie";
 import { jwtDecode } from "jwt-decode";
+import { ROUTES} from "./constants";
 
 const cookies = new Cookies();
 
 export function getCurrentRole() {
   //todo implement role fetching logic
   return "SuperAdmin";
+}
+
+export function saveUserId(userId){
+  cookies.set("userId", userId, {
+    path: "/",
+    secure: true,
+    sameSite: false,
+  });
+}
+
+export function retrieveUserId(){
+  return cookies.get("userId")
 }
 
 export function saveTokenData(accessToken, refreshToken, expiryDate) {
@@ -32,6 +45,7 @@ export function clearTokenData() {
   cookies.remove("accessToken", { path: "/" });
   cookies.remove("refreshToken", { path: "/" });
   cookies.remove("expiryDate", { path: "/" });
+  cookies.remove("userId", {path: "/"})
 }
 
 export function tokenExists() {
@@ -46,7 +60,7 @@ export function tokenExpired() {
 export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
   if (!errorMessage.toLowerCase().includes("expired")) return;
   clearTokenData();
-  navigate("/login");
+  navigate(ROUTES.LOGIN);
 }
 
 export function retrieveRefreshToken() {
