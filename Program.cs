@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 var emailConfig = configure.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
 
-builder.Services.AddSession();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -101,6 +101,8 @@ builder.Services.AddApiVersioning(options =>
     options.GroupNameFormat = "'v'V";
     options.SubstituteApiVersionInUrl = true;
 });
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new() { Title = "CBA", Version = "v1" });
