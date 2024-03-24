@@ -24,14 +24,14 @@ import {
 import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
 import { toast } from "react-toastify";
 import { createUser } from "../api/users";
-import { generateUserId, generateRandomPassword } from "../utils/util";
+import { generateId, generateRandomPassword } from "../utils/util";
 
 export default function UserCreateModal({
   toggleModal,
   modalOpen,
   refreshUsersList,
 }) {
-  const userId = generateUserId();
+  const userId = generateId();
 
   const [userDetails, setUserDetails] = useState({
     ...CREATE_USER_BASE,
@@ -119,7 +119,7 @@ export default function UserCreateModal({
   };
 
   const resetModal = () => {
-    const newId = generateUserId();
+    const newId = generateId();
     const newPassword = generateRandomPassword();
     setUserDetails({ ...CREATE_USER_BASE, id: newId, password: newPassword });
     setUserBranchDetails({ ...CREATE_USER_BRANCH_BASE, userId: newId });
