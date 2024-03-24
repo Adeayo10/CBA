@@ -3,6 +3,7 @@ import {
   retrieveAccessToken,
   tokenExpired,
   saveTokenData,
+  retrieveUserId,
 } from "../utils/token";
 
 export async function loginUser(loginDetails) {
@@ -51,8 +52,18 @@ export async function forgotPassword(email) {
   return await response.json();
 }
 
-export async function authorizeCode(code){
-  
+export async function verifyCode(code, userId = retrieveUserId()) {
+  const API_URL = `/api/v1/Auth/verify-token?token=${code}`;
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  //console.log(loginDetails);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({userId}),
+  });
+  return await response.json();
 }
 
 export async function resetPassword(requestBody) {
