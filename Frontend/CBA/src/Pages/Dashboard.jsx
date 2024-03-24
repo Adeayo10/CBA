@@ -8,11 +8,12 @@ import { Navigate } from "react-router-dom";
 import Header from "../Components/Header";
 import { tokenExists } from "../utils/token";
 import Copyright from "../Components/Copyright";
+import { ROUTES } from "../utils/constants";
 
 export default function Dashboard(props) {
-  // if (!tokenExists()) {
-  //   return <Navigate to={"/login"} replace />;
-  // }
+  if (!tokenExists()) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
 
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const toggleSideBar = () => {

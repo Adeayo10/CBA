@@ -19,7 +19,7 @@ import Person2Icon from '@mui/icons-material/Person2';
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { DRAWER_WIDTH, TOAST_CONFIG } from "../utils/constants";
+import { DRAWER_WIDTH, TOAST_CONFIG, ROUTES } from "../utils/constants";
 import { clearTokenData } from "../utils/token";
 import { logoutUser } from "../api/auth";
 
@@ -55,12 +55,12 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
         clearTokenData();
         setIsLoading(false);
         toast.success("Successfull", TOAST_CONFIG);
-        navigate("/login");
+        navigate(ROUTES.LOGIN);
       })
       .catch((error) => {
         setIsLoading(false);
         clearTokenData();
-        navigate("/login");
+        navigate(ROUTES.LOGIN);
         toast.error(error.message, TOAST_CONFIG);
       });
   };
@@ -74,7 +74,7 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
           pr: "24px", // keep right padding when drawer closed
         }}
       >
-        <RouterLink to={"/dashboard/profile"}>
+        <RouterLink to={ROUTES.PROFILE}>
           <Avatar
             sx={{
               m: 1,

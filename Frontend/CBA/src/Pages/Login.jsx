@@ -21,8 +21,8 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { loginUser } from "../api/auth";
-import { tokenExists, saveTokenData } from "../utils/token";
-import { TOAST_CONFIG } from "../utils/constants";
+import { tokenExists, saveUserId } from "../utils/token";
+import { ROUTES, TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
 export default function Login() {
@@ -34,7 +34,7 @@ export default function Login() {
 
   if (tokenExists()) {
     //console.log("Here");
-    return <Navigate to={"/authenticate"} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   function handleSubmit(submitEvent) {
@@ -45,10 +45,11 @@ export default function Login() {
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
-        saveTokenData(data.token, data.refreshToken, data.expiryDate);
+        // console.log(data);
+        saveUserId(data.userId);
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
-        navigate("/dashboard");
+        navigate(ROUTES.VERIFY_TOKEN);
       })
       .catch((error) => {
         setIsLoading(false);
@@ -133,7 +134,7 @@ export default function Login() {
           <Grid container>
             <Grid item xs>
               <Link
-                to={"/forgot-password"}
+                to={ROUTES.FORGOT_PASSWORD}
                 component={RouterLink}
                 variant="body2"
               >

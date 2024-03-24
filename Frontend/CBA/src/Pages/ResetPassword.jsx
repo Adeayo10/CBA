@@ -19,7 +19,7 @@ import PasswordIcon from '@mui/icons-material/Password';
 
 import { resetPassword } from "../api/auth";
 import { tokenExists } from "../utils/token";
-import { TOAST_CONFIG } from "../utils/constants";
+import { TOAST_CONFIG, ROUTES} from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
 export default function ResetPassword() {
@@ -38,7 +38,7 @@ export default function ResetPassword() {
 
   if (tokenExists()) {
     //console.log("Here");
-    return <Navigate to={"/dashboard"} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   function validateField(event) {
@@ -92,7 +92,7 @@ export default function ResetPassword() {
 
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
-        navigate("/login");
+        navigate(ROUTES.LOGIN);
       })
       .catch((error) => {
         setIsLoading(false);

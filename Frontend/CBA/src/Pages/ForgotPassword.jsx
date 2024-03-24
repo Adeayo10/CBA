@@ -18,7 +18,7 @@ import PasswordIcon from '@mui/icons-material/Password';
 
 import { forgotPassword } from "../api/auth";
 import { tokenExists } from "../utils/token";
-import { TOAST_CONFIG } from "../utils/constants";
+import { TOAST_CONFIG, ROUTES } from "../utils/constants";
 import { isValidEmail } from "../utils/validators";
 import Copyright from "../Components/Copyright";
 
@@ -31,7 +31,7 @@ export default function ForgotPassword() {
 
   if (tokenExists()) {
     //console.log("Here");
-    return <Navigate to={"/dashboard"} replace />;
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   const handleSubmit = (submitEvent) => {
@@ -50,7 +50,7 @@ export default function ForgotPassword() {
 
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
-        navigate("/login");
+        navigate(ROUTES.LOGIN);
       })
       .catch((error) => {
         setIsLoading(false);
