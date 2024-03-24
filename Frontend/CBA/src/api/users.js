@@ -2,8 +2,8 @@ import { refreshAccessToken, getAuthorizationHeader } from "./auth";
 
 import { tokenExpired } from "../utils/token";
 
-export async function getUsers(limit = 0) {
-  const API_URL = "/api/v1/Auth/GetAllUsers";
+export async function getUsers(pageNumber = 1, pageSize=10) {
+  const API_URL = `/api/v1/Auth/GetAllUsers?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
