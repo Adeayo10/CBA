@@ -5,7 +5,7 @@ public interface ICustomerService
     Task<CustomerResponse> CreateCustomerAsync(CustomerDTO customer);
     Task<CustomerResponse> GetCustomerByIdAsync(Guid id);
     Task <CustomerResponse> ValidateCustomerByAccountNumberAsync(string accountNumber);
-    Task<IEnumerable<CustomerEntity>> GetCustomersAsync(int pageNumber, int pageSize, string filterValue);
+    Task<dynamic> GetCustomersAsync(int pageNumber, int pageSize, string filterValue);
     Task<CustomerResponse> UpdateCustomerAsync(CustomerDTO customer);
     Task<CustomerResponse> GetCustomerAccountBalanceAsync(Guid id);
     Task<CustomerResponse> ChangeAccountStatusAsync(Guid id);

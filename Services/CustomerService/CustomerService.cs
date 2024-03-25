@@ -213,20 +213,25 @@ public class CustomerService : ICustomerService
             Customer = customerEntity
         };
     }
-    public async Task<IEnumerable<CustomerEntity>> GetCustomersAsync(int pageNumber, int pageSize, string filterValue)
+    public async Task<dynamic> GetCustomersAsync(int pageNumber, int pageSize, string filterValue)
     {
         _logger.LogInformation("Getting customers");
 
-        var customers = await _context.CustomerEntity
+        var totalCustomersTask = GetTotalCustomersAsync();
+        var customersPerAccountTypeTask = GetCustomersPerAccountTypeAsync();
+        var customersTask = _context.CustomerEntity
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
+        await Task.WhenAll(totalCustomersTask, customersPerAccountTypeTask, customersTask);
+
+        var totalCustomers = await totalCustomersTask;
+        var customersPerAccountType = await customersPerAccountTypeTask;
+        var customers = await customersTask;
+
         var filteredCustomers = customers
-            .Where(x => x.AccountType == Enum.GetValues(typeof(CustomerAccountType))
-                .Cast<CustomerAccountType>()
-                .FirstOrDefault(x => x.ToString().ToLower() == filterValue.ToLower())
-            )
+            .Where(x => x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
             .Select(x => new CustomerEntity
             {
                 Id = x.Id,
@@ -240,7 +245,23 @@ public class CustomerService : ICustomerService
             .ToList();
 
         _logger.LogInformation("Customers found");
-        return filteredCustomers;
+        return new
+        {
+            totalCustomers,
+            customersPerAccountType,
+            filteredCustomers
+        };
+    }
+    private async Task<int> GetTotalCustomersAsync()
+    {
+        return await _context.CustomerEntity.CountAsync();
+    }
+
+    private async Task<Dictionary<string, int>> GetCustomersPerAccountTypeAsync()
+    {
+        return await _context.CustomerEntity
+            .GroupBy(x => x.AccountType)
+            .ToDictionaryAsync(g => g.Key.ToString(), g => g.Count());
     }
     public async Task<CustomerResponse> GetCustomerAccountBalanceAsync(Guid id)
     {
