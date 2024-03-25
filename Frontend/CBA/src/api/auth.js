@@ -61,7 +61,22 @@ export async function verifyCode(code, userId = retrieveUserId()) {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify({userId}),
+    body: JSON.stringify({ userId }),
+  });
+  return await response.json();
+}
+
+export async function resendCode() {
+  const userId = retrieveUserId()
+  const API_URL = `/api/v1/Auth/resend-token`;
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  //console.log(loginDetails);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ userId }),
   });
   return await response.json();
 }
