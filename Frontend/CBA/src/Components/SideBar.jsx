@@ -12,7 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import Avatar from "@mui/material/Avatar";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Person2Icon from '@mui/icons-material/Person2';
+import Person2Icon from "@mui/icons-material/Person2";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import SendIcon from "@mui/icons-material/Send";
@@ -26,9 +26,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import ListSubheader from "@mui/material/ListSubheader";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-import { DRAWER_WIDTH, ROLES } from "../utils/constants";
+import { DRAWER_WIDTH, ROLES, ROUTES } from "../utils/constants";
 import { retrieveUserFromToken } from "../utils/token";
 import { capitalize } from "../utils/util";
 
@@ -72,13 +73,60 @@ const listItems = [
     linkTo: "#",
     requiredRoles: [ROLES.SUPER_ADMIN],
     subItems: [
-      { name: "Users", icon: <PeopleIcon />, linkTo: "users" },
+      { name: "Users", icon: <PeopleIcon />, linkTo: ROUTES.USERS },
       {
         name: "User Roles",
         icon: <ManageAccountsIcon />,
-        linkTo: "user-roles",
+        linkTo: ROUTES.USER_ROLES,
       },
     ],
+  },
+  {
+    name: "Account Management",
+    icon: <AdminPanelSettingsIcon />,
+    linkTo: "#",
+    requiredRoles: [ROLES.SUPER_ADMIN],
+    subItems: [
+      {
+        name: "Customer Account",
+        icon: <PeopleIcon />,
+        linkTo: ROUTES.CUSTOMER_ACCOUNTS,
+      },
+      {
+        name: "Account Statement",
+        icon: <ManageAccountsIcon />,
+        linkTo: ROUTES.ACCOUNT_STATEMENT,
+      },
+      {
+        name: "Current Accounts",
+        icon: <ManageAccountsIcon />,
+        linkTo: ROUTES.CURRENT_ACCOUNTS,
+      },
+      {
+        name: "Savings Accounts",
+        icon: <ManageAccountsIcon />,
+        linkTo: ROUTES.SAVINGS_ACCOUNTS,
+      },
+      // {
+      //   name: "Loans",
+      //   icon: <ManageAccountsIcon />,
+      //   linkTo: ROUTES.LOANS,
+      // },
+    ],
+  },
+  {
+    name: "Customer Information",
+    icon: <HomeIcon />,
+    linkTo: ROUTES.CUSTOMER_INFO,
+    requiredRoles: [],
+    subItems: [],
+  },
+  {
+    name: "General Ledger",
+    icon: <HomeIcon />,
+    linkTo: ROUTES.GENERAL_LEDGER,
+    requiredRoles: [],
+    subItems: [],
   },
 ];
 
@@ -139,6 +187,53 @@ function ListElement({
   );
 }
 
+// function ListElementNew({
+//   name,
+//   icon,
+//   linkTo = ".",
+//   requiredRoles,
+//   subItems = [],
+//   sideBarOpen,
+// }) {
+//   const hasSubItems = subItems.length > 0;
+//   const [subItemsOpen, setSubItemsOpen] = useState(true);
+//   const itemKey = `${name.replace(" ", "_")}`;
+
+//   const toggleSubItems = () => {
+//     setSubItemsOpen(!subItemsOpen);
+//   };
+
+//   if (hasSubItems)
+//     return (
+//       <>
+//         <ListSubheader component="div" id="nested-list-subheader">
+//           {icon} {name}
+//         </ListSubheader>
+//         {subItems.map(({ name, icon, linkTo = "." }, index) => {
+//           const subItemKey = `${name.replace(" ", "_")}_${index}`;
+//           return (
+//             <RouterLink to={linkTo} key={`${subItemKey}_link`}>
+//               <ListItemButton sx={{ pl: 4 }} key={subItemKey}>
+//                 <ListItemIcon>{icon}</ListItemIcon>
+//                 <ListItemText primary={name} />
+//               </ListItemButton>
+//             </RouterLink>
+//           );
+//         })}
+//       </>
+//     );
+//   return (
+//     <>
+//       <RouterLink to={linkTo} key={`${itemKey}_link`}>
+//         <ListItemButton key={itemKey}>
+//           <ListItemIcon>{icon}</ListItemIcon>
+//           <ListItemText primary={name} />
+//         </ListItemButton>
+//       </RouterLink>
+//     </>
+//   );
+// }
+
 export default function SideBar({ sideBarOpen, toggleSideBar }) {
   const [loggedInUser, setLoggedInUser] = useState(retrieveUserFromToken());
   return (
@@ -151,14 +246,14 @@ export default function SideBar({ sideBarOpen, toggleSideBar }) {
           px: [1],
         }}
       >
-        <RouterLink to={"/dashboard/profile"} style={{flex: 1,}}>
+        <RouterLink to={"/dashboard/profile"} style={{ flex: 1 }}>
           <Box
             sx={{
               display: "flex",
               marginRight: "0px",
               marginLeft: "0px",
               alignItems: "center",
-              
+
               ...(!sideBarOpen && { display: "none" }),
             }}
           >
