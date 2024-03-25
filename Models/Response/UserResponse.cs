@@ -10,6 +10,7 @@ namespace CBA.Models;
         public bool Success {get; set;}
         public List<ApplicationUser>? Users {get; set;}
         public List<BankBranch>? UserBranch {get; set;}
+        public int? TotalUsers {get; set;}
         
     }
 
