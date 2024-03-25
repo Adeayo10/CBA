@@ -87,11 +87,11 @@ const listItems = [
     linkTo: "#",
     requiredRoles: [ROLES.SUPER_ADMIN],
     subItems: [
-      {
-        name: "Customer Account",
-        icon: <PeopleIcon />,
-        linkTo: ROUTES.CUSTOMER_ACCOUNTS,
-      },
+      // {
+      //   name: "Customer Account",
+      //   icon: <PeopleIcon />,
+      //   linkTo: ROUTES.CUSTOMER_ACCOUNTS,
+      // },
       {
         name: "Account Statement",
         icon: <ManageAccountsIcon />,
