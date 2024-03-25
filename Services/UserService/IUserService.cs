@@ -22,6 +22,6 @@ namespace CBA.Services
         Task<RegistrationResponse> ActivateUserAsync(ActivateUserDTO user);
         Task<LogoutResponse> LogoutUserAsync(string userName);
         Task<AuthResult> ConfirmUserTokenAsync(LoginTokenDTO tokenUser, string token);
-        Task ResendTokenAsync(ApplicationUser user);
+        Task ResendTokenAsync(LoginTokenDTO user);
     }
 }

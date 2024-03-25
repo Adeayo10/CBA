@@ -105,7 +105,7 @@ namespace CBA.Controllers
         [HttpPost]
         [Route("resend-token")]
         [AllowAnonymous]
-        public async Task<IActionResult> ResendToken([FromBody] ApplicationUser user)
+        public async Task<IActionResult> ResendToken([FromBody] LoginTokenDTO user)
         {
             try
             {

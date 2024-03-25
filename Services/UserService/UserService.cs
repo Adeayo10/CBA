@@ -514,6 +514,7 @@ public class UserService : IUserService
     }
     public async Task<UserResponse> GetAllUsersAsync(int pageNumber, int pageSize)
     {
+        var totalUsers = await GetTotalUsersAsync();
         var users = await _userManager.Users.Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -555,9 +556,13 @@ public class UserService : IUserService
         {
             Success = true,
             Users = usersDT0,
-            UserBranch = bankBranchDTO
-
+            UserBranch = bankBranchDTO,
+            TotalUsers = totalUsers
         };
+    }
+    private async Task<int> GetTotalUsersAsync()
+    {
+        return await _userManager.Users.CountAsync();
     }
     private static ApplicationUser CreateUserDetails(UserProfileDTO user, string hashPassword)
     {
@@ -588,11 +593,14 @@ public class UserService : IUserService
         };
         return bankBranch;
     }
-    private static string GenerateBankCode(string region, string branch)
+    private static string GenerateBankCode(string region, string branchName)
     {
         var random = new Random();
-        var code = $"{region[0].ToString().ToUpper()}{branch[0].ToString().ToUpper()}{random.Next(0, 9)}";
-        return code;
+        var uniqueIdentifier = random.Next(1000, 9999); // Generates a random number between 1000 and 9999
+
+        var bankCode = $"{region.Substring(0, 3).ToUpper()}{branchName.Substring(0, 3).ToUpper()}{uniqueIdentifier}";
+
+        return bankCode;
     }
     private async Task CreateBranchUserAsync(BankBranch bankBranch, ApplicationUser user)
     {
@@ -631,58 +639,68 @@ public class UserService : IUserService
     private async Task SendUserTokenEmailAsync(ApplicationUser user)
     {
         var token = GenerateSixDigitToken();
-        await StoreUserTokenAsync(user, token);
+        StoreUserTokenAsync(user, token);
         var tokenExpiry = DateTime.Now.AddMinutes(5);
         var callback = $"http://localhost:5173/verify-token?userId={user.Id}&token={token}";
         var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
         await _emailService.SendEmail(message);
     }
-    private async Task StoreUserTokenAsync(ApplicationUser user, string token)
+    private void  StoreUserTokenAsync(ApplicationUser user, string token)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         session.SetString("UserToken", token);
 
     }
-    private async Task<string> RetrieveUserTokenAsync(ApplicationUser user)
+    private Task<string> RetrieveUserTokenAsync(ApplicationUser user)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         var token = session.GetString("UserToken");
-        return token;
-
+        return Task.FromResult(token ?? string.Empty);
     }
-    private async Task RemoveUserToken(ApplicationUser user)
+
+    private void RemoveUserToken(ApplicationUser user)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         session.Remove("UserToken");
     }
-    public async Task ResendTokenAsync(ApplicationUser user)
+    public async Task ResendTokenAsync(LoginTokenDTO user)
     {
-        await SendUserTokenEmailAsync(user);
+        var userExist = await _userManager.FindByIdAsync(user.UserId.ToString());
+        await SendUserTokenEmailAsync(userExist!);
     }
     public async Task<AuthResult> ConfirmUserTokenAsync(LoginTokenDTO tokenUser, string token)
     {
-        ApplicationUser user = await _userManager.FindByIdAsync(tokenUser.UserId.ToString());
-        _logger.LogInformation($"User {user.Email} gotten successfully");
-        var userToken = await RetrieveUserTokenAsync(user);
-        var result = token == userToken;
+        ApplicationUser? user = await _userManager.FindByIdAsync(tokenUser.UserId.ToString());
+        _logger.LogInformation($"User {user?.Email} retrieved successfully");
+
+        var userToken = await RetrieveUserTokenAsync(user!);
+        var isTokenValid = token == userToken;
+
         _logger.LogInformation($"Token value = {token}");
-        if (result)
+
+        if (isTokenValid)
         {
-            _logger.LogInformation($"User {user.UserName} verified token successfully");
-            var generateUserToken = _tokenService.GenerateTokensAsync(user);
+            _logger.LogInformation($"User {user!.UserName} verified token successfully");
+
+            var generateUserToken = await _tokenService.GenerateTokensAsync(user);
+
             _logger.LogInformation($"Token generated");
-            await RemoveUserToken(user);
+
+            RemoveUserToken(user);
+
             return new AuthResult
             {
                 Success = true,
-                Token = generateUserToken.Result.Token,
-                RefreshToken = generateUserToken.Result.RefreshToken,
-                ExpiryDate = generateUserToken.Result.ExpiryDate
+                Token = generateUserToken.Token,
+                RefreshToken = generateUserToken.RefreshToken,
+                ExpiryDate = generateUserToken.ExpiryDate,
+                Message = $"Welcome back!{user.UserName}"
             };
         }
         else
         {
             _logger.LogError($"Error occurred in ConfirmUserToken method: Token not verified");
+
             return new AuthResult
             {
                 Success = false,
