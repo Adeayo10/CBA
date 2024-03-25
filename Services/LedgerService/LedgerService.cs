@@ -56,6 +56,7 @@ public class LedgerService : ILedgerService
             _logger.LogInformation("No account found");
             return CreateErrorResponse<LedgerResponse>("No account found");
         }
+        var totalRowCount = await GetTotalCountOfGLAccountsAsync();
         _logger.LogInformation("Account found");
         LedgerData? mappedData = MapCollectionOfLedgerData(glAccount);
         /*var mappedData = glAccount.Select(account => new LedgerData
@@ -66,7 +67,11 @@ public class LedgerService : ILedgerService
             AccountDescription = account.AccountDescription,
             AccountStatus = account.AccountStatus
         });*/
-        return CreateSuccessResponse<LedgerResponse>("Account found", mappedData);
+        return CreateSuccessResponse<LedgerResponse>("Account found", mappedData, totalRowCount);
+    }
+    private async Task<int> GetTotalCountOfGLAccountsAsync()
+    {
+        return await _context.GLAccounts.CountAsync();
     }
     private static LedgerData? MapCollectionOfLedgerData(List<GLAccounts> glAccount)
     {
@@ -232,13 +237,14 @@ public class LedgerService : ILedgerService
             Status = false,           
         };
     } 
-    private static T CreateSuccessResponse<T>(string successMessage, LedgerData? ledgerData = null) where T : Response, new()
+    private static T CreateSuccessResponse<T>(string successMessage, LedgerData? ledgerData = null, int? rowCount=null) where T : Response, new()
     {
         return new T
         {
             Message = successMessage,
             Status = true,
-            Data = ledgerData
+            Data = ledgerData,
+            TotalRowCount = rowCount
         };
     }
     public async Task<LedgerResponse> ViewLedgerAccountBalanceAsync(string accountNumber)
