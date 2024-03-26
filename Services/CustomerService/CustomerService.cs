@@ -217,18 +217,17 @@ public class CustomerService : ICustomerService
     {
         _logger.LogInformation("Getting customers");
 
-        var totalCustomersTask = GetTotalCustomersAsync();
-        var customersPerAccountTypeTask = GetCustomersPerAccountTypeAsync();
-        var customersTask = _context.CustomerEntity
+        var totalCustomersTask = await GetTotalCustomersAsync();
+        var customersPerAccountTypeTask =await  GetCustomersPerAccountTypeAsync();
+        var customersTask = await _context.CustomerEntity
+            .OrderBy(x => x.DateCreated)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
-        await Task.WhenAll(totalCustomersTask, customersPerAccountTypeTask, customersTask);
-
-        var totalCustomers = await totalCustomersTask;
-        var customersPerAccountType = await customersPerAccountTypeTask;
-        var customers = await customersTask;
+            
+        var totalCustomers =  totalCustomersTask;
+        var customersPerAccountType =  customersPerAccountTypeTask;
+        var customers = customersTask;
 
         var filteredCustomers = customers
             .Where(x => x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
@@ -245,12 +244,15 @@ public class CustomerService : ICustomerService
             .ToList();
 
         _logger.LogInformation("Customers found");
-        return new
+
+        var result = new
         {
-            totalCustomers,
-            customersPerAccountType,
-            filteredCustomers
+            TotalCustomers = totalCustomers,
+            CustomersPerAccountType = customersPerAccountType,
+            FilteredCustomers = filteredCustomers
         };
+
+        return result;
     }
     private async Task<int> GetTotalCustomersAsync()
     {
