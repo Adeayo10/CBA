@@ -15,7 +15,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import PasswordIcon from "@mui/icons-material/Password";
 
-import { verifyCode } from "../api/auth";
+import { verifyCode, resendCode } from "../api/auth";
 import { saveTokenData, tokenExists } from "../utils/token";
 import { ROUTES, TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
@@ -92,7 +92,21 @@ export default function VerifyToken() {
   };
 
   const handleResendToken = (event) => {
-    console.log("clicked");
+    event.preventDefault();
+    setIsLoading(true);
+    resendCode()
+      .then((data) => {
+        console.log(data);
+        if (!data.success || data.errors)
+          throw new Error(data.message || data.errors);
+
+        setIsLoading(false);
+        toast.success(data.message, TOAST_CONFIG);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+      });
   };
 
   return (
