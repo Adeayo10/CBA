@@ -300,7 +300,8 @@ namespace CBA.Controllers
                     Success = result.Success,
                     Errors = result.Errors,
                     Users = result.Users,
-                    UserBranch = result.UserBranch
+                    UserBranch = result.UserBranch,
+                    TotalUsers = result.TotalUsers
                 });
             }
             catch (Exception ex)

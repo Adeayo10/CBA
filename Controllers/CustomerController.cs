@@ -12,10 +12,12 @@ public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
     private readonly ILogger<CustomerController> _logger;
-    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger)
+    //private readonly IPdfService _pdfService;
+    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger /*IPdfService pdfService*/)
     {
         _customerService = customerService;
         _logger = logger;
+        //_pdfService = pdfService;
         _logger.LogInformation("Customer Controller has been created");
     }
     [HttpPost]
@@ -95,7 +97,7 @@ public class CustomerController : ControllerBase
     [HttpGet]
     [Route("GetAllCustomers")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize,[FromQuery] string filterValue)
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize,[FromQuery] string? filterValue)
     {
         try
         {
@@ -217,7 +219,11 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            return Ok(new CustomerResponse { Message = result.Message, Status = result.Status, Customer = result.Customer, Data = result.Data, Transaction = result.Transaction });
+            //var generateAccountStatement = await _pdfService.CreateAccountStatementPdfAsync(result.Transactions, transaction.AccountNumber, result.StartDate, result.EndDate);
+            _logger.LogInformation("PDF file created successfully");
+            return Ok(new CustomerResponse { Message = result.Message, Status = result.Status});
+
+            
         }
         catch (Exception ex)
         {

@@ -514,7 +514,7 @@ public class UserService : IUserService
     }
     public async Task<UserResponse> GetAllUsersAsync(int pageNumber, int pageSize)
     {
-        var totalUsers = await GetTotalUsersAsync();
+        var totalUsers = await GeTotalUsersAsync();
         var users = await _userManager.Users.Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -533,6 +533,7 @@ public class UserService : IUserService
         var bankBranch = await _context.BankBranch.ToListAsync();
         var bankBranchDTO = bankBranch.Select(x => new BankBranch
         {
+            Id = x.Id,
             UserId = x.UserId,
             Name = x.Name,
             Region = x.Region,
@@ -560,9 +561,9 @@ public class UserService : IUserService
             TotalUsers = totalUsers
         };
     }
-    private async Task<int> GetTotalUsersAsync()
+    private async Task<int> GeTotalUsersAsync()
     {
-        return await _userManager.Users.CountAsync();
+        return await _context.Users.CountAsync();
     }
     private static ApplicationUser CreateUserDetails(UserProfileDTO user, string hashPassword)
     {
