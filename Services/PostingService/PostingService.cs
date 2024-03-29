@@ -79,6 +79,9 @@ public class PostingService : IPostingService
 
     private static Transaction TransactionEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
+        var moneyin = customerDeposit.Amount;
+        var transactionBalance = customerEntity.Balance + moneyin;
+
         return new Transaction
         {
             TransactionType = "Deposit",
@@ -86,6 +89,8 @@ public class PostingService : IPostingService
             Amount = customerDeposit.Amount,
             GLAccountId = LedgerEntity.Id,
             CustomerId = customerEntity.Id,
+            MoneyIn = moneyin,
+            Balance = transactionBalance,
         };
     }
 
@@ -209,6 +214,8 @@ public class PostingService : IPostingService
     }
     private static Transaction TransactionEntityForWithdraw(PostingDTO customerWithdraw, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
+        var moneyOut = customerWithdraw.Amount;
+        var transactionBalance = customerEntity.Balance - moneyOut;
         return new Transaction
         {
             TransactionType = "Withdrawal",
@@ -216,6 +223,8 @@ public class PostingService : IPostingService
             Amount = customerWithdraw.Amount,
             GLAccountId = LedgerEntity.Id,
             CustomerId = customerEntity.Id,
+            MoneyOut = moneyOut,
+            Balance = transactionBalance
         };
     }
     private static PostingEntity PostingEntityForWithdraw(PostingDTO customerWithdraw, CustomerEntity customerEntity, GLAccounts LedgerEntity)

@@ -10,4 +10,7 @@ namespace CBA.Models;
         public Guid CustomerId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public decimal MoneyIn { get; set; }
+        public decimal MoneyOut { get; set; }
+        public decimal Balance { get; set; }
     }
