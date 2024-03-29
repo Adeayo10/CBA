@@ -14,7 +14,7 @@ namespace CBA.Models
         public string? Gender { get; set; }
         public string? Branch { get; set; }
         public string? AccountNumber { get; set; }
-        public CustomerAccountType AccountType { get; set; }
+        public string? AccountType { get; set; }
         public decimal Balance { get; set; }
         public string? Status { get; set; } = "Active";
         public DateTime DateCreated { get; set; } = DateTime.Now;

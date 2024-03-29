@@ -7,7 +7,6 @@ namespace CBA.Models
         public List<string>? Errors { get; set; }      
         public CustomerEntity? Customer { get; set; } 
         public CustomerBalanceDTO? Data { get; set; }
-        public List<Transaction>? Transaction { get; set; }
         
     }
 }
