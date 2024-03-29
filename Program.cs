@@ -81,6 +81,7 @@ builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
 builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPostingService, PostingService>();
+builder.Services.AddScoped<IPdfService, PdfServiceFactory>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
