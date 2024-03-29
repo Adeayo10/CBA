@@ -567,12 +567,13 @@ public class UserService : IUserService
     }
     private static ApplicationUser CreateUserDetails(UserProfileDTO user, string hashPassword)
     {
+        var userRole = Enum.GetName(typeof(Role), user.Role)?? throw new InvalidOperationException("Role not found");
         var newUser = new ApplicationUser()
         {
             Email = user.Email,
             UserName = user.UserName,
             Password = user.Password,
-            Role = user.Role,
+            Role = userRole,
             PasswordHash = hashPassword, // Set the PasswordHash property
             PhoneNumber = user.PhoneNumber,
             FullName = user.FullName,
@@ -738,7 +739,7 @@ public class UserService : IUserService
         userExist.Email = user.Email;
         userExist.UserName = user.UserName;
         userExist.Password = userExist.PasswordHash;
-        userExist.Role = user.Role;
+        userExist.Role = user.Role.ToString(); // Convert Role enum to string
         userExist.PhoneNumber = user.PhoneNumber;
         userExist.FullName = user.FullName;
         userExist.Address = user.Address;
