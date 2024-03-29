@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 namespace CBA.Models;
 public class ApplicationUser : IdentityUser
 {
-    public Role Role { get; set; }
+    public string Role { get; set; }
     public required string FullName  { get; set; }
     [NotMapped]
     public  string Password { get; set; } 
