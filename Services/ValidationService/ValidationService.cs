@@ -1,7 +1,6 @@
 using FluentValidation;
 using CBA.Models;
 using System.Text.RegularExpressions;
-using CBA.Enums;
 
 namespace CBA.Services;
 public  partial class ValidatorService : AbstractValidator<ApplicationUser>
@@ -15,7 +14,19 @@ public  partial class ValidatorService : AbstractValidator<ApplicationUser>
         RuleFor(user => user.Address).NotEmpty();
         RuleFor(user => user.PhoneNumber).NotEmpty().WithMessage("Phone number cannot be empty").Must(HasValidPhoneNumber!).WithMessage("Please provide a valid phone number");
         RuleFor(user => user.Status).NotEmpty();
-        RuleFor(user => user.Role).NotEmpty().WithMessage("Role cannot be empty").IsInEnum().Must(HasValidRole).WithMessage("Please provide a valid role");
+        RuleFor(user => user.Role.ToString()).Must(HasValidRole).WithMessage("Invalid role");
+    }
+
+    private static bool HasValidRole(string role)
+    {
+        return role switch
+        {
+            "Admin" => true,
+            "User" => true,
+            "SuperAdmin" => true,
+            "Manager" => true,
+            _ => false
+        };
     }
     private static bool HasValidPassword(string password)
     {
@@ -31,10 +42,17 @@ public  partial class ValidatorService : AbstractValidator<ApplicationUser>
         return regex.IsMatch(phoneNumber);
     }
 
-    private static bool HasValidRole(Role role)
-    {
-        return Enum.IsDefined(typeof(Role), role);
-    }
+    // private static bool HasValidRole(Role role)
+    // {
+    //     return role switch
+    //     {
+    //         Role.Admin => true,
+    //         Role.User => true,
+    //         Role.SuperAdmin => true,
+    //         Role.Manager => true,
+    //         _ => false
+    //     };
+    // }
 
 
     [GeneratedRegex("[a-z]+")]
