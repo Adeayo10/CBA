@@ -205,7 +205,7 @@ public class CustomerController : ControllerBase
         }
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("GetCustomerTransactions")]
     [Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> GetCustomerTransactions(TransactionDTO
@@ -215,15 +215,12 @@ public class CustomerController : ControllerBase
         {
             _logger.LogInformation("Getting customer transactions");
             var result = await _customerService.GetTransactionsAsync(transaction);
+            _logger.LogInformation($"{result}");
             if (!result.Status)
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            //var generateAccountStatement = await _pdfService.CreateAccountStatementPdfAsync(result.Transactions, transaction.AccountNumber, result.StartDate, result.EndDate);
-            _logger.LogInformation("PDF file created successfully");
             return Ok(new CustomerResponse { Message = result.Message, Status = result.Status});
-
-            
         }
         catch (Exception ex)
         {
@@ -231,6 +228,24 @@ public class CustomerController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost]
+    [Route("CreateAccountStatementPdf")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public Task DownloadAccountStatemntPdf(TransactionDTO transaction)
+    {
+        if(!ModelState.IsValid)
+        {
+
+        }
+        var result = _customerService.GetAccountStatementPdfAsync(transaction);
+        _logger.LogInformation($"{result}");
+        return result;
+    }
+
+    
+    
+
 }
 
    

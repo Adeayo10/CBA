@@ -2,6 +2,7 @@ using CBA.Models;
 using CBA.Context;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CBA.Services;
 public class CustomerService : ICustomerService
@@ -9,11 +10,14 @@ public class CustomerService : ICustomerService
     private readonly UserDataContext _context;
     private readonly IValidator<CustomerEntity> _CustomerValidator;
     private readonly ILogger<CustomerService> _logger;
-    public CustomerService(UserDataContext context, IValidator<CustomerEntity> customerValidator, ILogger<CustomerService> logger)
+    private readonly IPdfService _pdfService;
+    public CustomerService(UserDataContext context, IValidator<CustomerEntity> customerValidator,
+    ILogger<CustomerService> logger, IPdfService pdfService)
     {
         _context = context;
         _CustomerValidator = customerValidator;
         _logger = logger;
+        _pdfService = pdfService;
         _logger.LogInformation("Customer Service has been created");
     }
     public async Task<CustomerResponse> CreateCustomerAsync(CustomerDTO customer)
@@ -108,6 +112,7 @@ public class CustomerService : ICustomerService
     {
 
         var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
+        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value)??throw new ArgumentNullException(nameof(customer.AccountType));
         var customerEntity = new CustomerEntity
         {
             FullName = customer.FullName,
@@ -118,7 +123,7 @@ public class CustomerService : ICustomerService
             Balance = 0,
             Gender = customer.Gender,
             Branch = customer.Branch,
-            AccountType = customer.AccountType!.Value,
+            AccountType = accountType,
             Status = customer.Status,
             State = customer.State,
         };
@@ -162,6 +167,12 @@ public class CustomerService : ICustomerService
         return CreateCustomerDetailsUpdatedResponse();
     }
     private static CustomerResponse CreateCustomerNotFoundResponse() => new()
+    {
+        Message = "Customer not found",
+        Status = false,
+        Errors = new List<string> { "Customer not found" }
+    };
+    private static TransactionResponse TransactionNotFoundResponse() => new()
     {
         Message = "Customer not found",
         Status = false,
@@ -213,7 +224,7 @@ public class CustomerService : ICustomerService
             Customer = customerEntity
         };
     }
-    public async Task<dynamic> GetCustomersAsync(int pageNumber, int pageSize, string filterValue)
+    public async Task<dynamic> GetCustomersAsync(int pageNumber, int pageSize, string? filterValue)
     {
         _logger.LogInformation("Getting customers");
 
@@ -239,7 +250,8 @@ public class CustomerService : ICustomerService
                 PhoneNumber = x.PhoneNumber,
                 Address = x.Address,
                 AccountNumber = x.AccountNumber,
-                Balance = x.Balance
+                Balance = x.Balance,
+                AccountType = x.AccountType,
             })
             .ToList();
 
@@ -335,26 +347,55 @@ public class CustomerService : ICustomerService
         }).ToList();
         return mappedAccountTypes;
     }
-    public async Task<CustomerResponse> GetTransactionsAsync(TransactionDTO transaction)
+    public async Task<TransactionResponse> GetTransactionsAsync(TransactionDTO transaction)
     {
         var customerEntity = await _context.CustomerEntity.SingleOrDefaultAsync(x => x.AccountNumber == transaction.AccountNumber);
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
-            return CreateCustomerNotFoundResponse();
+            return TransactionNotFoundResponse();
         }
 
         var transactions = await _context.Transaction
             .Where(x => x.CustomerId == customerEntity.Id && x.TransactionDate >= transaction.StartDate && x.TransactionDate <= transaction.EndDate)
             .ToListAsync();
+        var startDate = transaction.StartDate.ToString()??throw new ArgumentNullException(nameof(transaction.StartDate));
+        var startDateInYYYYMMDD = DateTime.Parse(startDate).ToString("yyyy-MM-dd");
+        var endDate = transaction.EndDate.ToString()??throw new ArgumentNullException(nameof(transaction.EndDate));
+        var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd"); 
 
         _logger.LogInformation("Transactions found");
-        return new CustomerResponse
+        return new TransactionResponse
         {
+            Id  = customerEntity.Id.ToString(),
             Message = "Transactions found",
             Status = true,
-            Transaction = transactions
+            Transactions = transactions,
+            StartDate = startDateInYYYYMMDD,
+            EndDate = endDateInYYYYMMDD
         };
+        
+    }
+    public async Task<FileContentResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
+    {
+        var transactions = await GetTransactionsAsync(transaction);
+        var filePath = Path.Combine(Path.GetTempPath(), $"{transaction.AccountNumber}.pdf");
+        _logger.LogInformation($"File path: {filePath} ");
+        await _pdfService.CreateAccountStatementPdfAsync(transactions.Transactions, transactions.Id, filePath, transactions.StartDate, transactions.EndDate);
+
+        using var memory = new MemoryStream();
+        await using (var stream = new FileStream(filePath, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+        memory.Position = 0;
+        var file = new FileContentResult(memory.ToArray(), "application/pdf")
+        {
+            FileDownloadName = Path.GetFileName(filePath)
+        };
+        _logger.LogInformation("File created and downloaded successfully");
+
+        return file;
     }
 
     //public async Task<CustomerResponse> UpdateCustomerBalance(Guid id, decimal amount)
