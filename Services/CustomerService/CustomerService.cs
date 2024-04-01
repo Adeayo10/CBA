@@ -365,6 +365,7 @@ public class CustomerService : ICustomerService
         var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd"); 
 
         _logger.LogInformation("Transactions found");
+        _logger.LogInformation($"Transactions: {transactions.ToArray()}");
         return new TransactionResponse
         {
             Id  = customerEntity.Id.ToString(),
@@ -381,6 +382,7 @@ public class CustomerService : ICustomerService
         var transactions = await GetTransactionsAsync(transaction);
         var filePath = Path.Combine(Path.GetTempPath(), $"{transaction.AccountNumber}.pdf");
         _logger.LogInformation($"File path: {filePath} ");
+        _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()} ");
         await _pdfService.CreateAccountStatementPdfAsync(transactions.Transactions, transactions.Id, filePath, transactions.StartDate, transactions.EndDate);
 
         using var memory = new MemoryStream();
