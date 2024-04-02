@@ -252,6 +252,12 @@ public class CustomerService : ICustomerService
                 AccountNumber = x.AccountNumber,
                 Balance = x.Balance,
                 AccountType = x.AccountType,
+                Status = x.Status,
+                DateCreated = x.DateCreated,
+                State = x.State,
+                Gender = x.Gender,
+                Branch = x.Branch
+
             })
             .ToList();
 
