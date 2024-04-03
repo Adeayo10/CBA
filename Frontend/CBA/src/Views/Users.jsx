@@ -37,6 +37,7 @@ import {
   STATUS,
   CREATE_USER_BASE,
   CREATE_USER_BRANCH_BASE,
+  PAGE_SIZE,
 } from "../utils/constants";
 
 import { toast } from "react-toastify";
@@ -68,6 +69,7 @@ export default function Users() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [noOfPages, setNoOfPages] = useState(1);
 
   const mappedUserBranch = useMemo(() => {
     const map = {};
@@ -81,11 +83,13 @@ export default function Users() {
   useEffect(() => {
     getUsers()
       .then((data) => {
+        console.log(data);
         if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -221,6 +225,7 @@ export default function Users() {
         toast.success("Successfull", TOAST_CONFIG);
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -274,6 +279,7 @@ export default function Users() {
         toast.success("Successfull", TOAST_CONFIG);
         setUsersList(data.users);
         setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -474,7 +480,7 @@ export default function Users() {
             </Backdrop>
             <Pagination
               sx={{ mt: 3, ml: "auto" }}
-              count={10}
+              count={noOfPages}
               variant="outlined"
               shape="rounded"
               onChange={handlePageChange}

@@ -28,16 +28,13 @@ import {
 } from "react-router-dom";
 
 import Title from "../Components/Title";
-import UserCreateModal from "../Components/UserCreateModal";
-import UserDetailsModal from "../Components/UserDetailsModal";
-import UserUpdateModal from "../Components/UserUpdateModal";
 
 import {
   TOAST_CONFIG,
-  STATUS as STATUS,
-  CREATE_USER_BASE,
-  CREATE_USER_BRANCH_BASE,
-  CREATE_ACCOUNT_BASE
+  STATUS,
+  ACCOUNT_IDS,
+  PAGE_SIZE,
+  CREATE_ACCOUNT_BASE,
 } from "../utils/constants";
 
 import { toast } from "react-toastify";
@@ -50,6 +47,7 @@ import { ErrorTwoTone } from "@mui/icons-material";
 import { redirectIfRefreshTokenExpired } from "../utils/token";
 import AccountUpdateModal from "../Components/AccountUpdateModal";
 import AccountCreateModal from "../Components/AccountCreateModal";
+import AccountDetailsModal from "../Components/AccountDetailsModal";
 
 export default function Accounts({ accountType }) {
   const [accountsList, setAccountsList] = useState([]);
@@ -65,6 +63,7 @@ export default function Accounts({ accountType }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [noOfPages, setNoOfPages] = useState(1);
 
   const menuOpen = Boolean(currentAccountElement);
   const navigate = useNavigate();
@@ -73,10 +72,15 @@ export default function Accounts({ accountType }) {
     getCustomers(accountType)
       .then((data) => {
         console.log(data);
-        if (data.errors || !data.length)
+        if (!data.filteredCustomers)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data);
+        setAccountsList(data.filteredCustomers);
+        setNoOfPages(
+          Math.ceil(
+            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
+          )
+        );
         setIsLoading(false);
       })
       .catch((error) => {
@@ -102,7 +106,7 @@ export default function Accounts({ accountType }) {
     event.preventDefault();
     const accountIndex = currentAccountElement.name;
     const account = accountsList[accountIndex];
-    setCurrentAccountDetails( account);
+    setCurrentAccountDetails(account);
     toggleDetailsModal();
     closeMenu();
   };
@@ -116,7 +120,7 @@ export default function Accounts({ accountType }) {
     }
     const account = extractUpdateFields(
       accountsList[accountIndex],
-      CREATE_ACCOUNT_BASE,
+      CREATE_ACCOUNT_BASE
     );
 
     // console.log({user})
@@ -152,8 +156,7 @@ export default function Accounts({ accountType }) {
     changeCustomerAccountStatus(accountId)
       .then((data) => {
         console.log(data);
-        if (data.errors )
-          throw new Error(data.message || data.errors);
+        if (data.errors) throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
@@ -167,7 +170,6 @@ export default function Accounts({ accountType }) {
 
     closeMenu();
   };
-
 
   const refreshAccountList = () => {
     setIsLoading(true);
@@ -341,11 +343,11 @@ export default function Accounts({ accountType }) {
                         View Balance
                       </MenuItem>,
                       <MenuItem
-                      onClick={showUpdateModal}
-                      key={`${currentAccountElement.name}_update_enabled`}
-                    >
-                      Update Account
-                    </MenuItem>,
+                        onClick={showUpdateModal}
+                        key={`${currentAccountElement.name}_update_enabled`}
+                      >
+                        Update Account
+                      </MenuItem>,
                       <MenuItem
                         onClick={toggleAccountStatus}
                         key={`${currentAccountElement.name}_disable`}
@@ -383,6 +385,12 @@ export default function Accounts({ accountType }) {
               accountType={accountType}
               refreshAccountsList={refreshAccountList}
             />
+            <AccountDetailsModal
+              modalOpen={detailsModalOpen}
+              toggleModal={toggleDetailsModal}
+              account={currentAccountDetails}
+              accountType={accountType}
+            />
             <Backdrop
               sx={{
                 color: "#fff",
@@ -394,7 +402,7 @@ export default function Accounts({ accountType }) {
             </Backdrop>
             <Pagination
               sx={{ mt: 3, ml: "auto" }}
-              count={10}
+              count={noOfPages}
               variant="outlined"
               shape="rounded"
               onChange={handlePageChange}
