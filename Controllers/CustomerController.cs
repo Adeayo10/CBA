@@ -12,12 +12,12 @@ public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
     private readonly ILogger<CustomerController> _logger;
-    //private readonly IPdfService _pdfService;
-    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger /*IPdfService pdfService*/)
+    private readonly IPdfService _pdfService;
+    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger ,IPdfService pdfService)
     {
         _customerService = customerService;
         _logger = logger;
-        //_pdfService = pdfService;
+        _pdfService = pdfService;
         _logger.LogInformation("Customer Controller has been created");
     }
     [HttpPost]
@@ -207,7 +207,7 @@ public class CustomerController : ControllerBase
 
     [HttpPost]
     [Route("GetCustomerTransactions")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    //[Authorize(AuthenticationSchemes = "Bearer")]
     public async Task<IActionResult> GetCustomerTransactions(TransactionDTO
     transaction)
     {
@@ -231,19 +231,20 @@ public class CustomerController : ControllerBase
 
     [HttpPost]
     [Route("CreateAccountStatementPdf")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
-    public Task DownloadAccountStatemntPdf(TransactionDTO transaction)
+   // [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<FileContentResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
     {
-        if(!ModelState.IsValid)
+        try
         {
-
+            _logger.LogInformation("Creating account statement pdf");
+            return await _customerService.GetAccountStatementPdfAsync(transaction);
         }
-        var result = _customerService.GetAccountStatementPdfAsync(transaction);
-        _logger.LogInformation($"{result}");
-        return result;
-    }
-
-    
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating account statement pdf");
+            throw;
+        }
+    }  
     
 
 }

@@ -34,7 +34,7 @@ public class PdfServiceFactory : IPdfService
     {
         try
         {
-            _logger.LogInformation("Creating PDF file");
+            _logger.LogInformation("Creating PDF filessss");
 
            /* string fileFolder = "C:/Users/Adesoji/Desktop/.NET Projects/CBA/Assets/";
             if (!Directory.Exists(fileFolder))
@@ -47,21 +47,26 @@ public class PdfServiceFactory : IPdfService
             _logger.LogInformation("File name: {FileName}", fileName);
             _logger.LogInformation("File folder: {FileFolder}", fileFolder);*/
 
-            var cutomer = await _context.CustomerEntity.SingleAsync(x => x.Id.ToString() == customerId);
-    
-
+            var customer = await _context.CustomerEntity.SingleAsync(x => x.Id.ToString() == customerId);
+            _logger.LogInformation($"Customer found {customer.FullName}");  
+            
             var pdfWriter = new PdfWriter(filePath);
+            _logger.LogInformation("PDF writer created");
             var pdf = new PdfDocument(pdfWriter);
+            _logger.LogInformation("PDF document created");
             var document = new Document(pdf, PageSize.A4);
+            _logger.LogInformation("PDF document created");
             DeviceRgb offPurpleColour = new(230, 230, 250);
+            _logger.LogInformation("PDF document created");
             DeviceRgb PurpleColour = new(128, 0, 128);
+            _logger.LogInformation("PDF document created");
             PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA, PdfEncodings.CP1252, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
-
+            _logger.LogInformation("PDF document created");
             SetFontAndMargins(document, font);
             SetHeadersFootersUsingPDFEventHandlers(pdf);
 
-            var addressTable = CreateAddressTable(font, cutomer);
-            var summaryTable = CreateSummaryTable(PurpleColour, font, cutomer, startDate, endDate, transactions);
+            var addressTable = CreateAddressTable(font, customer);
+            var summaryTable = CreateSummaryTable(PurpleColour, font, customer, startDate, endDate, transactions);
             MergeAddressAndSummaryTables(document, font, addressTable, summaryTable);
 
             var headerTable = CreateHeaderTable(PurpleColour, font);
@@ -69,7 +74,9 @@ public class PdfServiceFactory : IPdfService
             MergeHeaderAndNoticeBoardTables(document, font, headerTable, noticeBoard);
             TransactionTable(document, PurpleColour, offPurpleColour, font, transactions);
             Miscelleanous(document, PurpleColour, font);
+            _logger.LogInformation("PDF file created successfully");
             var currentEvent = new PDFFooterEventHandler();
+            _logger.LogInformation("Writing page numbers to PDF");
             
             currentEvent.WritePageNumbers(pdf, document);
             document.Close();
@@ -81,7 +88,7 @@ public class PdfServiceFactory : IPdfService
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while creating PDF file");
-            throw new Exception("An error occurred while creating PDF file");
+            throw new Exception(ex.Message);
         }
     }
     private void SetHeadersFootersUsingPDFEventHandlers(PdfDocument pdf)
@@ -113,6 +120,7 @@ public class PdfServiceFactory : IPdfService
     private Table CreateSummaryTable(DeviceRgb purpleColour, PdfFont font, CustomerEntity customer,
     string startDate, string endDate, List<Transaction> transactions)
     {
+        _logger.LogInformation("Creating Summary Table");
         Table summaryTable = new Table(new float[] { 130F }).SetFontSize(8F).SetFontColor(ColorConstants.BLACK).SetFont(font).SetBorder(Border.NO_BORDER);
         summaryTable.AddCell(new Cell().Add(new Paragraph(customer.Branch)).SetBorder(Border.NO_BORDER).SetFontColor(purpleColour).SetFontSize(14F));
         summaryTable.AddCell(new Cell().Add(new Paragraph($"{startDate}   {endDate}")).SetBorder(Border.NO_BORDER));
@@ -285,6 +293,7 @@ public class PDFFooterEventHandler : IEventHandler
             PdfCanvas pdfCanvas = new(page.GetLastContentStream(), page.GetResources(), pdf);
             int pageNumber = pdf.GetPageNumber(page);
             int numberOfPages = pdf.GetNumberOfPages();
+            
 
             PdfFont font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA, PdfEncodings.CP1252, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
             DeviceRgb offPurpleColour = new(230, 230, 250);
