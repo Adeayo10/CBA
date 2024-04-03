@@ -20,11 +20,11 @@ export function generateId() {
   return crypto.randomUUID();
 }
 
-export function generateAccountNumber(){
-  const min = 1
-  const max = 100000000000
-  const randNum = Math.floor(Math.random() * (max - min)) + min
-  return randNum.toString().padStart(10, "0")
+export function generateAccountNumber() {
+  const min = 1;
+  const max = 100000000000;
+  const randNum = Math.floor(Math.random() * (max - min)) + min;
+  return randNum.toString().padStart(10, "0");
 }
 
 export function extractUpdateFields(dataObject, targetObject, excluded = []) {
@@ -36,4 +36,13 @@ export function extractUpdateFields(dataObject, targetObject, excluded = []) {
   }
 
   return output;
+}
+
+export function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  return `${date.getFullYear().toString()}-${date
+    .getMonth()
+    .toString()
+    .padStart(2, "0")}-${date.getDay().toString().padStart(2, 0)}`;
 }
