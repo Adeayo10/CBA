@@ -74,6 +74,10 @@ export const ROUTES = {
   SAVINGS_ACCOUNTS: "savings-accounts",
   USER_ROLES: "user-roles",
   USERS: "users",
+  WITHDRAWALS: "withdrawals",
+  DEPOSITS: "deposits",
+  TRANSFERS: "transfers",
+  POSTINGS: "postings",
   DASHBOARD: "/dashboard",
   FORGOT_PASSWORD: "/forgot-password",
   LOGIN: "/login",
@@ -87,12 +91,20 @@ export const ACCOUNT_TYPES = {
   CURRENT: "Current",
 };
 
+export const POSTING_TYPES = {
+  WITHDRAWAL: "Withdrawal",
+  DEPOSIT: "Deposit",
+  TRANSFER: "Transfer",
+};
+
+export const ACCOUNT_IDS = { Current: 2, Savings: 1, Loan: 3 };
+
 export const PAGE_SIZE = 10;
 
 export const GENDER = {
   MALE: "Male",
-  FEMALE: "Female"
-}
+  FEMALE: "Female",
+};
 
 export const CREATE_ACCOUNT_BASE = {
   id: "",
@@ -105,5 +117,18 @@ export const CREATE_ACCOUNT_BASE = {
   accountNumber: "",
   status: STATUS.ACTIVE,
   accountType: "",
-  state: STATUS.ACTIVE
-}
+  state: STATUS.ACTIVE,
+};
+
+export const ACCOUNT_ALLLOWED_FIELDS = [
+  "fullName",
+  "email",
+  "gender",
+  "phone Number",
+  "address",
+  "account Number",
+  "account Type",
+  "status",
+  "balance",
+  "date Created",
+];
