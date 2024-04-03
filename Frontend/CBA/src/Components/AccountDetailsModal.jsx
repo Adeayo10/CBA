@@ -8,20 +8,17 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Divider from "@mui/material/Divider";
 
-import {
-  USER_ALLLOWED_FIELDS,
-  USER_BRANCH_ALLOWED_FIELDS,
-} from "../utils/constants";
+import { ACCOUNT_ALLLOWED_FIELDS, ACCOUNT_IDS } from "../utils/constants";
 
-import { capitalize } from "../utils/util";
+import { capitalize, formatDate } from "../utils/util";
 
-export default function UserDetailsModal({
+export default function AccountDetailsModal({
   toggleModal,
   modalOpen,
-  user,
-  userBranch,
+  account,
+  accountType,
 }) {
-  if (!user || !userBranch) return <></>;
+  if (!account.id) return <></>;
 
   return (
     <Dialog
@@ -30,13 +27,13 @@ export default function UserDetailsModal({
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">View User</DialogTitle>
+      <DialogTitle id="alert-dialog-title">View Account</DialogTitle>
 
       <DialogContent>
         <Divider sx={{ mb: 1, width: "100%" }} />
         <Box sx={{ width: "100%" }}>
           <Typography gutterBottom variant="h6">
-            User
+            {accountType} Account: {account.accountNumber}
           </Typography>
           <Grid
             container
@@ -44,9 +41,13 @@ export default function UserDetailsModal({
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
             sx={{ my: 0.5, pt: 0.5, pb: 1.5 }}
           >
-            {USER_ALLLOWED_FIELDS.map((field, index) => {
+            {ACCOUNT_ALLLOWED_FIELDS.map((field, index) => {
               const fieldName = field.split(" ").join("");
-              const fieldKey = `${user.id}_${fieldName}_${index}`;
+              const fieldKey = `${account.id}_${fieldName}_${index}`;
+              let fieldValue = capitalize(String(account[fieldName]));
+              if (fieldName == "accountType") fieldValue = accountType;
+              if (fieldName == "dateCreated") fieldValue = formatDate(fieldValue);
+              
 
               return (
                 <Grid xs={6} key={fieldKey} item>
@@ -58,37 +59,7 @@ export default function UserDetailsModal({
                     {capitalize(field)}
                   </Typography>
                   <Typography variant="body" gutterBottom>
-                    {capitalize(String(user[fieldName]))}
-                  </Typography>
-                </Grid>
-              );
-            })}
-          </Grid>
-          <Divider sx={{ my: 1, width: "100%" }} />
-          <Typography gutterBottom variant="h6">
-            Branch
-          </Typography>
-          <Grid
-            container
-            rowSpacing={1}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-            sx={{ my: 0.5, py: 0.5 }}
-          >
-            {USER_BRANCH_ALLOWED_FIELDS.map((field, index) => {
-              const fieldName = field.split(" ").join("");
-              const fieldKey = `${user.id}_${fieldName}_${index}`;
-
-              return (
-                <Grid xs={6} key={fieldKey} item>
-                  <Typography
-                    gutterBottom
-                    variant="subtitle2"
-                    color="text.secondary"
-                  >
-                    {capitalize(field)}
-                  </Typography>
-                  <Typography variant="body" gutterBottom>
-                    {fieldName === "code"? userBranch[fieldName]?.toUpperCase() : capitalize(userBranch[fieldName])}
+                    {fieldValue}
                   </Typography>
                 </Grid>
               );
