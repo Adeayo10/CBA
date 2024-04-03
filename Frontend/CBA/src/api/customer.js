@@ -2,14 +2,14 @@ import { refreshAccessToken, getAuthorizationHeader } from "./auth";
 
 import { tokenExpired } from "../utils/token";
 
-import { PAGE_SIZE } from "../utils/constants";
+import { PAGE_SIZE, ACCOUNT_IDS } from "../utils/constants";
 
 export async function getCustomers(
   accountType,
   pageNumber = 1,
   pageSize = PAGE_SIZE
 ) {
-  const API_URL = `/api/v1/Customer/GetAllCustomers?pageNumber=${pageNumber}&pageSize=${pageSize}&filterValue=${accountType}`;
+  const API_URL = `/api/v1/Customer/GetAllCustomers?pageNumber=${pageNumber}&pageSize=${pageSize}&filterValue=${ACCOUNT_IDS[accountType]}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -113,8 +113,8 @@ export async function changeCustomerAccountStatus(customerId) {
   return await response.json();
 }
 
-export async function getCustomerTransactions(userId) {
-  const API_URL = "/api/v1/Auth/activate-user";
+export async function getCustomerTransactions(accountStamentDetails) {
+  const API_URL = "/api/v1/Customer/GetCustomerTransactions";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -126,7 +126,25 @@ export async function getCustomerTransactions(userId) {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify({ userId }),
+    body: JSON.stringify(accountStamentDetails),
+  });
+  return await response.json();
+}
+
+export async function generateAccountStatement(accountStamentDetails) {
+  const API_URL = "/api/v1/Customer/CreateAccountStatementPdf";
+
+  if (tokenExpired()) await refreshAccessToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: getAuthorizationHeader(),
+  };
+  console.log(accountStamentDetails);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(accountStamentDetails),
   });
   return await response.json();
 }
