@@ -115,9 +115,9 @@ const listItems = [
     ],
   },
   {
-    name: "Customer Information",
+    name: "Postings",
     icon: <HomeIcon />,
-    linkTo: ROUTES.CUSTOMER_INFO,
+    linkTo: ROUTES.POSTINGS,
     requiredRoles: [],
     subItems: [],
   },
