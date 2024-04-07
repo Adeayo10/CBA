@@ -4,6 +4,7 @@ using CBA.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace CBA.Controllers;
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -28,10 +29,6 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Creating customer");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage))});
-            }
             var result = await _customerService.CreateCustomerAsync(customer);
             if (!result.Status)
             {
@@ -42,7 +39,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
     [HttpPut]
@@ -53,10 +50,6 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Updating customer");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _customerService.UpdateCustomerAsync(customer);
             if (!result.Status)
             {
@@ -67,7 +60,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating customer");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
     
@@ -108,7 +101,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting all customers");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     
     }
@@ -121,10 +114,6 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Validating customer account number");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _customerService.ValidateCustomerByAccountNumberAsync(accountNumber);
             if (!result.Status)
             {
@@ -135,7 +124,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating customer account number");
-            return BadRequest(ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -157,7 +146,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting customer account balance");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
 
@@ -169,10 +158,6 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Changing customer account status");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _customerService.ChangeAccountStatusAsync(request.CustomerId);
             if (!result.Status)
             {
@@ -183,7 +168,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error changing customer account status");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
 
@@ -201,7 +186,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting account types");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
 
@@ -225,7 +210,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting customer transactions");
-            return BadRequest(ex.Message);
+            return StatusCode(500,ex.Message);
         }
     }
 
@@ -237,12 +222,14 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Creating account statement pdf");
+          
             return await _customerService.GetAccountStatementPdfAsync(transaction);
+            
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating account statement pdf");
-            throw;
+            throw new Exception(ex.Message);
         }
     }  
     
