@@ -4,12 +4,8 @@ import { tokenExpired } from "../utils/token";
 
 import { PAGE_SIZE, ACCOUNT_IDS } from "../utils/constants";
 
-export async function getCustomers(
-  accountType,
-  pageNumber = 1,
-  pageSize = PAGE_SIZE
-) {
-  const API_URL = `/api/v1/Customer/GetAllCustomers?pageNumber=${pageNumber}&pageSize=${pageSize}&filterValue=${ACCOUNT_IDS[accountType]}`;
+export async function getLedgers(pageNumber = 1, pageSize = PAGE_SIZE) {
+  const API_URL = `/api/v1/Ledger/getGLAccounts?pageNumber=${pageNumber}&pageSize=${pageSize}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -25,8 +21,8 @@ export async function getCustomers(
   return await response.json();
 }
 
-export async function getCustomerById(id) {
-  const API_URL = `/api/v1/Customer/GetCustomer?id=${id}`;
+export async function getLedgerById(id) {
+  const API_URL = `/api/v1/Ledger/getGLAccountById?id=${id}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -42,8 +38,8 @@ export async function getCustomerById(id) {
   return await response.json();
 }
 
-export async function getCustomerByAccount(accountNumber) {
-  const API_URL = `/api/v1/Customer/ValidateCustomerAccountNumber`;
+export async function getLedgerBalance(accountNumber) {
+  const API_URL = `/api/v1/Customer/GetCustomer?id=${id}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -53,9 +49,8 @@ export async function getCustomerByAccount(accountNumber) {
   };
   //console.log(id);
   const response = await fetch(API_URL, {
-    method: "POST",
+    method: "GET",
     headers,
-    body: JSON.stringify({accountNumber})
   });
   return await response.json();
 }
@@ -77,8 +72,8 @@ export async function getCustomerAccountTypes() {
   return await response.json();
 }
 
-export async function createCustomer(customerDetails) {
-  const API_URL = "/api/v1/Customer/CreateCustomer";
+export async function createLedger(ledgerDetails) {
+  const API_URL = "/api/v1/Ledger/createGLAccount";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -86,17 +81,17 @@ export async function createCustomer(customerDetails) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(customerDetails);
+  console.log(ledgerDetails);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify(customerDetails),
+    body: JSON.stringify(ledgerDetails),
   });
   return await response.json();
 }
 
-export async function updateCustomer(customerDetails) {
-  const API_URL = "/api/v1/Customer/UpdateCustomer";
+export async function updateLedger(ledgerDetails) {
+  const API_URL = "/api/v1/Ledger/updateGLAccount";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -104,11 +99,11 @@ export async function updateCustomer(customerDetails) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(customerDetails);
+  console.log(ledgerDetails);
   const response = await fetch(API_URL, {
     method: "PUT",
     headers,
-    body: JSON.stringify(customerDetails),
+    body: JSON.stringify(ledgerDetails),
   });
   return await response.json();
 }

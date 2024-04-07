@@ -113,7 +113,7 @@ public class CustomerService : ICustomerService
     {
 
         var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
-        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value) ?? throw new ArgumentNullException(nameof(customer.AccountType));
+        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value)??throw new ArgumentNullException(nameof(customer.AccountType));
         var customerEntity = new CustomerEntity
         {
             FullName = customer.FullName,
@@ -230,7 +230,7 @@ public class CustomerService : ICustomerService
         _logger.LogInformation("Getting customers");
 
         var totalCustomersTask = await GetTotalCustomersAsync();
-        var customersPerAccountTypeTask =await  GetCustomersPerAccountTypeAsync();
+        var customersPerAccountTypeTask = await GetCustomersPerAccountTypeAsync();
         var customersTask = await _context.CustomerEntity
             .OrderBy(x => x.DateCreated)
             .Skip((pageNumber - 1) * pageSize)
@@ -366,19 +366,23 @@ public class CustomerService : ICustomerService
         var transactions = await _context.Transaction
             .Where(x => x.CustomerId == customerEntity.Id && x.TransactionDate >= transaction.StartDate && x.TransactionDate <= transaction.EndDate)
             .ToListAsync();
-       
         var startDate = transaction.StartDate.ToString() ?? throw new ArgumentNullException(nameof(transaction.StartDate));
         var startDateInYYYYMMDD = DateTime.Parse(startDate).ToString("yyyy-MM-dd");
         var endDate = transaction.EndDate.ToString() ?? throw new ArgumentNullException(nameof(transaction.EndDate));
         var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd");
 
-        _logger.LogInformation("Transactions found");
+        bool transactionsExists =  transactions.Count > 0;
+
+        string message = transactionsExists? "Transactions found" : "No Transactions Found";
+
+        _logger.LogInformation(message);
         _logger.LogInformation($"Transactions: {transactions.ToArray()}");
+        
         return new TransactionResponse
         {
             Id = customerEntity.Id.ToString(),
-            Message = "Transactions found",
-            Status = true,
+            Message = message,
+            Status = transactionsExists,
             Transactions = transactions,
             StartDate = startDateInYYYYMMDD,
             EndDate = endDateInYYYYMMDD
@@ -388,6 +392,7 @@ public class CustomerService : ICustomerService
     public async Task<FileContentResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
     {
         var transactions = await GetTransactionsAsync(transaction);
+        if (transactions.Transactions == null || transactions.Transactions.Count == 0) { throw new Exception(transactions.Message); }
         var filePath = Path.Combine(Path.GetTempPath(), $"{transaction.AccountNumber}.pdf");
         _logger.LogInformation($"File path: {filePath} ");
         _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()} ");

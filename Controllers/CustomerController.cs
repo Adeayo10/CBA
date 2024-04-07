@@ -14,7 +14,7 @@ public class CustomerController : ControllerBase
     private readonly ICustomerService _customerService;
     private readonly ILogger<CustomerController> _logger;
     private readonly IPdfService _pdfService;
-    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger ,IPdfService pdfService)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger, IPdfService pdfService)
     {
         _customerService = customerService;
         _logger = logger;
@@ -29,6 +29,10 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Creating customer");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage))});
+            }
             var result = await _customerService.CreateCustomerAsync(customer);
             if (!result.Status)
             {
@@ -53,7 +57,7 @@ public class CustomerController : ControllerBase
             var result = await _customerService.UpdateCustomerAsync(customer);
             if (!result.Status)
             {
-                return BadRequest(new CustomerResponse { Message = result.Message, Status=result.Status, Errors = result.Errors });
+                return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
             return Ok(new CustomerResponse { Message = result.Message, Status = result.Status, Customer = result.Customer, Data = result.Data });
         }
@@ -63,7 +67,7 @@ public class CustomerController : ControllerBase
             return StatusCode(500,ex.Message);
         }
     }
-    
+
     [HttpGet]
     [Route("GetCustomer")]
     [Authorize(AuthenticationSchemes = "Bearer")]
@@ -90,7 +94,7 @@ public class CustomerController : ControllerBase
     [HttpGet]
     [Route("GetAllCustomers")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize,[FromQuery] string? filterValue)
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string? filterValue)
     {
         try
         {
@@ -103,14 +107,15 @@ public class CustomerController : ControllerBase
             _logger.LogError(ex, "Error getting all customers");
             return StatusCode(500,ex.Message);
         }
-    
+
     }
 
     [HttpPost]
     [Route("ValidateCustomerAccountNumber")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<IActionResult> ValidateCustomerAccountNumber([FromBody] string accountNumber)
+    public async Task<IActionResult> ValidateCustomerAccountNumber([FromBody] CustomerAccountRequestDTO accountRequest)
     {
+        string accountNumber = accountRequest.AccountNumber;
         try
         {
             _logger.LogInformation("Validating customer account number");
@@ -181,7 +186,7 @@ public class CustomerController : ControllerBase
         {
             _logger.LogInformation("Getting account types");
             var result = _customerService.GetAccountTypes();
-            return Ok(new {result});
+            return Ok(new { result });
         }
         catch (Exception ex)
         {
@@ -205,7 +210,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            return Ok(new CustomerResponse { Message = result.Message, Status = result.Status});
+            return Ok(new CustomerResponse { Message = result.Message, Status = result.Status });
         }
         catch (Exception ex)
         {
@@ -216,8 +221,8 @@ public class CustomerController : ControllerBase
 
     [HttpPost]
     [Route("CreateAccountStatementPdf")]
-   // [Authorize(AuthenticationSchemes = "Bearer")]
-    public async Task<FileContentResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
+    // [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
     {
         try
         {
@@ -229,12 +234,13 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating account statement pdf");
-            throw new Exception(ex.Message);
+            return StatusCode(500, new CustomerResponse { Message = ex.Message, Status = false });
+
         }
-    }  
-    
+    }
+
 
 }
 
-   
-    
+
+

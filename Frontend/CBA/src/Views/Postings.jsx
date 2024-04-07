@@ -26,6 +26,7 @@ import {
   STATUS,
   GENDER,
   POSTING_TYPES,
+  CREATE_POSTING_BASE
 } from "../utils/constants";
 import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
 import { toast } from "react-toastify";
@@ -43,13 +44,7 @@ import {
 
 export default function Postings() {
   const [postingDetails, setPostingDetails] = useState({
-    postingType: POSTING_TYPES.DEPOSIT,
-    accountNumber: "",
-    accountName: "",
-    amount: 0,
-    narration: "",
-    receiverAccountName: "",
-    receiverAccountNumber: "",
+    ...CREATE_POSTING_BASE
   });
 
   const [startDate, setStartDate] = useState(dayjs().subtract(1, "day"));
@@ -79,8 +74,13 @@ export default function Postings() {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    // setAccountNumber(String(value));
     setPostingDetails({ ...postingDetails, [name]: String(value) });
+  };
+
+  const handlePostingTypeChange = (event) => {
+    const { name, value } = event.target;
+    setPostingDetails({ ...CREATE_POSTING_BASE, postingType: String(value) });
+    setFormErrors({});
   };
 
   const handleSubmit = (event) => {
@@ -210,7 +210,7 @@ export default function Postings() {
                       }
                       label="PostingType"
                       name="postingType"
-                      onChange={handleInputChange}
+                      onChange={handlePostingTypeChange}
                     >
                       {Object.values(POSTING_TYPES).map(
                         (postingType, index) => {

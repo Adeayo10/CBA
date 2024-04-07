@@ -74,9 +74,6 @@ export const ROUTES = {
   SAVINGS_ACCOUNTS: "savings-accounts",
   USER_ROLES: "user-roles",
   USERS: "users",
-  WITHDRAWALS: "withdrawals",
-  DEPOSITS: "deposits",
-  TRANSFERS: "transfers",
   POSTINGS: "postings",
   DASHBOARD: "/dashboard",
   FORGOT_PASSWORD: "/forgot-password",
@@ -92,8 +89,8 @@ export const ACCOUNT_TYPES = {
 };
 
 export const POSTING_TYPES = {
-  WITHDRAWAL: "Withdrawal",
   DEPOSIT: "Deposit",
+  WITHDRAWAL: "Withdrawal",
   TRANSFER: "Transfer",
 };
 
@@ -132,3 +129,21 @@ export const ACCOUNT_ALLLOWED_FIELDS = [
   "balance",
   "date Created",
 ];
+
+export const LEDGER_TYPES = {
+  ASSET: "Asset",
+  LIABILITY: "Liability",
+  CAPITAL: "Capital",
+  INCOME: "Income",
+  EXPENSE: "Expense",
+};
+
+export const CREATE_POSTING_BASE = {
+  postingType: POSTING_TYPES.DEPOSIT,
+  accountNumber: "",
+  accountName: "",
+  amount: 0,
+  narration: "",
+  receiverAccountName: "",
+  receiverAccountNumber: "",
+};

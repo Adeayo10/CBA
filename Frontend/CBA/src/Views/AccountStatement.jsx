@@ -72,7 +72,8 @@ export default function AccountStatement() {
     generateAccountStatement(accountStatementDetails)
       .then((data) => {
         console.log(data);
-        if (data.errors) throw new Error(data.message || data.errors);
+        if (data.errors || !data.status)
+          throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
@@ -107,13 +108,12 @@ export default function AccountStatement() {
 
     getCustomerTransactions(accountStatementDetails)
       .then((data) => {
-        //console.log(data);
-        if (data.errors) throw new Error(data.message || data.errors);
+        console.log({ data });
+        if (data.errors || !data.status)
+          throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshAccountsList();
-        resetModal();
       })
       .catch((error) => {
         toast.error(error.message, TOAST_CONFIG);
