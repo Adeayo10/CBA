@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace CBA.Services;
 public class CustomerService : ICustomerService
 {
@@ -112,7 +113,7 @@ public class CustomerService : ICustomerService
     {
 
         var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
-        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value)??throw new ArgumentNullException(nameof(customer.AccountType));
+        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value) ?? throw new ArgumentNullException(nameof(customer.AccountType));
         var customerEntity = new CustomerEntity
         {
             FullName = customer.FullName,
@@ -235,9 +236,9 @@ public class CustomerService : ICustomerService
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-            
-        var totalCustomers =  totalCustomersTask;
-        var customersPerAccountType =  customersPerAccountTypeTask;
+
+        var totalCustomers = totalCustomersTask;
+        var customersPerAccountType = customersPerAccountTypeTask;
         var customers = customersTask;
 
         var filteredCustomers = customers
@@ -344,12 +345,12 @@ public class CustomerService : ICustomerService
         };
     }
     public object GetAccountTypes()
-    {
+    {   
         var accountTypes = Enum.GetValues(typeof(CustomerAccountType)).Cast<CustomerAccountType>().ToList();
-        var mappedAccountTypes = accountTypes.Select(x => new
+        var mappedAccountTypes = accountTypes.Select(accountTypes => new
         {
-            Id = (int)x,
-            Name = x.ToString()
+            Id = (int)accountTypes,
+            Name = accountTypes.ToString()
         }).ToList();
         return mappedAccountTypes;
     }
@@ -365,23 +366,24 @@ public class CustomerService : ICustomerService
         var transactions = await _context.Transaction
             .Where(x => x.CustomerId == customerEntity.Id && x.TransactionDate >= transaction.StartDate && x.TransactionDate <= transaction.EndDate)
             .ToListAsync();
-        var startDate = transaction.StartDate.ToString()??throw new ArgumentNullException(nameof(transaction.StartDate));
+       
+        var startDate = transaction.StartDate.ToString() ?? throw new ArgumentNullException(nameof(transaction.StartDate));
         var startDateInYYYYMMDD = DateTime.Parse(startDate).ToString("yyyy-MM-dd");
-        var endDate = transaction.EndDate.ToString()??throw new ArgumentNullException(nameof(transaction.EndDate));
-        var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd"); 
+        var endDate = transaction.EndDate.ToString() ?? throw new ArgumentNullException(nameof(transaction.EndDate));
+        var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd");
 
         _logger.LogInformation("Transactions found");
         _logger.LogInformation($"Transactions: {transactions.ToArray()}");
         return new TransactionResponse
         {
-            Id  = customerEntity.Id.ToString(),
+            Id = customerEntity.Id.ToString(),
             Message = "Transactions found",
             Status = true,
             Transactions = transactions,
             StartDate = startDateInYYYYMMDD,
             EndDate = endDateInYYYYMMDD
         };
-        
+
     }
     public async Task<FileContentResult> GetAccountStatementPdfAsync(TransactionDTO transaction)
     {
@@ -390,7 +392,7 @@ public class CustomerService : ICustomerService
         _logger.LogInformation($"File path: {filePath} ");
         _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()} ");
         await _pdfService.CreateAccountStatementPdfAsync(transactions.Transactions, transactions.Id, filePath, transactions.StartDate, transactions.EndDate);
-
+        
         using var memory = new MemoryStream();
         await using (var stream = new FileStream(filePath, FileMode.Open))
         {
@@ -404,6 +406,8 @@ public class CustomerService : ICustomerService
         _logger.LogInformation("File created and downloaded successfully");
 
         return file;
+
+
     }
 
     //public async Task<CustomerResponse> UpdateCustomerBalance(Guid id, decimal amount)
