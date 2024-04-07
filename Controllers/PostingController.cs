@@ -1,7 +1,6 @@
 using CBA.Models;
 using Microsoft.AspNetCore.Mvc;
 using CBA.Services;
-
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 
@@ -26,10 +25,6 @@ public class PostingController : ControllerBase
         try
         {
             _logger.LogInformation("Depositing into customer account");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _postingService.DepositAsync(customerDeposit);
             if (!result.Status)
             {
@@ -40,7 +35,7 @@ public class PostingController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error depositing into customer account");
-            return BadRequest(ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new CustomerResponse { Message = ex.Message, Status = false }); 
         }
     }
 
@@ -52,10 +47,6 @@ public class PostingController : ControllerBase
         try
         {
             _logger.LogInformation("Withdrawing from customer account");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _postingService.WithdrawAsync(customerWithdraw);
             if (!result.Status)
             {
@@ -66,7 +57,7 @@ public class PostingController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error withdrawing from customer account");
-            return BadRequest(ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new CustomerResponse { Message = ex.Message, Status = false });
         }
     }
     
@@ -78,10 +69,6 @@ public class PostingController : ControllerBase
         try
         {
             _logger.LogInformation("Transferring from customer account");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)) });
-            }
             var result = await _postingService.TransferAsync(customerTransfer);
             if (!result.Status)
             {
@@ -91,7 +78,25 @@ public class PostingController : ControllerBase
         }catch (Exception ex)
         {
             _logger.LogError(ex, "Error transferring from customer account");
-            return BadRequest(ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new CustomerResponse { Message = ex.Message, Status = false }); 
+        }
+    }
+
+    [HttpGet]
+    [Route("GetPostings")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> GetPostings([FromQuery] int pageNumber, [FromQuery] int pageSize, [FromQuery] string? filterValue = null)
+    {
+        try
+        {
+            _logger.LogInformation("Getting all postings");
+            var result = await _postingService.GetPostingsAsync(pageNumber, pageSize, filterValue);
+            return Ok(new { result });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting all postings");
+            return StatusCode(StatusCodes.Status500InternalServerError, new CustomerResponse { Message = ex.Message, Status = false });
         }
     }
 

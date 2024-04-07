@@ -1,5 +1,6 @@
 using CBA.Models;
 using CBA.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace CBA.Services;
 public class PostingService : IPostingService
@@ -313,5 +314,68 @@ public class PostingService : IPostingService
             Status = true
         };
     }
-}
+
+    public async Task<dynamic> GetPostingsAsync(int pageNumber, int pageSize, string? filterValue)
+    {
+        _logger.LogInformation("Getting all postings");
+        var totalPostings = await GetTotalPostingsAsync();
+        var totalPostingsByType = await GetTotalPostingsByTypeAsync();
+        var postingsTask = await _context.PostingEntities
+            .OrderByDescending(x => x.DatePosted)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        
+        var filteredPostings = postingsTask
+            .Where(x => x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
+            .Select(x => new
+            {
+                x.AccountName,
+                x.AccountNumber,
+                x.Amount,
+                x.TransactionType,
+                x.Narration,
+                x.CustomerId,
+                x.CustomerName,
+                x.CustomerAccountNumber,
+                x.CustomerAccountType,
+                x.CustomerBranch,
+                x.CustomerEmail,
+                x.CustomerPhoneNumber,
+                x.CustomerStatus,
+                x.CustomerGender,
+                x.CustomerAddress,
+                x.CustomerState,
+                x.DatePosted
+            })
+            .ToList();
+
+        var result = new  {
+
+            TotalPostings = totalPostings,
+            TotalPostingsByType = totalPostingsByType,
+            FilteredPostings = filteredPostings
+        };
+
+        return result;
+    }
+    private async Task<int> GetTotalPostingsAsync()
+    {
+        return await _context.PostingEntities.CountAsync();
+    }
+    private async Task<Dictionary<string, int>> GetTotalPostingsByTypeAsync()
+    {
+        var postings = await _context.PostingEntities.ToListAsync();
+        var postingTypes = postings.Select(p => p.TransactionType).Distinct();
+        var postingTypeCount = new Dictionary<string, int>();
+        foreach (var type in postingTypes)
+        {
+            if (type != null && !postingTypeCount.ContainsKey(type))
+            {
+                postingTypeCount.Add(type, postings.Count(p => p.TransactionType == type));
+            }
+        }
+        return postingTypeCount;
+    }
+} 
 //pagination for posting service
