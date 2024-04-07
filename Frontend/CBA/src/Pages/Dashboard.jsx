@@ -6,12 +6,13 @@ import SideBar from "../Components/SideBar";
 import { Navigate } from "react-router-dom";
 
 import Header from "../Components/Header";
-import { tokenExists } from "../utils/token";
+import { tokenExists, tokenExpired, clearTokenData } from "../utils/token";
 import Copyright from "../Components/Copyright";
 import { ROUTES } from "../utils/constants";
 
 export default function Dashboard(props) {
-  if (!tokenExists()) {
+  if (!tokenExists() || tokenExpired()) {
+    clearTokenData();
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
