@@ -42,6 +42,24 @@ export async function getCustomerById(id) {
   return await response.json();
 }
 
+export async function getCustomerByAccount(accountNumber) {
+  const API_URL = `/api/v1/Customer/ValidateCustomerAccountNumber`;
+
+  if (tokenExpired()) await refreshAccessToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: getAuthorizationHeader(),
+  };
+  //console.log(id);
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({accountNumber})
+  });
+  return await response.json();
+}
+
 export async function getCustomerAccountTypes() {
   const API_URL = `/api/v1/Customer/AccountTypes`;
 
