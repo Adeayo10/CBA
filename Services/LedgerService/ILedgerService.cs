@@ -14,5 +14,6 @@ Task<LedgerResponse> ChangeAccountStatusAsync(int id);
 
 Task<LedgerResponse> ViewLedgerAccountBalanceAsync(string accountNumber);
 Task<LedgerResponse> GetGLAccountByIdAsync(int id);
+object GetLedgerAccountByCategory();
 
 }

@@ -11,12 +11,14 @@ namespace CBA.Controllers;
 public class LedgerController : ControllerBase
 {
     private readonly ILedgerService _ledgerService;
+    private readonly ILogger<LedgerController> _logger;
 
-    public LedgerController(ILedgerService ledgerService)
+    public LedgerController(ILedgerService ledgerService, ILogger<LedgerController> logger)
     {
         _ledgerService = ledgerService;
+        _logger = logger;
+        _logger.LogInformation("Ledger Controller has been created");
     }
-
     [HttpPost]
     [Route("createGLAccount")]
     [Authorize(AuthenticationSchemes = "Bearer")]
@@ -25,14 +27,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Creating account");
             var response = await _ledgerService.AddGLAccountAsync(ledgerRequestDTO);
             if (response.Status == false)
             {
@@ -71,6 +66,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Getting all accounts");
             var response = await _ledgerService.GetGlAccountsAsync(pageNumber, pageSize/*, filter*/);
             if (response.Status == false)
             {
@@ -104,6 +100,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Getting account by id");
             var response = await _ledgerService.GetGLAccountByIdAsync(id);
             if (response.Status == false)
             {
@@ -111,7 +108,7 @@ public class LedgerController : ControllerBase
                 {
                     Message = "No account found",
                     Status = false
-                });
+                }); 
             }
             return Ok(new LedgerResponse()
             {
@@ -137,14 +134,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Updating account");   
             var response = await _ledgerService.UpdateGLAccountAsync(ledgerRequestDTO);
             if (response.Status == false)
             {
@@ -177,14 +167,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Linking user to account");
             var response = await _ledgerService.LinkUserToGLAccountAsync(userLedgerDto);
             if (response.Status == false)
             {
@@ -217,14 +200,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Unlinking user to account");
             var response = await _ledgerService.UnLinkUserToGLAccountAsync(userLedgerid);
             if (response.Status == false)
             {
@@ -257,14 +233,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Changing account status");
             var response = await _ledgerService.ChangeAccountStatusAsync(id);
             if (response.Status == false)
             {
@@ -297,14 +266,7 @@ public class LedgerController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new LedgerResponse()
-                {
-                    Message = "Invalid request",
-                    Status = false
-                });
-            }
+            _logger.LogInformation("Viewing account balance");
             var response = await _ledgerService.ViewLedgerAccountBalanceAsync(accountNumber);
             if (response.Status == false)
             {
@@ -329,6 +291,28 @@ public class LedgerController : ControllerBase
                 Status = false
             });
         }
+    }
+
+    [HttpGet]
+    [Route("getLedgerAccountByCategory")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public  IActionResult GetLedgerAccountByCategory()
+    {
+        try
+        {
+            _logger.LogInformation("Getting account by category");
+            var response = _ledgerService.GetLedgerAccountByCategory();
+            return Ok(new { response });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+
     }
 
 }

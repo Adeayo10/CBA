@@ -126,6 +126,16 @@ public class LedgerService : ILedgerService
         _logger.LogInformation("Account updated successfully");
         return CreateSuccessResponse<LedgerResponse>("Account updated successfully");
     }
+    public object GetLedgerAccountByCategory()
+    {
+        var LedgerCategory = Enum.GetValues(typeof(LedgerCategory)).Cast<LedgerCategory>().ToList();
+        var mappedCategory = LedgerCategory.Select(category => new
+        {
+            Id = (int)category,
+            Category = category.ToString()
+        });
+        return mappedCategory;
+    }
     private async void UpdateAccountDetailsAsync(GLAccounts glAccount, LedgerRequestDTO ledgerRequestDTO)
     {
         glAccount.AccountName = ledgerRequestDTO.AccountName;
