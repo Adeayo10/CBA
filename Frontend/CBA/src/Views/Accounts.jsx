@@ -176,10 +176,15 @@ export default function Accounts({ accountType }) {
     getCustomers(accountType, currentPage)
       .then((data) => {
         console.log(data);
-        if (data.errors || !data.length)
+        if (!data.filteredCustomers)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data);
+        setAccountsList(data.filteredCustomers);
+        setNoOfPages(
+          Math.ceil(
+            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
+          )
+        );
         setIsLoading(false);
       })
       .catch((error) => {
@@ -212,10 +217,15 @@ export default function Accounts({ accountType }) {
     getCustomers(accountType, page)
       .then((data) => {
         console.log(data);
-        if (data.errors || !data.length)
+        if (!data.filteredCustomers)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data);
+        setAccountsList(data.filteredCustomers);
+        setNoOfPages(
+          Math.ceil(
+            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
+          )
+        );
         setIsLoading(false);
       })
       .catch((error) => {
