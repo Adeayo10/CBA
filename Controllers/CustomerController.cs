@@ -208,9 +208,9 @@ public class CustomerController : ControllerBase
             _logger.LogInformation($"{result}");
             if (!result.Status)
             {
-                return BadRequest(new CustomerResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
+                return BadRequest(new TransactionResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            return Ok(new CustomerResponse { Message = result.Message, Status = result.Status });
+            return Ok(new TransactionResponse { Message = result.Message, Status = result.Status, Transactions = result.Transactions });
         }
         catch (Exception ex)
         {
