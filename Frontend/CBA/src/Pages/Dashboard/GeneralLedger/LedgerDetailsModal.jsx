@@ -17,7 +17,7 @@ export default function LedgerDetailsModal({
   modalOpen,
   ledger,
 }) {
-  if (!ledger.id) return <></>;
+  if (!ledger.accountName) return <></>;
 
   return (
     <Dialog
