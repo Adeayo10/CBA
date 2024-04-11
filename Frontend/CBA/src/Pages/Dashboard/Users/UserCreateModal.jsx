@@ -20,11 +20,11 @@ import {
   ROLES,
   CREATE_USER_BASE,
   CREATE_USER_BRANCH_BASE,
-} from "../utils/constants";
-import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
+} from "../../../utils/constants";
+import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
-import { createUser } from "../api/users";
-import { generateId, generateRandomPassword } from "../utils/util";
+import { createUser } from "../../../api/users";
+import { generateId, generateRandomPassword } from "../../../utils/util";
 
 export default function UserCreateModal({
   toggleModal,

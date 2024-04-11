@@ -11,9 +11,9 @@ import Divider from "@mui/material/Divider";
 import {
   USER_ALLLOWED_FIELDS,
   USER_BRANCH_ALLOWED_FIELDS,
-} from "../utils/constants";
+} from "../../../utils/constants";
 
-import { capitalize } from "../utils/util";
+import { capitalize } from "../../../utils/util";
 
 export default function UserDetailsModal({
   toggleModal,
@@ -88,7 +88,9 @@ export default function UserDetailsModal({
                     {capitalize(field)}
                   </Typography>
                   <Typography variant="body" gutterBottom>
-                    {fieldName === "code"? userBranch[fieldName]?.toUpperCase() : capitalize(userBranch[fieldName])}
+                    {fieldName === "code"
+                      ? userBranch[fieldName]?.toUpperCase()
+                      : capitalize(userBranch[fieldName])}
                   </Typography>
                 </Grid>
               );

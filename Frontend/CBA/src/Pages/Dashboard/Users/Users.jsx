@@ -27,10 +27,10 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Title from "../Components/Title";
-import UserCreateModal from "../Components/UserCreateModal";
-import UserDetailsModal from "../Components/UserDetailsModal";
-import UserUpdateModal from "../Components/UserUpdateModal";
+import Title from "../../../Components/Title";
+import UserCreateModal from "./UserCreateModal";
+import UserDetailsModal from "./UserDetailsModal";
+import UserUpdateModal from "./UserUpdateModal";
 
 import {
   TOAST_CONFIG,
@@ -38,15 +38,15 @@ import {
   CREATE_USER_BASE,
   CREATE_USER_BRANCH_BASE,
   PAGE_SIZE,
-} from "../utils/constants";
+} from "../../../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { forgotPassword } from "../api/auth";
-import { getUsers, deactivateUser, activateUser } from "../api/users";
-import { capitalize, extractUpdateFields } from "../utils/util";
+import { forgotPassword } from "../../../api/auth";
+import { getUsers, deactivateUser, activateUser } from "../../../api/users";
+import { capitalize, extractUpdateFields } from "../../../utils/util";
 import { ErrorTwoTone } from "@mui/icons-material";
-import { redirectIfRefreshTokenExpired } from "../utils/token";
+import { redirectIfRefreshTokenExpired } from "../../../utils/token";
 
 export default function Users() {
   const [usersList, setUsersList] = useState([]);
