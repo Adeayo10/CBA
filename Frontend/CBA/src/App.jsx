@@ -9,9 +9,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ToastContainer } from "react-toastify";
 
 import Login from "./Pages/Login";
-import Dashboard from "./Pages/Dashboard";
+import Dashboard from "./Pages/Dashboard/Dashboard";
 import Copyright from "./Components/Copyright";
-import Users from "./Views/Users";
+import Users from "./Pages/Dashboard/Users/Users";
 import UserRoles from "./Views/UserRoles";
 import ForgotPassword from "./Pages/ForgotPassword";
 import { Typography } from "@mui/material";
@@ -21,9 +21,9 @@ import VerifyToken from "./Pages/VerifyToken";
 import AccountStatement from "./Views/AccountStatement";
 import CustomerAccount from "./Views/CustomerAccount";
 import CustomerInformation from "./Views/CustomerInformation";
-import GeneralLedger from "./Views/GeneralLedger";
+import GeneralLedger from "./Pages/Dashboard/GeneralLedger/GeneralLedger";
 import { ROUTES, ACCOUNT_TYPES, POSTING_TYPES } from "./utils/constants";
-import Accounts from "./Views/Accounts";
+import Accounts from "./Pages/Dashboard/Accounts/Accounts";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Postings from "./Views/Postings";
@@ -79,10 +79,7 @@ function App() {
               />
               <Route path={ROUTES.GENERAL_LEDGER} element={<GeneralLedger />} />
 
-              <Route
-                path={ROUTES.POSTINGS}
-                element={<Postings />}
-              />
+              <Route path={ROUTES.POSTINGS} element={<Postings />} />
               {/* <Route
                 path={ROUTES.TRANSFERS}
                 element={<Postings postingType={POSTING_TYPES.TRANSFER} />}
