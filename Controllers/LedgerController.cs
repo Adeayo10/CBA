@@ -72,12 +72,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            return Ok(new LedgerResponse()
-            {
-                Message = "Account found",
-                Status = true,
-                Data = response.Data
-            });
+            return Ok(response);
         }
         catch (Exception ex)
         {
