@@ -109,12 +109,24 @@ public class LedgerService : ILedgerService
         if (glAccount is null)
         {
             _logger.LogInformation("Account not found");
-            return CreateErrorResponse<LedgerResponse>("Account not found");
+            return new LedgerResponse
+            {
+                Message = "Account not found",
+                Status = false
+            };
+    
         }
 
         LedgerData mappedData = MapLedgerData(glAccount);
+        
         _logger.LogInformation("Account found");
-        return CreateSuccessResponse<LedgerResponse>("Account found", mappedData);
+        return new LedgerResponse
+        {
+            Message = "Account found",
+            Status = true,
+            Data = mappedData
+        };
+    
     }
     private static LedgerData MapLedgerData(GLAccounts glAccount)
     {
