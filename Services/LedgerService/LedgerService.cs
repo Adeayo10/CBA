@@ -229,7 +229,7 @@ public class LedgerService : ILedgerService
     }
     public async Task<LedgerResponse> ChangeAccountStatusAsync(int id)
     {
-        var glAccount = GetGLAccountByIdAsync(id).Result.Data;
+        var glAccount = _context.GLAccounts.Find(id);
         if (glAccount == null)
         {
             _logger.LogInformation("Account not found");
