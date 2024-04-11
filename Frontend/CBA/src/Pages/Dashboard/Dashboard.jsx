@@ -2,13 +2,13 @@ import { useState } from "react";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import { Outlet } from "react-router-dom";
-import SideBar from "../Components/SideBar";
+import SideBar from "../../Components/SideBar";
 import { Navigate } from "react-router-dom";
 
-import Header from "../Components/Header";
-import { tokenExists, tokenExpired, clearTokenData } from "../utils/token";
-import Copyright from "../Components/Copyright";
-import { ROUTES } from "../utils/constants";
+import Header from "../../Components/Header";
+import { tokenExists, tokenExpired, clearTokenData } from "../../utils/token";
+import Copyright from "../../Components/Copyright";
+import { ROUTES } from "../../utils/constants";
 
 export default function Dashboard(props) {
   if (!tokenExists() || tokenExpired()) {
