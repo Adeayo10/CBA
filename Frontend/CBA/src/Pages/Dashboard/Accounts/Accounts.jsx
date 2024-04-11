@@ -27,7 +27,7 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Title from "../Components/Title";
+import Title from "../../../Components/Title";
 
 import {
   TOAST_CONFIG,
@@ -35,19 +35,22 @@ import {
   ACCOUNT_IDS,
   PAGE_SIZE,
   CREATE_ACCOUNT_BASE,
-} from "../utils/constants";
+} from "../../../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { forgotPassword } from "../api/auth";
-import { getUsers, deactivateUser, activateUser } from "../api/users";
-import { changeCustomerAccountStatus, getCustomers } from "../api/customer";
-import { capitalize, extractUpdateFields } from "../utils/util";
+import { forgotPassword } from "../../../api/auth";
+import { getUsers, deactivateUser, activateUser } from "../../../api/users";
+import {
+  changeCustomerAccountStatus,
+  getCustomers,
+} from "../../../api/customer";
+import { capitalize, extractUpdateFields } from "../../../utils/util";
 import { ErrorTwoTone } from "@mui/icons-material";
-import { redirectIfRefreshTokenExpired } from "../utils/token";
-import AccountUpdateModal from "../Components/AccountUpdateModal";
-import AccountCreateModal from "../Components/AccountCreateModal";
-import AccountDetailsModal from "../Components/AccountDetailsModal";
+import { redirectIfRefreshTokenExpired } from "../../../utils/token";
+import AccountUpdateModal from "./AccountUpdateModal";
+import AccountCreateModal from "./AccountCreateModal";
+import AccountDetailsModal from "./AccountDetailsModal";
 
 export default function Accounts({ accountType }) {
   const [accountsList, setAccountsList] = useState([]);

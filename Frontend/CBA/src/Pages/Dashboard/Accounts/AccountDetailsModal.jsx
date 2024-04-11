@@ -8,9 +8,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Divider from "@mui/material/Divider";
 
-import { ACCOUNT_ALLLOWED_FIELDS, ACCOUNT_IDS } from "../utils/constants";
+import { ACCOUNT_ALLLOWED_FIELDS, ACCOUNT_IDS } from "../../../utils/constants";
 
-import { capitalize, formatDate } from "../utils/util";
+import { capitalize, formatDate } from "../../../utils/util";
 
 export default function AccountDetailsModal({
   toggleModal,
@@ -46,8 +46,8 @@ export default function AccountDetailsModal({
               const fieldKey = `${account.id}_${fieldName}_${index}`;
               let fieldValue = capitalize(String(account[fieldName]));
               if (fieldName == "accountType") fieldValue = accountType;
-              if (fieldName == "dateCreated") fieldValue = formatDate(fieldValue);
-              
+              if (fieldName == "dateCreated")
+                fieldValue = formatDate(fieldValue);
 
               return (
                 <Grid xs={6} key={fieldKey} item>
