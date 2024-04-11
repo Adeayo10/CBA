@@ -43,11 +43,7 @@ public class LedgerController : ControllerBase
             //     Status = true,
             //     Data = response.Data
             // });
-            return Ok(new LedgerResponse()
-            {
-                Message = "Account created successfully",
-                Status = true
-            });
+            return Ok(response.Message);
         }
         catch (Exception ex)
         {
@@ -276,12 +272,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            return Ok(new LedgerResponse()
-            {
-                Message = "Account balance found",
-                Status = true,
-                Data = response.Data
-            });
+            return Ok(response);
         }
         catch (Exception ex)
         {

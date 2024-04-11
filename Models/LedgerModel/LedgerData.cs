@@ -2,6 +2,7 @@ namespace CBA.Models
 {
     public class LedgerData
     {
+        public int Id { get; set; }
         public string? AccountName { get; set; }
         public string? AccountNumber { get; set; }
         public string? AccountCategory { get; set; }
