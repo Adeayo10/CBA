@@ -239,11 +239,7 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            return Ok(new LedgerResponse()
-            {
-                Message = "Account status changed successfully",
-                Status = true
-            });
+            return Ok(response.Message);
         }
         catch (Exception ex)
         {

@@ -233,25 +233,42 @@ public class LedgerService : ILedgerService
         if (glAccount == null)
         {
             _logger.LogInformation("Account not found");
-            return CreateErrorResponse<LedgerResponse>("Account not found");
+            return new LedgerResponse
+            {
+                Message = "Account not found",
+                Status = false
+            };
         }
         glAccount.AccountStatus = glAccount.AccountStatus == "Active" ? "Inactive" : "Active";
         await _context.SaveChangesAsync();
-        return CreateSuccessResponse<LedgerResponse>("Account status changed successfully"); 
+        return new LedgerResponse
+        {
+            Message = "Account status changed successfully",
+            Status = true
+        };
     }
-    public async Task<CustomerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger)
+    public async Task<LedgerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger)
     {
         var user = await _context.Users.FindAsync(userLedger.Userid);
         if (user is null)
         {
             _logger.LogInformation("User not found");
-            return CreateErrorResponse<CustomerResponse>("User not found");
+            return new LedgerResponse
+            {
+                Message = "User not found",
+                Status = false
+            };
+            
         }
         var glAccount = await _context.GLAccounts.FindAsync(userLedger.GLAccountid);
         if (glAccount is null)
         {
             _logger.LogInformation("GLAccount not found");
-            return CreateErrorResponse<CustomerResponse>("GLAccount not found");
+            return new LedgerResponse
+            {
+                Message = "GLAccount not found",
+                Status = false
+            };
         }
         _logger.LogInformation("Linking user to GLAccount");
        
@@ -260,7 +277,11 @@ public class LedgerService : ILedgerService
         await _context.UserLedger.AddAsync(userLedgerEntity);
         await _context.SaveChangesAsync();
 
-        return CreateSuccessResponse<CustomerResponse>("Linking successful");
+        return new LedgerResponse
+        {
+            Message = "Linking successful",
+            Status = true
+        };
     }
     private static UserLedger CreateUserLedgerEntity( ApplicationUser user, GLAccounts glAccount)
     {
@@ -274,20 +295,28 @@ public class LedgerService : ILedgerService
             AccountNumber = glAccount.AccountNumber
         };
     }
-    public async Task<CustomerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedgerid)
+    public async Task<LedgerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedgerid)
     {
         var userLedger = await _context.UserLedger.SingleOrDefaultAsync(x => x.Id == userLedgerid.Userid);
         if (userLedger is null)
         {
             _logger.LogInformation("UserLedger not found");
-            return CreateErrorResponse<CustomerResponse>("UserLedger not found");
+            return new LedgerResponse
+            {
+                Message = "UserLedger not found",
+                Status = false
+            };
         }
 
         _context.UserLedger.Remove(userLedger);
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("UnLinking successful");
-        return CreateSuccessResponse<CustomerResponse>("UnLinking successful");
+        return new LedgerResponse
+        {
+            Message = "UnLinking successful",
+            Status = true
+        }; 
     }
     private static T CreateErrorResponse<T>(string errorMessage) where T : Response, new()
     {

@@ -8,8 +8,8 @@ Task<LedgerResponse> AddGLAccountAsync(LedgerRequestDTO ledgerRequestDTO);
 Task<LedgerResponse> GetGlAccountsAsync(int pageNumber, int pageSize /*string filter*/);
 Task<LedgerResponse> UpdateGLAccountAsync(LedgerRequestDTO ledgerRequestDTO);
 Task<decimal> GetMostRecentLedgerEnteryBalanceAsync(string accountNumber);
-Task<CustomerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger);
-Task<CustomerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedger);
+Task<LedgerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger);
+Task<LedgerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedger);
 Task<LedgerResponse> ChangeAccountStatusAsync(int id);
 
 Task<LedgerResponse> ViewLedgerAccountBalanceAsync(string accountNumber);
