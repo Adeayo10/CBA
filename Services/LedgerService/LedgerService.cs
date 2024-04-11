@@ -50,7 +50,10 @@ public class LedgerService : ILedgerService
     public async Task<LedgerResponse> GetGlAccountsAsync(int pageNumber, int pageSize /*string filterValue*/)
     {
         _logger.LogInformation("Fetching GLAccount");
-        var glAccount = await _context.GLAccounts/*.Where(x => x.AccountName.Contains(filterValue) || x.AccountNumber.Contains(filterValue))*/.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var glAccount = await _context.GLAccounts/*.Where(x => x.AccountName.Contains(filterValue) || x.AccountNumber.Contains(filterValue))*/
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
         if (glAccount.Count == 0)
         {
             _logger.LogInformation("No account found");
@@ -61,8 +64,17 @@ public class LedgerService : ILedgerService
             };
         }
         var totalRowCount = await GetTotalCountOfGLAccountsAsync();
+        _logger.LogInformation("TOTAL ROW COUNT: " + totalRowCount);    
         _logger.LogInformation("Account found");
-        var mappedData = glAccount;
+        var mappedData = glAccount.Select(account => new GLAccounts
+        {
+            AccountName = account.AccountName,
+            AccountNumber = account.AccountNumber,
+            AccountCategory = account.AccountCategory,
+            AccountDescription = account.AccountDescription,
+            AccountStatus = account.AccountStatus
+        }).ToList();
+        _logger.LogInformation("Account found", mappedData);
         
         return new LedgerResponse
         {
