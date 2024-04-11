@@ -65,7 +65,7 @@ export default function GeneralLedger() {
         console.log(data);
         if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.data);
+        setLedgersList(data.dataList);
         setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
@@ -92,6 +92,7 @@ export default function GeneralLedger() {
     event.preventDefault();
     const ledgerIndex = currentLedgerElement.name;
     const ledger = ledgersList[ledgerIndex];
+    console.log(ledger)
     setCurrentLedgerDetails(ledger);
     toggleDetailsModal();
     closeMenu();
@@ -165,7 +166,7 @@ export default function GeneralLedger() {
         console.log(data);
         if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.data);
+        setLedgersList(data.dataList);
         setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
@@ -201,7 +202,7 @@ export default function GeneralLedger() {
         console.log(data);
         if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.data);
+        setLedgersList(data.dataList);
         setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
@@ -254,19 +255,19 @@ export default function GeneralLedger() {
                       accountName,
                       accountDescription,
                       accountCategory,
-                      status,
+                      accountStatus,
                     },
                     index
                   ) => {
                     const disabledText =
-                      status !== STATUS.ACTIVE ? { color: "#575757" } : {};
+                      accountStatus !== STATUS.ACTIVE ? { color: "#575757" } : {};
                     const disabledRow =
-                      status !== STATUS.ACTIVE
+                      accountStatus !== STATUS.ACTIVE
                         ? { backgroundColor: "#c9c9c9" }
                         : {};
 
                     return (
-                      <TableRow key={id} style={disabledRow}>
+                      <TableRow key={`${id}_${accountName}`} style={disabledRow}>
                         <TableCell style={disabledText}>
                           {capitalize(accountName)}
                         </TableCell>
@@ -276,7 +277,7 @@ export default function GeneralLedger() {
                         <TableCell style={disabledText}>
                           {accountCategory}
                         </TableCell>
-                        <TableCell style={disabledText}>{status}</TableCell>
+                        <TableCell style={disabledText}>{accountStatus}</TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="Show user actions"
