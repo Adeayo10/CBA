@@ -15,29 +15,29 @@ import Select from "@mui/material/Select";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { TOAST_CONFIG, ROLES, STATUS, GENDER } from "../utils/constants";
-import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
+import { TOAST_CONFIG, ROLES, STATUS, GENDER } from "../../../utils/constants";
+import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
-import { updateUser } from "../api/users";
-import { updateCustomer } from "../api/customer";
+import { updateUser } from "../../../api/users";
+import { updateCustomer } from "../../../api/customer";
+import { updateLedger } from "../../../api/ledger";
 
-export default function AccountUpdateModal({
+export default function LedgerUpdateModal({
   toggleModal,
   modalOpen,
-  account,
-  accountType,
-  refreshAccountsList,
+  ledger,
+  refreshLedgerList,
 }) {
-  if (!account.id) return <></>;
+  if (!ledger.id) return <></>;
 
-  const [accountDetails, setAccountDetails] = useState({});
+  const [ledgerDetails, setLedgerDetails] = useState({});
   const [formErrors, setFormErrors] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (modalOpen) {
-      setAccountDetails({ ...account, accountType });
+      setLedgerDetails({ ...ledger });
       //console.log("I ran")
     }
   }, [modalOpen]);
@@ -56,14 +56,15 @@ export default function AccountUpdateModal({
       return;
     }
 
-    updateCustomer(accountDetails)
+    updateLedger(ledgerDetails)
       .then((data) => {
         //console.log(data);
-        if (data.errors) throw new Error(data.message || data.errors);
+        if (data.errors || !data.status)
+          throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshAccountsList();
+        refreshLedgerList();
         toggleModal();
       })
       .catch((error) => {
@@ -73,7 +74,7 @@ export default function AccountUpdateModal({
   };
 
   const getEmptyFields = () => {
-    const formFields = Object.entries(accountDetails);
+    const formFields = Object.entries(ledgerDetails);
 
     let emptyFields = {};
 
@@ -90,17 +91,13 @@ export default function AccountUpdateModal({
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setAccountDetails({ ...accountDetails, [name]: String(value) });
+    setLedgerDetails({ ...ledgerDetails, [name]: String(value) });
   };
 
   const validateField = (event) => {
     const { name, value } = event.target;
     if (!value)
       setFormErrors({ ...formErrors, [name]: "Field Cannot Be Empty" });
-    else if (name === "phoneNumber" && !isValidPhoneNumber(value))
-      setFormErrors({ ...formErrors, [name]: "Invalid Phone Number" });
-    else if (name === "email" && !isValidEmail(value))
-      setFormErrors({ ...formErrors, [name]: "Invalid Email Address" });
     else if (formErrors[name]) {
       let updatedErrors = { ...formErrors };
       delete updatedErrors[name];
@@ -113,18 +110,18 @@ export default function AccountUpdateModal({
       open={modalOpen}
       onClose={toggleModal}
       keepMounted={false}
-      key={`${account.id}_modal`}
+      key={`${ledger.id}_modal`}
       PaperProps={{
         component: "form",
         onSubmit: handleSubmit,
         noValidate: true,
       }}
     >
-      <DialogTitle>Update Account</DialogTitle>
+      <DialogTitle>Update Ledger Account</DialogTitle>
       <DialogContent>
         <Divider sx={{ mb: 1, width: "100%" }} />
         <Typography gutterBottom variant="h6">
-          {accountType} Account: {account.accountNumber}
+          {accountType} Account: {ledger.accountNumber}
         </Typography>
         <Grid
           container
@@ -137,26 +134,13 @@ export default function AccountUpdateModal({
               margin="normal"
               required
               fullWidth
-              id="Email"
-              label="Email"
-              name="email"
-              value={accountDetails.email}
-              disabled
-            />
-          </Grid>
-          <Grid xs={6} item>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="Fullname"
-              label="Fullname"
-              name="fullName"
+              id="AccountName"
+              label="Account Name"
+              name="accountName"
               onChange={handleInputChange}
               error={Boolean(formErrors.fullName)}
               helperText={formErrors.fullName}
               onBlur={validateField}
-              value={accountDetails.fullName}
             />
           </Grid>
           <Grid xs={6} item>
@@ -164,84 +148,33 @@ export default function AccountUpdateModal({
               margin="normal"
               required
               fullWidth
-              id="Address"
-              label="Address"
-              name="address"
+              id="AccountDescription"
+              label="Account Description"
+              name="accountDescription"
               onChange={handleInputChange}
-              error={Boolean(formErrors.address)}
-              helperText={formErrors.address}
-              onBlur={validateField}
-              value={accountDetails.address}
-            />
-          </Grid>
-          <Grid xs={6} item>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="Phonenumber"
-              label="Phone Number"
-              name="phoneNumber"
-              onChange={handleInputChange}
-              error={Boolean(formErrors.phoneNumber)}
-              helperText={formErrors.phoneNumber}
-              onBlur={validateField}
-              value={accountDetails.phoneNumber}
-            />
-          </Grid>
-          <Grid xs={6} item>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="Branch"
-              label="Branch"
-              name="branch"
-              value={accountDetails.branch}
-              onChange={handleInputChange}
-              error={Boolean(formErrors.branch)}
-              helperText={formErrors.branch}
+              error={Boolean(formErrors.email)}
+              helperText={formErrors.email}
               onBlur={validateField}
             />
           </Grid>
           <Grid xs={6} item>
             <FormControl fullWidth sx={{ my: 2 }}>
-              <InputLabel id="Gender-label">Gender</InputLabel>
+              <InputLabel id="AccountCategory-label">
+                Account Category
+              </InputLabel>
               <Select
-                labelId="Gender-label"
-                id="Gender"
-                value={accountDetails.gender || GENDER.MALE}
+                labelId="AccountCategory-label"
+                id="AccountCategory"
+                value={ledgerDetails.accountCategory || LEDGER_TYPES.ASSET}
                 label="Gender"
-                name="gender"
+                name="accountCategory"
                 onChange={handleInputChange}
               >
-                {Object.values(GENDER).map((gender, index) => {
-                  const genderKey = `update_${gender}_${index}`;
+                {Object.values(LEDGER_TYPES).map((ledgerType, index) => {
+                  const ledgerTypeKey = `update_${ledgerType}_${index}`;
                   return (
-                    <MenuItem value={gender} key={genderKey}>
-                      {gender}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid xs={6} item>
-            <FormControl fullWidth sx={{ my: 2 }}>
-              <InputLabel id="State-label">State</InputLabel>
-              <Select
-                labelId="State-label"
-                id="State"
-                value={accountDetails.state || STATUS.ACTIVE}
-                label="State"
-                name="state"
-                onChange={handleInputChange}
-              >
-                {Object.values(STATUS).map((status, index) => {
-                  const statusKey = `update_${status}_${index}`;
-                  return (
-                    <MenuItem value={status} key={statusKey}>
-                      {status}
+                    <MenuItem value={ledgerType} key={ledgerTypeKey}>
+                      {ledgerType}
                     </MenuItem>
                   );
                 })}

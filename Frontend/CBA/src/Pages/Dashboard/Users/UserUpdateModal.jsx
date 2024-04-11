@@ -15,10 +15,10 @@ import Select from "@mui/material/Select";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { TOAST_CONFIG, ROLES } from "../utils/constants";
-import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
+import { TOAST_CONFIG, ROLES } from "../../../utils/constants";
+import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
-import { updateUser } from "../api/users";
+import { updateUser } from "../../../api/users";
 
 export default function UserUpdateModal({
   toggleModal,

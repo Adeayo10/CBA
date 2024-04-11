@@ -8,17 +8,16 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Divider from "@mui/material/Divider";
 
-import { ACCOUNT_ALLLOWED_FIELDS, ACCOUNT_IDS } from "../utils/constants";
+import { LEDGER_ALLLOWED_FIELDS } from "../../../utils/constants";
 
-import { capitalize, formatDate } from "../utils/util";
+import { capitalize, formatDate } from "../../../utils/util";
 
-export default function AccountDetailsModal({
+export default function LedgerDetailsModal({
   toggleModal,
   modalOpen,
-  account,
-  accountType,
+  ledger,
 }) {
-  if (!account.id) return <></>;
+  if (!ledger.id) return <></>;
 
   return (
     <Dialog
@@ -33,7 +32,7 @@ export default function AccountDetailsModal({
         <Divider sx={{ mb: 1, width: "100%" }} />
         <Box sx={{ width: "100%" }}>
           <Typography gutterBottom variant="h6">
-            {accountType} Account: {account.accountNumber}
+            Ledger Account: {ledger.accountName}
           </Typography>
           <Grid
             container
@@ -41,13 +40,12 @@ export default function AccountDetailsModal({
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
             sx={{ my: 0.5, pt: 0.5, pb: 1.5 }}
           >
-            {ACCOUNT_ALLLOWED_FIELDS.map((field, index) => {
+            {LEDGER_ALLLOWED_FIELDS.map((field, index) => {
               const fieldName = field.split(" ").join("");
-              const fieldKey = `${account.id}_${fieldName}_${index}`;
-              let fieldValue = capitalize(String(account[fieldName]));
-              if (fieldName == "accountType") fieldValue = accountType;
-              if (fieldName == "dateCreated") fieldValue = formatDate(fieldValue);
-              
+              const fieldKey = `${ledger.id}_${fieldName}_${index}`;
+              let fieldValue = capitalize(String(ledger[fieldName]));
+              if (fieldName == "dateCreated")
+                fieldValue = formatDate(fieldValue);
 
               return (
                 <Grid xs={6} key={fieldKey} item>

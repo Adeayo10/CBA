@@ -1,6 +1,6 @@
 import { refreshAccessToken, getAuthorizationHeader } from "./auth";
 
-import { tokenExpired } from "../utils/token";
+import { retrieveUserId, tokenExpired } from "../utils/token";
 
 import { PAGE_SIZE, ACCOUNT_IDS } from "../utils/constants";
 
@@ -39,24 +39,7 @@ export async function getLedgerById(id) {
 }
 
 export async function getLedgerBalance(accountNumber) {
-  const API_URL = `/api/v1/Customer/GetCustomer?id=${id}`;
-
-  if (tokenExpired()) await refreshAccessToken();
-
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: getAuthorizationHeader(),
-  };
-  //console.log(id);
-  const response = await fetch(API_URL, {
-    method: "GET",
-    headers,
-  });
-  return await response.json();
-}
-
-export async function getCustomerAccountTypes() {
-  const API_URL = `/api/v1/Customer/AccountTypes`;
+  const API_URL = `/api/v1/Ledger/viewLedgerAccountBalance?accountNumber=${accountNumber}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -108,8 +91,8 @@ export async function updateLedger(ledgerDetails) {
   return await response.json();
 }
 
-export async function changeCustomerAccountStatus(customerId) {
-  const API_URL = "/api/v1/Customer/ChangeCustomerAccountStatus";
+export async function changeLedgerStatus(ledgerId) {
+  const API_URL = "/api/v1/Ledger/changeAccountStatus";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -117,17 +100,17 @@ export async function changeCustomerAccountStatus(customerId) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(customerId);
+  console.log(ledgerId);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify({ customerId }),
+    body: JSON.stringify({ ledgerId }),
   });
   return await response.json();
 }
 
-export async function getCustomerTransactions(accountStamentDetails) {
-  const API_URL = "/api/v1/Customer/GetCustomerTransactions";
+export async function linkUserToLedger(ledgerId) {
+  const API_URL = "/api/v1/Ledger/linkUserToGLAccount";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -139,13 +122,13 @@ export async function getCustomerTransactions(accountStamentDetails) {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify(accountStamentDetails),
+    body: JSON.stringify({ glAccountid: ledgerId, userid: retrieveUserId() }),
   });
   return await response.json();
 }
 
-export async function generateAccountStatement(accountStamentDetails) {
-  const API_URL = "/api/v1/Customer/CreateAccountStatementPdf";
+export async function unlinkUserFromLedger(ledgerId) {
+  const API_URL = "/api/v1/Ledger/unLinkUserToGLAccount";
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -153,11 +136,11 @@ export async function generateAccountStatement(accountStamentDetails) {
     "Content-Type": "application/json",
     Authorization: getAuthorizationHeader(),
   };
-  console.log(accountStamentDetails);
+  //console.log(userId);
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify(accountStamentDetails),
+    body: JSON.stringify({ glAccountid: ledgerId, userid: retrieveUserId() }),
   });
   return await response.json();
 }

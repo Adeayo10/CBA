@@ -28,9 +28,9 @@ import {
 } from "react-router-dom";
 
 import Title from "../Components/Title";
-import UserCreateModal from "../Components/UserCreateModal";
-import UserDetailsModal from "../Components/UserDetailsModal";
-import UserUpdateModal from "../Components/UserUpdateModal";
+import UserCreateModal from "../Pages/Dashboard/Users/UserCreateModal";
+import UserDetailsModal from "../Pages/Dashboard/Users/UserDetailsModal";
+import UserUpdateModal from "../Pages/Dashboard/Users/UserUpdateModal";
 
 import {
   TOAST_CONFIG,

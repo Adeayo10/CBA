@@ -20,11 +20,11 @@ import {
   CREATE_ACCOUNT_BASE,
   GENDER,
   STATUS,
-} from "../utils/constants";
-import { isValidEmail, isValidPhoneNumber } from "../utils/validators";
+} from "../../../utils/constants";
+import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
-import { generateAccountNumber, generateId } from "../utils/util";
-import { createCustomer } from "../api/customer";
+import { generateAccountNumber, generateId } from "../../../utils/util";
+import { createCustomer } from "../../../api/customer";
 
 export default function AccountCreateModal({
   toggleModal,

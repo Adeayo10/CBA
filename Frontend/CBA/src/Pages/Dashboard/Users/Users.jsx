@@ -27,35 +27,41 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import Title from "../Components/Title";
+import Title from "../../../Components/Title";
+import UserCreateModal from "./UserCreateModal";
+import UserDetailsModal from "./UserDetailsModal";
+import UserUpdateModal from "./UserUpdateModal";
 
 import {
   TOAST_CONFIG,
   STATUS,
-  ACCOUNT_IDS,
+  CREATE_USER_BASE,
+  CREATE_USER_BRANCH_BASE,
   PAGE_SIZE,
-  CREATE_ACCOUNT_BASE,
-} from "../utils/constants";
+} from "../../../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { forgotPassword } from "../api/auth";
-import { getUsers, deactivateUser, activateUser } from "../api/users";
-import { changeCustomerAccountStatus, getCustomers } from "../api/customer";
-import { capitalize, extractUpdateFields } from "../utils/util";
+import { forgotPassword } from "../../../api/auth";
+import { getUsers, deactivateUser, activateUser } from "../../../api/users";
+import { capitalize, extractUpdateFields } from "../../../utils/util";
 import { ErrorTwoTone } from "@mui/icons-material";
-import { redirectIfRefreshTokenExpired } from "../utils/token";
-import AccountUpdateModal from "../Components/AccountUpdateModal";
-import AccountCreateModal from "../Components/AccountCreateModal";
-import AccountDetailsModal from "../Components/AccountDetailsModal";
+import { redirectIfRefreshTokenExpired } from "../../../utils/token";
 
-export default function Accounts({ accountType }) {
-  const [accountsList, setAccountsList] = useState([]);
-  const [currentAccountElement, setCurrentAccountElement] = useState(null);
+export default function Users() {
+  const [usersList, setUsersList] = useState([]);
+  const [userBranchList, setUserBranchList] = useState([]);
+  const [currentUserElement, setCurrentUserElement] = useState(null);
 
-  const [currentAccountDetails, setCurrentAccountDetails] = useState({});
+  const [currentUserDetails, setCurrentUserDetails] = useState({
+    user: {},
+    userBranch: {},
+  });
 
-  const [currentUpdateAccount, setCurrentUpdateAccount] = useState({});
+  const [currentUpdateUser, setCurrentUpdateUser] = useState({
+    user: {},
+    userBranch: {},
+  });
 
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -65,22 +71,25 @@ export default function Accounts({ accountType }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [noOfPages, setNoOfPages] = useState(1);
 
-  const menuOpen = Boolean(currentAccountElement);
+  const mappedUserBranch = useMemo(() => {
+    const map = {};
+    userBranchList.forEach((branch) => (map[branch.userId] = branch));
+    return map;
+  }, [userBranchList]);
+
+  const menuOpen = Boolean(currentUserElement);
   const navigate = useNavigate();
 
   useEffect(() => {
-    getCustomers(accountType)
+    getUsers()
       .then((data) => {
         console.log(data);
-        if (!data.filteredCustomers)
+        if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        setUsersList(data.users);
+        setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -90,42 +99,46 @@ export default function Accounts({ accountType }) {
       });
 
     return () => {
-      setAccountsList([]);
+      setUsersList([]);
     };
-  }, [accountType]);
+  }, []);
 
   const openMenu = (event) => {
-    setCurrentAccountElement(event.currentTarget);
+    setCurrentUserElement(event.currentTarget);
   };
 
   const closeMenu = () => {
-    setCurrentAccountElement(null);
+    setCurrentUserElement(null);
   };
 
-  const showAccountInfo = (event) => {
+  const showUserInfo = (event) => {
     event.preventDefault();
-    const accountIndex = currentAccountElement.name;
-    const account = accountsList[accountIndex];
-    setCurrentAccountDetails(account);
+    const userIndex = currentUserElement.name;
+    const user = usersList[userIndex];
+    const userBranch = mappedUserBranch[user.id];
+    setCurrentUserDetails({ user, userBranch });
     toggleDetailsModal();
     closeMenu();
   };
 
   const showUpdateModal = (event) => {
     event.preventDefault();
-    const accountIndex = currentAccountElement.name;
-    if (!accountIndex) {
-      toast.error("Unable to Get Account", TOAST_CONFIG);
+    const userIndex = currentUserElement.name;
+    if (!userIndex) {
+      toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
-    const account = extractUpdateFields(
-      accountsList[accountIndex],
-      CREATE_ACCOUNT_BASE
+    const user = extractUpdateFields(usersList[userIndex], CREATE_USER_BASE, [
+      "password",
+    ]);
+    const userBranch = extractUpdateFields(
+      mappedUserBranch[user.id],
+      CREATE_USER_BRANCH_BASE
     );
 
     // console.log({user})
     // console.log({userBranch})
-    setCurrentUpdateAccount(account);
+    setCurrentUpdateUser({ user, userBranch });
     toggleUpdateModal();
     closeMenu();
   };
@@ -142,25 +155,56 @@ export default function Accounts({ accountType }) {
     setUpdateModalOpen(!updateModalOpen);
   };
 
-  const toggleAccountStatus = (event) => {
-    const accountIndex = currentAccountElement.name;
-    const accountId = accountsList[accountIndex]?.id;
+  const disableUser = (event) => {
+    const userIndex = currentUserElement.name;
+    const userId = usersList[userIndex]?.id;
 
-    if (!accountId) {
+    if (!userId) {
       toast.error("Invalid User Selected", TOAST_CONFIG);
       return;
     }
 
     event.preventDefault();
     setIsLoading(true);
-    changeCustomerAccountStatus(accountId)
+    deactivateUser(userId)
       .then((data) => {
-        console.log(data);
-        if (data.errors) throw new Error(data.message || data.errors);
+        //console.log(data);
+        if (data.errors || !data.success)
+          throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshAccountList();
+        refreshUsersList();
+      })
+      .catch((error) => {
+        //console.log(error);
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+        redirectIfRefreshTokenExpired(error.message, navigate);
+      });
+
+    closeMenu();
+  };
+
+  const enableUser = (event) => {
+    const userIndex = currentUserElement.name;
+    const userId = usersList[userIndex]?.id;
+
+    if (!userId) {
+      toast.error("Invalid User Selected", TOAST_CONFIG);
+      return;
+    }
+
+    event.preventDefault();
+    setIsLoading(true);
+    activateUser(String(userId))
+      .then((data) => {
+        if (data.errors || !data.success)
+          throw new Error(data.message || data.errors);
+
+        toast.success(data.message, TOAST_CONFIG);
+        setIsLoading(false);
+        refreshUsersList();
       })
       .catch((error) => {
         setIsLoading(false);
@@ -171,66 +215,76 @@ export default function Accounts({ accountType }) {
     closeMenu();
   };
 
-  const refreshAccountList = () => {
+  const refreshUsersList = () => {
     setIsLoading(true);
-    getCustomers(accountType, currentPage)
+    getUsers(currentPage)
       .then((data) => {
-        console.log(data);
-        if (!data.filteredCustomers)
+        if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        toast.success("Successfull", TOAST_CONFIG);
+        setUsersList(data.users);
+        setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
         setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
   };
 
-  const showAccountBalance = (event) => {
+  const resetUserPassword = (event) => {
     event.preventDefault();
 
-    const accountIndex = currentAccountElement.name;
-    if (!accountIndex) {
-      toast.error("Unable to Get Account", TOAST_CONFIG);
+    const userIndex = currentUserElement.name;
+    if (!userIndex) {
+      toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
-    const balance = accountsList[accountIndex]?.balance;
+    const email = usersList[userIndex]?.email;
 
-    if (balance == null) {
-      toast.error("Unable to Get Balance", TOAST_CONFIG);
+    if (!email) {
+      toast.error("Unable to Get User", TOAST_CONFIG);
       return;
     }
+
+    setIsLoading(true);
+
+    forgotPassword(email)
+      .then((data) => {
+        //console.log(data);
+        if (!data.success || data.errors)
+          throw new Error(data.message || data.errors);
+
+        setIsLoading(false);
+        toast.success(data.message, TOAST_CONFIG);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
+      });
     closeMenu();
   };
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
     setIsLoading(true);
-    getCustomers(accountType, page)
+    getUsers(page)
       .then((data) => {
-        console.log(data);
-        if (!data.filteredCustomers)
+        if (data.errors || !data.users)
           throw new Error(data.message || data.errors);
 
-        setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        toast.success("Successfull", TOAST_CONFIG);
+        setUsersList(data.users);
+        setUserBranchList(data.userBranch);
+        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
         setIsLoading(false);
+        toast.error(error.message, TOAST_CONFIG);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
   };
@@ -240,13 +294,13 @@ export default function Accounts({ accountType }) {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-            <Title>{accountType} Accounts</Title>
+            <Title>Users</Title>
             <Box sx={{ display: "flex", ml: "auto", mt: -5, mb: 2 }}>
               <Button
                 variant="contained"
                 startIcon={<RefreshIcon />}
                 sx={{ ml: 1 }}
-                onClick={refreshAccountList}
+                onClick={refreshUsersList}
               >
                 Refresh
               </Button>
@@ -256,7 +310,7 @@ export default function Accounts({ accountType }) {
                 sx={{ ml: 1 }}
                 onClick={toggleCreateModal}
               >
-                Add Account
+                Add User
               </Button>
             </Box>
             <Table size="small">
@@ -264,16 +318,29 @@ export default function Accounts({ accountType }) {
                 <TableRow>
                   <TableCell>Firstname</TableCell>
                   <TableCell>Lastname</TableCell>
-                  <TableCell>AccountNo</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Branch</TableCell>
+                  <TableCell>Username</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Phone</TableCell>
+                  <TableCell>Permission</TableCell>
                   <TableCell>Status</TableCell>
+                  <TableCell>Branch</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {accountsList.map(
-                  ({ id, fullName, accountNumber, status, branch }, index) => {
+                {usersList.map(
+                  (
+                    {
+                      id,
+                      fullName,
+                      userName,
+                      email,
+                      phoneNumber,
+                      role,
+                      status,
+                    },
+                    index
+                  ) => {
                     let splitName = fullName.split(" ");
                     let firstName = splitName[0];
                     let lastName =
@@ -289,20 +356,24 @@ export default function Accounts({ accountType }) {
                         ? { backgroundColor: "#c9c9c9" }
                         : {};
 
+                    const userBranch = mappedUserBranch[id];
+
+                    // console.log(mappedUserBranch)
+
                     return (
                       <TableRow key={id} style={disabledRow}>
                         <TableCell style={disabledText}>{firstName}</TableCell>
                         <TableCell style={disabledText}>{lastName}</TableCell>
-
+                        <TableCell style={disabledText}>{userName}</TableCell>
+                        <TableCell style={disabledText}>{email}</TableCell>
                         <TableCell style={disabledText}>
-                          {accountNumber}
+                          {phoneNumber}
                         </TableCell>
-                        <TableCell style={disabledText}>
-                          {accountType}
-                        </TableCell>
-
-                        <TableCell style={disabledText}>{branch}</TableCell>
+                        <TableCell style={disabledText}>{role}</TableCell>
                         <TableCell style={disabledText}>{status}</TableCell>
+                        <TableCell style={disabledText}>
+                          {userBranch.name}
+                        </TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="Show user actions"
@@ -320,7 +391,7 @@ export default function Accounts({ accountType }) {
             </Table>
             <Menu
               id="action-menu"
-              anchorEl={currentAccountElement}
+              anchorEl={currentUserElement}
               open={menuOpen}
               onClose={closeMenu}
               MenuListProps={{
@@ -335,71 +406,68 @@ export default function Accounts({ accountType }) {
                 horizontal: "left",
               }}
             >
-              {currentAccountElement !== null &&
-              currentAccountElement.name !== undefined
-                ? accountsList[currentAccountElement.name].status ==
-                  STATUS.ACTIVE
+              {currentUserElement !== null &&
+              currentUserElement.name !== undefined
+                ? usersList[currentUserElement.name].status == STATUS.ACTIVE
                   ? [
                       <MenuItem
-                        onClick={showAccountInfo}
-                        key={`${currentAccountElement.name}_view_enabled`}
+                        onClick={showUserInfo}
+                        key={`${currentUserElement.name}_view_enabled`}
                       >
-                        View Account
+                        View User
                       </MenuItem>,
                       <MenuItem
-                        onClick={showAccountBalance}
-                        key={`${currentAccountElement.name}_reset`}
+                        onClick={resetUserPassword}
+                        key={`${currentUserElement.name}_reset`}
                       >
-                        View Balance
+                        Reset Password
                       </MenuItem>,
                       <MenuItem
                         onClick={showUpdateModal}
-                        key={`${currentAccountElement.name}_update_enabled`}
+                        key={`${currentUserElement.name}_update`}
                       >
-                        Update Account
+                        Uptate User
                       </MenuItem>,
                       <MenuItem
-                        onClick={toggleAccountStatus}
-                        key={`${currentAccountElement.name}_disable`}
+                        onClick={disableUser}
+                        key={`${currentUserElement.name}_disable`}
                       >
-                        Deactivate Account
+                        Disable User
                       </MenuItem>,
                     ]
                   : [
                       <MenuItem
-                        onClick={showAccountInfo}
-                        key={`${currentAccountElement.name}_view_disabled`}
+                        onClick={showUserInfo}
+                        key={`${currentUserElement.name}_view_disabled`}
                       >
-                        View Account
+                        View User
                       </MenuItem>,
                       <MenuItem
-                        onClick={toggleAccountStatus}
-                        key={`${currentAccountElement.name}_enable`}
+                        onClick={enableUser}
+                        key={`${currentUserElement.name}_enable`}
                       >
-                        Activate Account
+                        Enable User
                       </MenuItem>,
                     ]
                 : ""}
             </Menu>
-
-            <AccountCreateModal
-              toggleModal={toggleCreateModal}
-              modalOpen={createModalOpen}
-              accountType={accountType}
-              refreshAccountsList={refreshAccountList}
-            />
-            <AccountUpdateModal
-              modalOpen={updateModalOpen}
-              toggleModal={toggleUpdateModal}
-              account={currentUpdateAccount}
-              accountType={accountType}
-              refreshAccountsList={refreshAccountList}
-            />
-            <AccountDetailsModal
+            <UserDetailsModal
               modalOpen={detailsModalOpen}
               toggleModal={toggleDetailsModal}
-              account={currentAccountDetails}
-              accountType={accountType}
+              user={currentUserDetails.user}
+              userBranch={currentUserDetails.userBranch}
+            />
+            <UserCreateModal
+              toggleModal={toggleCreateModal}
+              modalOpen={createModalOpen}
+              refreshUsersList={refreshUsersList}
+            />
+            <UserUpdateModal
+              modalOpen={updateModalOpen}
+              toggleModal={toggleUpdateModal}
+              user={currentUpdateUser.user}
+              userBranch={currentUpdateUser.userBranch}
+              refreshUsersList={refreshUsersList}
             />
             <Backdrop
               sx={{
