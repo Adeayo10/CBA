@@ -2,7 +2,7 @@ namespace CBA.Models;
 public class UserLedgerDto
 {
     public string? Userid { get; set; }
-    public string? GLAccountid { get; set; }
+    public int? GLAccountid { get; set; }
 }
 
 public class UserLedgerid
