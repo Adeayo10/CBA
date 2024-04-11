@@ -62,14 +62,7 @@ public class LedgerService : ILedgerService
         }
         var totalRowCount = await GetTotalCountOfGLAccountsAsync();
         _logger.LogInformation("Account found");
-        var mappedData = glAccount.Select(account => new LedgerData
-        {
-            AccountName = account.AccountName,
-            AccountNumber = account.AccountNumber,
-            AccountCategory = account.AccountCategory,
-            AccountDescription = account.AccountDescription,
-            AccountStatus = account.AccountStatus
-        }).ToList();
+        var mappedData = glAccount;
         
         return new LedgerResponse
         {
