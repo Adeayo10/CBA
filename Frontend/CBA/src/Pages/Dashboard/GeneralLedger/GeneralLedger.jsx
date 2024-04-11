@@ -20,34 +20,25 @@ import Box from "@mui/material/Box";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import Pagination from "@mui/material/Pagination";
 
-import {
-  Link as RouterLink,
-  useNavigate,
-  redirect,
-  Navigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import Title from "../Components/Title";
+import Title from "../../../Components/Title";
 
 import {
   TOAST_CONFIG,
   STATUS,
-  ACCOUNT_IDS,
   PAGE_SIZE,
-  CREATE_ACCOUNT_BASE,
-  LEDGER_TYPES,
-} from "../utils/constants";
+  CREATE_LEDGER_BASE,
+} from "../../../utils/constants";
 
 import { toast } from "react-toastify";
 
-import { forgotPassword } from "../api/auth";
-import { changeCustomerAccountStatus, getCustomers } from "../api/customer";
-import { capitalize, extractUpdateFields } from "../utils/util";
-import { ErrorTwoTone } from "@mui/icons-material";
-import { redirectIfRefreshTokenExpired } from "../utils/token";
-import AccountUpdateModal from "../Components/AccountUpdateModal";
-import AccountCreateModal from "../Components/AccountCreateModal";
-import AccountDetailsModal from "../Components/AccountDetailsModal";
+import { capitalize, extractUpdateFields } from "../../../utils/util";
+import { redirectIfRefreshTokenExpired } from "../../../utils/token";
+import { changeLedgerStatus, getLedgers } from "../../../api/ledger";
+import LedgerCreateModal from "./LedgerCreateModal";
+import LedgerUpdateModal from "./LedgerUpdateModal";
+import LedgerDetailsModal from "./LedgerDetailsModal";
 
 export default function GeneralLedger() {
   const [ledgersList, setLedgersList] = useState([]);
@@ -69,18 +60,13 @@ export default function GeneralLedger() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getCustomers(accountType)
+    getLedgers(currentPage)
       .then((data) => {
         console.log(data);
-        if (!data.filteredCustomers)
-          throw new Error(data.message || data.errors);
+        if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        setLedgersList(data.data);
+        setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -92,7 +78,7 @@ export default function GeneralLedger() {
     return () => {
       setLedgersList([]);
     };
-  }, [accountType]);
+  }, []);
 
   const openMenu = (event) => {
     setCurrentLedgerElement(event.currentTarget);
@@ -102,30 +88,30 @@ export default function GeneralLedger() {
     setCurrentLedgerElement(null);
   };
 
-  const showAccountInfo = (event) => {
+  const showLedgerAccountInfo = (event) => {
     event.preventDefault();
-    const accountIndex = currentLedgerElement.name;
-    const account = ledgersList[accountIndex];
-    setCurrentLedgerDetails(account);
+    const ledgerIndex = currentLedgerElement.name;
+    const ledger = ledgersList[ledgerIndex];
+    setCurrentLedgerDetails(ledger);
     toggleDetailsModal();
     closeMenu();
   };
 
   const showUpdateModal = (event) => {
     event.preventDefault();
-    const accountIndex = currentLedgerElement.name;
-    if (!accountIndex) {
+    const ledgerIndex = currentLedgerElement.name;
+    if (!ledgerIndex) {
       toast.error("Unable to Get Account", TOAST_CONFIG);
       return;
     }
-    const account = extractUpdateFields(
-      ledgersList[accountIndex],
-      CREATE_ACCOUNT_BASE
+    const ledger = extractUpdateFields(
+      ledgersList[ledgerIndex],
+      CREATE_LEDGER_BASE
     );
 
     // console.log({user})
     // console.log({userBranch})
-    setCurrentUpdateLedger(account);
+    setCurrentUpdateLedger(ledger);
     toggleUpdateModal();
     closeMenu();
   };
@@ -142,25 +128,26 @@ export default function GeneralLedger() {
     setUpdateModalOpen(!updateModalOpen);
   };
 
-  const toggleAccountStatus = (event) => {
-    const accountIndex = currentLedgerElement.name;
-    const accountId = ledgersList[accountIndex]?.id;
+  const toggleLedgerStatus = (event) => {
+    const ledgerIndex = currentLedgerElement.name;
+    const ledgerId = ledgersList[ledgerIndex]?.id;
 
-    if (!accountId) {
+    if (!ledgerId) {
       toast.error("Invalid User Selected", TOAST_CONFIG);
       return;
     }
 
     event.preventDefault();
     setIsLoading(true);
-    changeCustomerAccountStatus(accountId)
+    changeLedgerStatus(ledgerId)
       .then((data) => {
         console.log(data);
-        if (data.errors) throw new Error(data.message || data.errors);
+        if (data.errors || !data.status)
+          throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshAccountList();
+        refreshLedgerList();
       })
       .catch((error) => {
         setIsLoading(false);
@@ -171,20 +158,15 @@ export default function GeneralLedger() {
     closeMenu();
   };
 
-  const refreshAccountList = () => {
+  const refreshLedgerList = () => {
     setIsLoading(true);
-    getCustomers(accountType, currentPage)
+    getLedgers(currentPage)
       .then((data) => {
         console.log(data);
-        if (!data.filteredCustomers)
-          throw new Error(data.message || data.errors);
+        if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        setLedgersList(data.data);
+        setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -194,15 +176,15 @@ export default function GeneralLedger() {
       });
   };
 
-  const showAccountBalance = (event) => {
+  const showLedgerBalance = (event) => {
     event.preventDefault();
 
-    const accountIndex = currentLedgerElement.name;
-    if (!accountIndex) {
+    const ledgerIndex = currentLedgerElement.name;
+    if (!ledgerIndex) {
       toast.error("Unable to Get Account", TOAST_CONFIG);
       return;
     }
-    const balance = ledgersList[accountIndex]?.balance;
+    const balance = ledgersList[ledgerIndex]?.balance;
 
     if (balance == null) {
       toast.error("Unable to Get Balance", TOAST_CONFIG);
@@ -214,18 +196,13 @@ export default function GeneralLedger() {
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
     setIsLoading(true);
-    getCustomers(accountType, page)
+    getLedgers(page)
       .then((data) => {
         console.log(data);
-        if (!data.filteredCustomers)
-          throw new Error(data.message || data.errors);
+        if (!data.status) throw new Error(data.message || data.errors);
 
-        setLedgersList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        setLedgersList(data.data);
+        setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -240,13 +217,13 @@ export default function GeneralLedger() {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-            <Title>{accountType} Accounts</Title>
+            <Title>Ledger Accounts</Title>
             <Box sx={{ display: "flex", ml: "auto", mt: -5, mb: 2 }}>
               <Button
                 variant="contained"
                 startIcon={<RefreshIcon />}
                 sx={{ ml: 1 }}
-                onClick={refreshAccountList}
+                onClick={refreshLedgerList}
               >
                 Refresh
               </Button>
@@ -256,32 +233,31 @@ export default function GeneralLedger() {
                 sx={{ ml: 1 }}
                 onClick={toggleCreateModal}
               >
-                Add Account
+                Add Ledger
               </Button>
             </Box>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Firstname</TableCell>
-                  <TableCell>Lastname</TableCell>
-                  <TableCell>AccountNo</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Branch</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Category</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {ledgersList.map(
-                  ({ id, fullName, accountNumber, status, branch }, index) => {
-                    let splitName = fullName.split(" ");
-                    let firstName = splitName[0];
-                    let lastName =
-                      splitName.length > 1 ? splitName[1] : "No Lastname";
-
-                    firstName = capitalize(firstName);
-                    lastName = capitalize(lastName);
-
+                  (
+                    {
+                      id,
+                      accountName,
+                      accountDescription,
+                      accountCategory,
+                      status,
+                    },
+                    index
+                  ) => {
                     const disabledText =
                       status !== STATUS.ACTIVE ? { color: "#575757" } : {};
                     const disabledRow =
@@ -291,17 +267,15 @@ export default function GeneralLedger() {
 
                     return (
                       <TableRow key={id} style={disabledRow}>
-                        <TableCell style={disabledText}>{firstName}</TableCell>
-                        <TableCell style={disabledText}>{lastName}</TableCell>
-
                         <TableCell style={disabledText}>
-                          {accountNumber}
+                          {capitalize(accountName)}
                         </TableCell>
                         <TableCell style={disabledText}>
-                          {accountType}
+                          {accountDescription}
                         </TableCell>
-
-                        <TableCell style={disabledText}>{branch}</TableCell>
+                        <TableCell style={disabledText}>
+                          {accountCategory}
+                        </TableCell>
                         <TableCell style={disabledText}>{status}</TableCell>
                         <TableCell align="right">
                           <IconButton
@@ -337,17 +311,16 @@ export default function GeneralLedger() {
             >
               {currentLedgerElement !== null &&
               currentLedgerElement.name !== undefined
-                ? ledgersList[currentLedgerElement.name].status ==
-                  STATUS.ACTIVE
+                ? ledgersList[currentLedgerElement.name].status == STATUS.ACTIVE
                   ? [
                       <MenuItem
-                        onClick={showAccountInfo}
+                        onClick={showLedgerAccountInfo}
                         key={`${currentLedgerElement.name}_view_enabled`}
                       >
-                        View Account
+                        View Ledger
                       </MenuItem>,
                       <MenuItem
-                        onClick={showAccountBalance}
+                        onClick={showLedgerBalance}
                         key={`${currentLedgerElement.name}_reset`}
                       >
                         View Balance
@@ -356,50 +329,47 @@ export default function GeneralLedger() {
                         onClick={showUpdateModal}
                         key={`${currentLedgerElement.name}_update_enabled`}
                       >
-                        Update Account
+                        Update Ledger
                       </MenuItem>,
                       <MenuItem
-                        onClick={toggleAccountStatus}
+                        onClick={toggleLedgerStatus}
                         key={`${currentLedgerElement.name}_disable`}
                       >
-                        Deactivate Account
+                        Deactivate Ledger
                       </MenuItem>,
                     ]
                   : [
                       <MenuItem
-                        onClick={showAccountInfo}
+                        onClick={showLedgerAccountInfo}
                         key={`${currentLedgerElement.name}_view_disabled`}
                       >
-                        View Account
+                        View Ledger
                       </MenuItem>,
                       <MenuItem
-                        onClick={toggleAccountStatus}
+                        onClick={toggleLedgerStatus}
                         key={`${currentLedgerElement.name}_enable`}
                       >
-                        Activate Account
+                        Activate Ledger
                       </MenuItem>,
                     ]
                 : ""}
             </Menu>
 
-            <AccountCreateModal
+            <LedgerCreateModal
               toggleModal={toggleCreateModal}
               modalOpen={createModalOpen}
-              accountType={accountType}
-              refreshAccountsList={refreshAccountList}
+              refreshLedgerList={refreshLedgerList}
             />
-            <AccountUpdateModal
+            <LedgerUpdateModal
               modalOpen={updateModalOpen}
               toggleModal={toggleUpdateModal}
-              account={currentUpdateLedger}
-              accountType={accountType}
-              refreshAccountsList={refreshAccountList}
+              ledger={currentUpdateLedger}
+              refreshLedgerList={refreshLedgerList}
             />
-            <AccountDetailsModal
+            <LedgerDetailsModal
               modalOpen={detailsModalOpen}
               toggleModal={toggleDetailsModal}
-              account={currentLedgerDetails}
-              accountType={accountType}
+              ledger={currentLedgerDetails}
             />
             <Backdrop
               sx={{
