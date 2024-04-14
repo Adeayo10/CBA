@@ -30,7 +30,7 @@ import { createCustomer } from "../../../api/customer";
 import { createLedger } from "../../../api/ledger";
 
 function generateId(){
-  return 10
+  return 1
 }
 
 export default function LedgerCreateModal({
