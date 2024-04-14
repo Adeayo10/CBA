@@ -92,7 +92,7 @@ export async function updateLedger(ledgerDetails) {
 }
 
 export async function changeLedgerStatus(ledgerId) {
-  const API_URL = "/api/v1/Ledger/changeAccountStatus";
+  const API_URL = `/api/v1/Ledger/changeAccountStatus?id=${ledgerId}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -104,9 +104,9 @@ export async function changeLedgerStatus(ledgerId) {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify({ ledgerId }),
+    // body: JSON.stringify({ id: ledgerId }),
   });
-  return await response.json();
+  return await response;
 }
 
 export async function linkUserToLedger(ledgerId) {
