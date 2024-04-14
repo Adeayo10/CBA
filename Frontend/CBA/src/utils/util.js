@@ -1,3 +1,7 @@
+import { APP_LOCALE } from "./constants";
+
+import dayjs from "dayjs";
+
 export function capitalize(string) {
   if (!string) return "";
   return string
@@ -39,10 +43,16 @@ export function extractUpdateFields(dataObject, targetObject, excluded = []) {
 }
 
 export function formatDate(dateString) {
-  const date = new Date(dateString);
+  return dayjs(dateString).format("YYYY-MM-DD");
+}
 
-  return `${date.getFullYear().toString()}-${date
-    .getMonth()
-    .toString()
-    .padStart(2, "0")}-${date.getDay().toString().padStart(2, 0)}`;
+export function getCurrentISODate() {
+  return dayjs().format(`YYYY-MM-DDTHH:mm:ss.SSSZ`);
+}
+
+export function formatCurrency(amount) {
+  return new Intl.NumberFormat(APP_LOCALE.REGION, {
+    style: "currency",
+    currency: APP_LOCALE.CURRENCY,
+  }).format(amount);
 }
