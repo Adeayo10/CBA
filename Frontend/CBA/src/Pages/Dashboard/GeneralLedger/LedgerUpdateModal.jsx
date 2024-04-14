@@ -15,7 +15,7 @@ import Select from "@mui/material/Select";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { TOAST_CONFIG, ROLES, STATUS, GENDER } from "../../../utils/constants";
+import { TOAST_CONFIG, LEDGER_TYPES } from "../../../utils/constants";
 import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
 import { updateUser } from "../../../api/users";
@@ -28,9 +28,9 @@ export default function LedgerUpdateModal({
   ledger,
   refreshLedgerList,
 }) {
-  if (!ledger.id) return <></>;
+  if (!ledger.accountName) return <></>;
 
-  const [ledgerDetails, setLedgerDetails] = useState({});
+  const [ledgerDetails, setLedgerDetails] = useState({ ...ledger });
   const [formErrors, setFormErrors] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
@@ -121,7 +121,7 @@ export default function LedgerUpdateModal({
       <DialogContent>
         <Divider sx={{ mb: 1, width: "100%" }} />
         <Typography gutterBottom variant="h6">
-          {accountType} Account: {ledger.accountNumber}
+          Ledger Account: {ledger.accountName}
         </Typography>
         <Grid
           container
@@ -138,9 +138,10 @@ export default function LedgerUpdateModal({
               label="Account Name"
               name="accountName"
               onChange={handleInputChange}
-              error={Boolean(formErrors.fullName)}
-              helperText={formErrors.fullName}
+              error={Boolean(formErrors.accountName)}
+              helperText={formErrors.accountName}
               onBlur={validateField}
+              value={ledgerDetails.accountName}
             />
           </Grid>
           <Grid xs={6} item>
@@ -152,9 +153,10 @@ export default function LedgerUpdateModal({
               label="Account Description"
               name="accountDescription"
               onChange={handleInputChange}
-              error={Boolean(formErrors.email)}
-              helperText={formErrors.email}
+              error={Boolean(formErrors.accountDescription)}
+              helperText={formErrors.accountDescription}
               onBlur={validateField}
+              value={ledgerDetails.accountDescription}
             />
           </Grid>
           <Grid xs={6} item>
