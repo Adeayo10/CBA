@@ -22,9 +22,21 @@ import StarBorder from "@mui/icons-material/StarBorder";
 import PeopleIcon from "@mui/icons-material/People";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SubtitlesIcon from "@mui/icons-material/Subtitles";
+import DescriptionIcon from "@mui/icons-material/Description";
 import HomeIcon from "@mui/icons-material/Home";
+import NotesIcon from "@mui/icons-material/Notes";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import ImportExportIcon from "@mui/icons-material/ImportExport";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import SavingsIcon from "@mui/icons-material/Savings";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import PortraitIcon from "@mui/icons-material/Portrait";
+import MoveDownIcon from "@mui/icons-material/MoveDown";
+import MoveUpIcon from "@mui/icons-material/MoveUp";
+import InputIcon from "@mui/icons-material/Input";
+import OutputIcon from "@mui/icons-material/Output";
 import Button from "@mui/material/Button";
 import ListSubheader from "@mui/material/ListSubheader";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -83,7 +95,7 @@ const listItems = [
   },
   {
     name: "Account Management",
-    icon: <AdminPanelSettingsIcon />,
+    icon: <PortraitIcon />,
     linkTo: "#",
     requiredRoles: [ROLES.SUPER_ADMIN],
     subItems: [
@@ -94,36 +106,47 @@ const listItems = [
       // },
       {
         name: "Account Statement",
-        icon: <ManageAccountsIcon />,
+        icon: <DescriptionIcon />,
         linkTo: ROUTES.ACCOUNT_STATEMENT,
       },
       {
         name: "Current Accounts",
-        icon: <ManageAccountsIcon />,
+        icon: <AccountBalanceIcon />,
         linkTo: ROUTES.CURRENT_ACCOUNTS,
       },
       {
         name: "Savings Accounts",
-        icon: <ManageAccountsIcon />,
+        icon: <SavingsIcon />,
         linkTo: ROUTES.SAVINGS_ACCOUNTS,
       },
-      // {
-      //   name: "Loans",
-      //   icon: <ManageAccountsIcon />,
-      //   linkTo: ROUTES.LOANS,
-      // },
     ],
   },
   {
-    name: "Postings",
-    icon: <HomeIcon />,
-    linkTo: ROUTES.POSTINGS,
+    name: "Postings Management",
+    icon: <NotesIcon />,
+    linkTo: "#",
     requiredRoles: [],
-    subItems: [],
+    subItems: [
+      {
+        name: "Deposits",
+        icon: <InputIcon />,
+        linkTo: ROUTES.DEPOSITS,
+      },
+      {
+        name: "Withdrawals",
+        icon: <OutputIcon sx={{ transform: "rotate(180deg)" }} />,
+        linkTo: ROUTES.WITHDRAWALS,
+      },
+      {
+        name: "Transfers",
+        icon: <ImportExportIcon sx={{ transform: "rotate(90deg)" }} />,
+        linkTo: ROUTES.TRANSFERS,
+      },
+    ],
   },
   {
     name: "General Ledger",
-    icon: <HomeIcon />,
+    icon: <PaymentsIcon />,
     linkTo: ROUTES.GENERAL_LEDGER,
     requiredRoles: [],
     subItems: [],
@@ -246,7 +269,7 @@ export default function SideBar({ sideBarOpen, toggleSideBar }) {
           px: [1],
         }}
       >
-        <RouterLink to={"/dashboard/profile"} style={{ flex: 1 }}>
+        <RouterLink to={ROUTES.PROFILE} style={{ flex: 1 }}>
           <Box
             sx={{
               display: "flex",
