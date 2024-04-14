@@ -10,7 +10,7 @@ import Divider from "@mui/material/Divider";
 
 import { ACCOUNT_ALLLOWED_FIELDS, ACCOUNT_IDS } from "../../../utils/constants";
 
-import { capitalize, formatDate } from "../../../utils/util";
+import { capitalize, formatDate, formatCurrency } from "../../../utils/util";
 
 export default function AccountDetailsModal({
   toggleModal,
@@ -48,6 +48,8 @@ export default function AccountDetailsModal({
               if (fieldName == "accountType") fieldValue = accountType;
               if (fieldName == "dateCreated")
                 fieldValue = formatDate(fieldValue);
+              if (fieldName == "balance")
+                fieldValue = formatCurrency(fieldValue);
 
               return (
                 <Grid xs={6} key={fieldKey} item>

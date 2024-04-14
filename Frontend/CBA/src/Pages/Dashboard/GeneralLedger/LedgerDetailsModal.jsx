@@ -10,13 +10,9 @@ import Divider from "@mui/material/Divider";
 
 import { LEDGER_ALLLOWED_FIELDS } from "../../../utils/constants";
 
-import { capitalize, formatDate } from "../../../utils/util";
+import { capitalize, formatCurrency, formatDate } from "../../../utils/util";
 
-export default function LedgerDetailsModal({
-  toggleModal,
-  modalOpen,
-  ledger,
-}) {
+export default function LedgerDetailsModal({ toggleModal, modalOpen, ledger }) {
   if (!ledger.accountName) return <></>;
 
   return (
@@ -26,7 +22,7 @@ export default function LedgerDetailsModal({
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">View Account</DialogTitle>
+      <DialogTitle id="alert-dialog-title">View Ledger</DialogTitle>
 
       <DialogContent>
         <Divider sx={{ mb: 1, width: "100%" }} />
@@ -46,6 +42,7 @@ export default function LedgerDetailsModal({
               let fieldValue = capitalize(String(ledger[fieldName]));
               if (fieldName == "dateCreated")
                 fieldValue = formatDate(fieldValue);
+              if (fieldName == "balance") fieldValue = formatCurrency(fieldValue)
 
               return (
                 <Grid xs={6} key={fieldKey} item>
