@@ -80,8 +80,9 @@ export default function Users() {
   const menuOpen = Boolean(currentUserElement);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getUsers()
+  const fetchUsers = async (pageNumber = currentPage) => {
+    setIsLoading(true);
+    getUsers(pageNumber)
       .then((data) => {
         console.log(data);
         if (data.errors || !data.users)
@@ -97,7 +98,10 @@ export default function Users() {
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
+  };
 
+  useEffect(() => {
+    fetchUsers();
     return () => {
       setUsersList([]);
     };
@@ -216,23 +220,7 @@ export default function Users() {
   };
 
   const refreshUsersList = () => {
-    setIsLoading(true);
-    getUsers(currentPage)
-      .then((data) => {
-        if (data.errors || !data.users)
-          throw new Error(data.message || data.errors);
-
-        toast.success("Successfull", TOAST_CONFIG);
-        setUsersList(data.users);
-        setUserBranchList(data.userBranch);
-        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        toast.error(error.message, TOAST_CONFIG);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchUsers();
   };
 
   const resetUserPassword = (event) => {
@@ -254,7 +242,6 @@ export default function Users() {
 
     forgotPassword(email)
       .then((data) => {
-        //console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
@@ -270,23 +257,7 @@ export default function Users() {
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    setIsLoading(true);
-    getUsers(page)
-      .then((data) => {
-        if (data.errors || !data.users)
-          throw new Error(data.message || data.errors);
-
-        toast.success("Successfull", TOAST_CONFIG);
-        setUsersList(data.users);
-        setUserBranchList(data.userBranch);
-        setNoOfPages(Math.ceil(data.totalUsers / PAGE_SIZE));
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        toast.error(error.message, TOAST_CONFIG);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchUsers(page);
   };
 
   return (

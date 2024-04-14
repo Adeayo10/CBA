@@ -60,7 +60,15 @@ export default function GeneralLedger() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getLedgers(currentPage)
+    fetchLedgers();
+    return () => {
+      setLedgersList([]);
+    };
+  }, []);
+
+  const fetchLedgers = async (pageNumber = currentPage) => {
+    setIsLoading(true);
+    getLedgers(pageNumber)
       .then((data) => {
         console.log(data);
         if (!data.status) throw new Error(data.message || data.errors);
@@ -74,11 +82,7 @@ export default function GeneralLedger() {
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
-
-    return () => {
-      setLedgersList([]);
-    };
-  }, []);
+  };
 
   const openMenu = (event) => {
     setCurrentLedgerElement(event.currentTarget);
@@ -92,7 +96,7 @@ export default function GeneralLedger() {
     event.preventDefault();
     const ledgerIndex = currentLedgerElement.name;
     const ledger = ledgersList[ledgerIndex];
-    console.log(ledger)
+    console.log(ledger);
     setCurrentLedgerDetails(ledger);
     toggleDetailsModal();
     closeMenu();
@@ -109,9 +113,6 @@ export default function GeneralLedger() {
       ledgersList[ledgerIndex],
       CREATE_LEDGER_BASE
     );
-
-    // console.log({user})
-    // console.log({userBranch})
     setCurrentUpdateLedger(ledger);
     toggleUpdateModal();
     closeMenu();
@@ -134,7 +135,7 @@ export default function GeneralLedger() {
     const ledgerId = ledgersList[ledgerIndex]?.id;
 
     if (!ledgerId) {
-      toast.error("Invalid User Selected", TOAST_CONFIG);
+      toast.error("Invalid Ledger Selected", TOAST_CONFIG);
       return;
     }
 
@@ -143,10 +144,9 @@ export default function GeneralLedger() {
     changeLedgerStatus(ledgerId)
       .then((data) => {
         console.log(data);
-        if (data.errors || !data.status)
-          throw new Error(data.message || data.errors);
+        if (!data.ok) throw new Error(data.message || data.errors);
 
-        toast.success(data.message, TOAST_CONFIG);
+        toast.success("Status Changed Successfully", TOAST_CONFIG);
         setIsLoading(false);
         refreshLedgerList();
       })
@@ -160,21 +160,7 @@ export default function GeneralLedger() {
   };
 
   const refreshLedgerList = () => {
-    setIsLoading(true);
-    getLedgers(currentPage)
-      .then((data) => {
-        console.log(data);
-        if (!data.status) throw new Error(data.message || data.errors);
-
-        setLedgersList(data.dataList);
-        setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
-        setIsLoading(false);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchLedgers();
   };
 
   const showLedgerBalance = (event) => {
@@ -196,21 +182,7 @@ export default function GeneralLedger() {
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    setIsLoading(true);
-    getLedgers(page)
-      .then((data) => {
-        console.log(data);
-        if (!data.status) throw new Error(data.message || data.errors);
-
-        setLedgersList(data.dataList);
-        setNoOfPages(Math.ceil(data.totalRowCount / PAGE_SIZE));
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
-        setIsLoading(false);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchLedgers(page);
   };
 
   return (
@@ -260,14 +232,19 @@ export default function GeneralLedger() {
                     index
                   ) => {
                     const disabledText =
-                      accountStatus !== STATUS.ACTIVE ? { color: "#575757" } : {};
+                      accountStatus !== STATUS.ACTIVE
+                        ? { color: "#575757" }
+                        : {};
                     const disabledRow =
                       accountStatus !== STATUS.ACTIVE
                         ? { backgroundColor: "#c9c9c9" }
                         : {};
 
                     return (
-                      <TableRow key={`${id}_${accountName}`} style={disabledRow}>
+                      <TableRow
+                        key={`${id}_${accountName}`}
+                        style={disabledRow}
+                      >
                         <TableCell style={disabledText}>
                           {capitalize(accountName)}
                         </TableCell>
@@ -277,7 +254,9 @@ export default function GeneralLedger() {
                         <TableCell style={disabledText}>
                           {accountCategory}
                         </TableCell>
-                        <TableCell style={disabledText}>{accountStatus}</TableCell>
+                        <TableCell style={disabledText}>
+                          {accountStatus}
+                        </TableCell>
                         <TableCell align="right">
                           <IconButton
                             aria-label="Show user actions"
@@ -312,7 +291,8 @@ export default function GeneralLedger() {
             >
               {currentLedgerElement !== null &&
               currentLedgerElement.name !== undefined
-                ? ledgersList[currentLedgerElement.name].status == STATUS.ACTIVE
+                ? ledgersList[currentLedgerElement.name].accountStatus ==
+                  STATUS.ACTIVE
                   ? [
                       <MenuItem
                         onClick={showLedgerAccountInfo}

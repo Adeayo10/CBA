@@ -72,7 +72,16 @@ export default function Accounts({ accountType }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getCustomers(accountType)
+    fetchAccounts();
+
+    return () => {
+      setAccountsList([]);
+    };
+  }, [accountType]);
+
+  const fetchAccounts = async (pageNumber = currentPage) => {
+    setIsLoading(true);
+    getCustomers(accountType, pageNumber)
       .then((data) => {
         console.log(data);
         if (!data.filteredCustomers)
@@ -91,11 +100,7 @@ export default function Accounts({ accountType }) {
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
-
-    return () => {
-      setAccountsList([]);
-    };
-  }, [accountType]);
+  };
 
   const openMenu = (event) => {
     setCurrentAccountElement(event.currentTarget);
@@ -175,26 +180,7 @@ export default function Accounts({ accountType }) {
   };
 
   const refreshAccountList = () => {
-    setIsLoading(true);
-    getCustomers(accountType, currentPage)
-      .then((data) => {
-        console.log(data);
-        if (!data.filteredCustomers)
-          throw new Error(data.message || data.errors);
-
-        setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
-        setIsLoading(false);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchAccounts();
   };
 
   const showAccountBalance = (event) => {
@@ -216,26 +202,7 @@ export default function Accounts({ accountType }) {
 
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
-    setIsLoading(true);
-    getCustomers(accountType, page)
-      .then((data) => {
-        console.log(data);
-        if (!data.filteredCustomers)
-          throw new Error(data.message || data.errors);
-
-        setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
-        setIsLoading(false);
-        redirectIfRefreshTokenExpired(error.message, navigate);
-      });
+    fetchAccounts();
   };
 
   return (
