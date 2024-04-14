@@ -74,12 +74,17 @@ export const ROUTES = {
   SAVINGS_ACCOUNTS: "savings-accounts",
   USER_ROLES: "user-roles",
   USERS: "users",
-  POSTINGS: "postings",
+  CREATE_POSTING: "create-posting",
+  DEPOSITS: "deposits",
+  WITHDRAWALS: "withdrawals",
+  TRANSFERS: "transfers",
   DASHBOARD: "/dashboard",
   FORGOT_PASSWORD: "/forgot-password",
   LOGIN: "/login",
   RESET_PASSWORD: "/reset-password",
   VERIFY_TOKEN: "/verify-token",
+  NULL: "#",
+  NOT_FOUND: "/404",
 };
 
 export const ACCOUNT_TYPES = {
@@ -131,13 +136,54 @@ export const ACCOUNT_ALLLOWED_FIELDS = [
 ];
 
 export const CREATE_POSTING_BASE = {
-  postingType: POSTING_TYPES.DEPOSIT,
-  accountNumber: "",
-  accountName: "",
-  amount: 0,
-  narration: "",
-  receiverAccountName: "",
-  receiverAccountNumber: "",
+  [POSTING_TYPES.DEPOSIT]: {
+    id: "",
+    accountName: "",
+    accountNumber: "",
+    amount: 0,
+    transactionType: POSTING_TYPES.DEPOSIT,
+    narration: "",
+    datePosted: "",
+    customerNarration: "",
+    customerTransactionType: POSTING_TYPES.DEPOSIT,
+  },
+  [POSTING_TYPES.WITHDRAWAL]: {
+    id: "",
+    accountName: "",
+    accountNumber: "",
+    amount: 0,
+    transactionType: POSTING_TYPES.WITHDRAWAL,
+    narration: "",
+    datePosted: "",
+    customerNarration: "",
+    customerTransactionType: POSTING_TYPES.WITHDRAWAL,
+  },
+  [POSTING_TYPES.TRANSFER]: {
+    senderId: "",
+    receiverId: "",
+    amount: 0,
+    narration: "",
+    senderAccountNumber: "",
+    receiverAccountNumber: "",
+  },
+};
+
+export const POSTING_AUTOGEN_FIELD_MAP = {
+  status: "status",
+  customerId: "id",
+  customerName: "fullName",
+  customerAccountNumber: "accountNumber",
+  customerAccountType: "accountType",
+  customerBranch: "branch",
+  customerEmail: "email",
+  customerPhoneNumber: "phoneNumber",
+  customerStatus: "status",
+  customerGender: "gender",
+  customerAddress: "address",
+  customerState: "state",
+  customerDateCreated: "dateCreated",
+  customerBalance: "balance",
+  customerFullName: "fullName",
 };
 
 export const LEDGER_TYPES = {
@@ -158,4 +204,7 @@ export const LEDGER_ALLLOWED_FIELDS = [
   "accountName",
   "accountDescription",
   "accountCategory",
+  "balance",
 ];
+
+export const APP_LOCALE = { REGION: "en-NG", CURRENCY: "NGN" };
