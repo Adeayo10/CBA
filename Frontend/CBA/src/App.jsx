@@ -12,21 +12,24 @@ import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Copyright from "./Components/Copyright";
 import Users from "./Pages/Dashboard/Users/Users";
-import UserRoles from "./Views/UserRoles";
+import UserRoles from "./Pages/Dashboard/UserRoles";
 import ForgotPassword from "./Pages/ForgotPassword";
 import { Typography } from "@mui/material";
 import ResetPassword from "./Pages/ResetPassword";
-import Profile from "./Views/Profile";
+import Profile from "./Pages/Dashboard/Profile";
 import VerifyToken from "./Pages/VerifyToken";
-import AccountStatement from "./Views/AccountStatement";
-import CustomerAccount from "./Views/CustomerAccount";
-import CustomerInformation from "./Views/CustomerInformation";
+import AccountStatement from "./Pages/Dashboard/AccountStatement";
+import CustomerAccount from "./Pages/Dashboard/CustomerAccount";
+import CustomerInformation from "./Pages/Dashboard/CustomerInformation";
 import GeneralLedger from "./Pages/Dashboard/GeneralLedger/GeneralLedger";
 import { ROUTES, ACCOUNT_TYPES, POSTING_TYPES } from "./utils/constants";
 import Accounts from "./Pages/Dashboard/Accounts/Accounts";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import Postings from "./Views/Postings";
+import CreatePosting from "./Pages/Dashboard/Postings/CreatePosting";
+import NotFound from "./Pages/NotFound";
+import Postings from "./Pages/Dashboard/Postings/Postings";
+import DashboardHome from "./Pages/Dashboard/DashBoardHome";
 
 function App() {
   return (
@@ -46,14 +49,7 @@ function App() {
             <Route path={ROUTES.FORGOT_PASSWORD} element={<ResetPassword />} />
 
             <Route path={ROUTES.DASHBOARD} element={<Dashboard />}>
-              <Route
-                path=""
-                element={
-                  <Typography gutterBottom variant="h6" sx={{ mx: 5, my: 3 }}>
-                    Welcome To the Dashboard!
-                  </Typography>
-                }
-              />
+              <Route path="" element={<DashboardHome />} />
               <Route path={ROUTES.USERS} element={<Users />} />
               <Route path={ROUTES.USER_ROLES} element={<UserRoles />} />
               <Route path={ROUTES.PROFILE} element={<Profile />} />
@@ -79,21 +75,25 @@ function App() {
               />
               <Route path={ROUTES.GENERAL_LEDGER} element={<GeneralLedger />} />
 
-              <Route path={ROUTES.POSTINGS} element={<Postings />} />
-              {/* <Route
+              <Route path={ROUTES.CREATE_POSTING} element={<CreatePosting />} />
+              <Route
                 path={ROUTES.TRANSFERS}
                 element={<Postings postingType={POSTING_TYPES.TRANSFER} />}
               />
               <Route
                 path={ROUTES.DEPOSITS}
                 element={<Postings postingType={POSTING_TYPES.DEPOSIT} />}
-              /> */}
-
-              {/* <Route
-              path={ROUTES.LOANS}
-              element={<Accounts accountType={ACCOUNT_TYPES.LOAN} />}
-            /> */}
+              />
+              <Route
+                path={ROUTES.WITHDRAWALS}
+                element={<Postings postingType={POSTING_TYPES.WITHDRAWAL} />}
+              />
             </Route>
+            <Route
+              path={"*"}
+              element={<Navigate to={ROUTES.NOT_FOUND} replace />}
+            />
+            <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
           </Routes>
         </Router>
       </LocalizationProvider>
