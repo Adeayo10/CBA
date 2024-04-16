@@ -296,6 +296,38 @@ public class LedgerController : ControllerBase
         }
 
     }
+    [HttpPost]
+    [Route("validateLinkedUser")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public async Task<IActionResult> ValidateLinkedUser(ValidateLinkedUserDTO validateLinkedUserDTO)
+    {
+        try
+        {
+            _logger.LogInformation("Validating linked user");
+            var response = await _ledgerService.ValidateLinkedUser(validateLinkedUserDTO);
+            if (response == false)
+            {
+                return BadRequest(new LedgerResponse()
+                {
+                    Message = "User does not exist",
+                    Status = false
+                });
+            }
+            return Ok(new LedgerResponse()
+            {
+                Message = "User linked to account successfully",
+                Status = true
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new LedgerResponse()
+            {
+                Message = ex.Message,
+                Status = false
+            });
+        }
+    }
 
 }
 

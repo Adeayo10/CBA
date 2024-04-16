@@ -3,8 +3,8 @@ public class PostingDTO
 {
     
     public Guid Id { get; set; }
-    public string? AccountName { get; set; }
-    public string? AccountNumber { get; set; }
+    public string? LedgerAccountName { get; set; }
+    public string? LedgerAccountNumber { get; set; }
     public decimal Amount { get; set; }
     public string? TransactionType { get; set; }
     public string? Narration { get; set; }

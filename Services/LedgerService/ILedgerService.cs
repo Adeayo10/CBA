@@ -11,6 +11,7 @@ Task<decimal> GetMostRecentLedgerEnteryBalanceAsync(string accountNumber);
 Task<LedgerResponse> LinkUserToGLAccountAsync(UserLedgerDto userLedger);
 Task<LedgerResponse> UnLinkUserToGLAccountAsync(UserLedgerid userLedger);
 Task<LedgerResponse> ChangeAccountStatusAsync(int id);
+ Task<bool> ValidateLinkedUser(ValidateLinkedUserDTO validateLinkedUserDTO);
 
 Task<LedgerResponse> ViewLedgerAccountBalanceAsync(string accountNumber);
 Task<LedgerResponse> GetGLAccountByIdAsync(int id);

@@ -16,9 +16,10 @@ public class PostingService : IPostingService
         _ledgerService = ledgerService;
         _emailService = emailService;
     }
+    
     public async Task<CustomerResponse> DepositAsync(PostingDTO customerDeposit)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(customerDeposit.CustomerAccountNumber);
+        var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == customerDeposit.CustomerAccountNumber).SingleAsync();
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
@@ -29,9 +30,19 @@ public class PostingService : IPostingService
                 Errors = new List<string> { "Customer not found" }
             };
         }
+        var LedgerEntity = await _context.GLAccounts.FindAsync(customerDeposit.LedgerAccountNumber);
+        if(LedgerEntity is null)
+        {
+            _logger.LogInformation("Ledger not found");
+            return new CustomerResponse
+            {
+                Message = "Ledger not found",
+                Status = false,
+                Errors = new List<string> { "Ledger not found" }
+            };
+        }
 
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.AccountNumber!);
-        var LedgerEntity = await _context.GLAccounts.FindAsync(customerDeposit.AccountNumber);
+        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.LedgerAccountNumber!);
         var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
 
         if (LedgerBalance < customerDeposit.Amount)
@@ -166,10 +177,20 @@ public class PostingService : IPostingService
                 Errors = new List<string> { "Customer not found" }
             };
         }
+        var LedgerEntity = await _context.GLAccounts.FindAsync(customerWithdraw.LedgerAccountNumber);
+        if (LedgerEntity is null)
+        {
+            _logger.LogInformation("Ledger not found");
+            return new CustomerResponse
+            {
+                Message = "Ledger not found",
+                Status = false,
+                Errors = new List<string> { "Ledger not found" }
+            };
+        }
 
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.AccountNumber!);
-        var LedgerEntity = await _context.GLAccounts.FindAsync(customerWithdraw.AccountNumber) ?? throw new ArgumentException(nameof(customerWithdraw));
-        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber)??  throw new ArgumentNullException(nameof(customerEntity));
+        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.LedgerAccountNumber!);
+        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber!);
             
         if (customerEntity.Balance < customerWithdraw.Amount)
         {

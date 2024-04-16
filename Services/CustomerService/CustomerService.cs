@@ -136,7 +136,7 @@ public class CustomerService : ICustomerService
         {
             AccountName = customerEntity.FullName,
             AccountNumber = customerEntity.AccountNumber,
-            AccountType = customerEntity.AccountType.ToString(),
+            AccountType = customerEntity.AccountType?.ToString(),
             LedgerBalance = 0,
             AvailableBalance = 0,
             WithdrawableBalance = 0,
