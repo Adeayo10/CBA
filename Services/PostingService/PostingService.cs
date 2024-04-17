@@ -166,7 +166,7 @@ public class PostingService : IPostingService
     }
     public async Task<CustomerResponse> WithdrawAsync(PostingDTO customerWithdraw)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(customerWithdraw.CustomerAccountNumber);
+        var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == customerWithdraw.CustomerAccountNumber).SingleAsync();
         if (customerEntity is null)
         {
             _logger.LogInformation("Customer not found");
