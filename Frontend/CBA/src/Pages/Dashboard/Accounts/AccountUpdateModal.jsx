@@ -15,7 +15,7 @@ import Select from "@mui/material/Select";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { TOAST_CONFIG, ROLES, STATUS, GENDER } from "../../../utils/constants";
+import { TOAST_CONFIG, ROLES, STATUS, GENDER, NG_STATES } from "../../../utils/constants";
 import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
 import { updateUser } from "../../../api/users";
@@ -50,7 +50,7 @@ export default function AccountUpdateModal({
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0) {
+    if (Object.keys(emptyFields).length > 0 || Object.keys(formErrors).length > 0) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
@@ -232,16 +232,16 @@ export default function AccountUpdateModal({
               <Select
                 labelId="State-label"
                 id="State"
-                value={accountDetails.state || STATUS.ACTIVE}
+                value={accountDetails.state || NG_STATES[0]}
                 label="State"
                 name="state"
                 onChange={handleInputChange}
               >
-                {Object.values(STATUS).map((status, index) => {
-                  const statusKey = `update_${status}_${index}`;
+                {NG_STATES.map((state, index) => {
+                  const stateKey = `update_${state}_${index}`;
                   return (
-                    <MenuItem value={status} key={statusKey}>
-                      {status}
+                    <MenuItem value={state} key={stateKey}>
+                      {state}
                     </MenuItem>
                   );
                 })}

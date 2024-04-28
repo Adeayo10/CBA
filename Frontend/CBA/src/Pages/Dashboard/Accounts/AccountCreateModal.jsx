@@ -20,6 +20,7 @@ import {
   CREATE_ACCOUNT_BASE,
   GENDER,
   STATUS,
+  NG_STATES,
 } from "../../../utils/constants";
 import { isValidEmail, isValidPhoneNumber } from "../../../utils/validators";
 import { toast } from "react-toastify";
@@ -62,7 +63,7 @@ export default function AccountCreateModal({
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0) {
+    if (Object.keys(emptyFields).length > 0 || Object.keys(formErrors).length > 0) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
@@ -70,7 +71,6 @@ export default function AccountCreateModal({
 
     createCustomer(accountDetails)
       .then((data) => {
-        //console.log(data);
         if (data.errors) throw new Error(data.message || data.errors);
 
         toast.success(data.message, TOAST_CONFIG);
@@ -86,7 +86,6 @@ export default function AccountCreateModal({
 
   const getEmptyFields = () => {
     const formFields = Object.entries(accountDetails);
-
     let emptyFields = {};
 
     for (const [key, value] of formFields) {
@@ -253,11 +252,11 @@ export default function AccountCreateModal({
                 name="state"
                 onChange={handleInputChange}
               >
-                {Object.values(STATUS).map((status, index) => {
-                  const statusKey = `update_${status}_${index}`;
+                {NG_STATES.map((state, index) => {
+                  const stateKey = `update_${state}_${index}`;
                   return (
-                    <MenuItem value={status} key={statusKey}>
-                      {status}
+                    <MenuItem value={state} key={stateKey}>
+                      {state}
                     </MenuItem>
                   );
                 })}

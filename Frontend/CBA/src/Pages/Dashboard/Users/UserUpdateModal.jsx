@@ -51,7 +51,7 @@ export default function UserUpdateModal({
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0) {
+    if (Object.keys(emptyFields).length > 0 || Object.keys(formErrors).length > 0) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
