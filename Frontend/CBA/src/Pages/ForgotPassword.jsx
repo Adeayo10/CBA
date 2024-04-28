@@ -30,7 +30,6 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
 
   if (tokenExists()) {
-    //console.log("Here");
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
@@ -44,7 +43,6 @@ export default function ForgotPassword() {
     setIsLoading(true);
     forgotPassword(email)
       .then((data) => {
-        //console.log(data);
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 

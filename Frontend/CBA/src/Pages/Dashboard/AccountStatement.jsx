@@ -40,15 +40,6 @@ export default function AccountStatement() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   setAccountStatementDetails({
-  //     ...CREATE_ACCOUNT_BASE,
-  //     id: generateId(),
-  //     accountType,
-  //     accountNumber: generateAccountNumber(),
-  //   });
-  // }, [accountType]);
-
   const exportStatement = (event) => {
     event.preventDefault();
     setIsLoading(true);
@@ -57,15 +48,15 @@ export default function AccountStatement() {
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0) {
+    if (Object.keys(emptyFields).length > 0 || Object.keys(formErrors).length > 0) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
     }
 
     const accountStatementDetails = {
-      startDate: dayjs(startDate).format(`YYYY-MM-DDTHH:mm:ss.SSSZ`),
-      endDate: dayjs(endDate).format(`YYYY-MM-DDTHH:mm:ss.SSSZ`),
+      startDate: dayjs(startDate).toISOString(),
+      endDate: dayjs(endDate).toISOString(),
       accountNumber,
     };
 
@@ -98,11 +89,9 @@ export default function AccountStatement() {
       return;
     }
 
-    console.log({ endDate: dayjs(endDate).format(`YYYY-MM-DDTHH:mm:ss.SSSZ`) });
-
     const accountStatementDetails = {
-      startDate: dayjs(startDate).format(`YYYY-MM-DDTHH:mm:ss.SSSZ`),
-      endDate: dayjs(endDate).format(`YYYY-MM-DDTHH:mm:ss.SSSZ`),
+      startDate: dayjs(startDate).toISOString(),
+      endDate: dayjs(endDate).toISOString(),
       accountNumber,
     };
 
@@ -157,6 +146,8 @@ export default function AccountStatement() {
     const { name, value } = event.target;
     if (!value)
       setFormErrors({ ...formErrors, [name]: "Field Cannot Be Empty" });
+    else if (name == "accountNumber" && !isValidPhoneNumber("0"+ value))
+      setFormErrors({ ...formErrors, [name]: "Invalid Account Number" });
     else if (formErrors[name]) {
       let updatedErrors = { ...formErrors };
       delete updatedErrors[name];

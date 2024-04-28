@@ -30,22 +30,29 @@ export default function Login() {
   const [loginDetails, setLoginDetails] = useState({ Email: "", Password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
+  const [formErrors, setFormErrors] = useState({});
+
   const [isLoading, setIsLoading] = useState(false);
 
   if (tokenExists()) {
-    //console.log("Here");
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
   function handleSubmit(submitEvent) {
     submitEvent.preventDefault();
     setIsLoading(true);
+
+    if (Object.keys(formErrors).length > 0) {
+      setIsLoading(false);
+      toast.error("Login form contains errors", TOAST_CONFIG);
+      return;
+    }
+
     loginUser({ ...loginDetails })
       .then((data) => {
         if (!data.success || data.errors)
           throw new Error(data.message || data.errors);
 
-        // console.log(data);
         saveUserId(data.userId);
         setIsLoading(false);
         toast.success(data.message, TOAST_CONFIG);
@@ -66,6 +73,19 @@ export default function Login() {
   function togglePasswordVisibility(clickEvent) {
     clickEvent.preventDefault();
     setShowPassword((prevState) => !prevState);
+  }
+
+  function validateFields(event) {
+    const { name, value } = event.target;
+    if (!value)
+      setFormErrors({ ...formErrors, [name]: "Field Cannot Be Empty" });
+    else if (name === "email" && !isValidEmail(value))
+      setFormErrors({ ...formErrors, [name]: "Invalid Email Address" });
+    else if (formErrors[name]) {
+      let updatedErrors = { ...formErrors };
+      delete updatedErrors[name];
+      setFormErrors({ ...updatedErrors });
+    }
   }
 
   return (
@@ -96,6 +116,9 @@ export default function Login() {
             autoComplete="email"
             autoFocus
             onChange={handleChange}
+            onBlur={validateFields}
+            error={Boolean(formErrors.email)}
+            helperText={formErrors.email}
           />
           <TextField
             margin="normal"
@@ -118,6 +141,9 @@ export default function Login() {
                 </IconButton>
               ),
             }}
+            onBlur={validateFields}
+            error={Boolean(formErrors.password)}
+            helperText={formErrors.password}
           />
           {/* <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
