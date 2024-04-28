@@ -78,7 +78,8 @@ export default function GeneralLedger() {
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
+        const errorMessage = error.message || "No Data Found"
+        toast.error(errorMessage, TOAST_CONFIG);
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
@@ -213,6 +214,7 @@ export default function GeneralLedger() {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
+                  <TableCell>AccountNo.</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Status</TableCell>
@@ -225,6 +227,7 @@ export default function GeneralLedger() {
                     {
                       id,
                       accountName,
+                      accountNumber,
                       accountDescription,
                       accountCategory,
                       accountStatus,
@@ -247,6 +250,9 @@ export default function GeneralLedger() {
                       >
                         <TableCell style={disabledText}>
                           {capitalize(accountName)}
+                        </TableCell>
+                        <TableCell style={disabledText}>
+                          {accountNumber}
                         </TableCell>
                         <TableCell style={disabledText}>
                           {accountDescription}
