@@ -25,6 +25,7 @@ import {
   useNavigate,
   redirect,
   Navigate,
+  useSearchParams,
 } from "react-router-dom";
 
 import Title from "../../../Components/Title";
@@ -94,7 +95,8 @@ export default function Users() {
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
+        const errorMessage = error.message || "No Data Found";
+        toast.error(errorMessage, TOAST_CONFIG);
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });

@@ -96,7 +96,8 @@ export default function Postings({ postingType }) {
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error.message, TOAST_CONFIG);
+       const errorMessage = error.message || "No Data Found"
+        toast.error(errorMessage, TOAST_CONFIG);
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
       });
@@ -157,7 +158,7 @@ export default function Postings({ postingType }) {
                 sx={{ ml: 1 }}
                 onClick={toggleCreateModal}
               >
-                Create Posting
+                Make {postingType}
               </Button>
             </Box>
             <Table size="small">
