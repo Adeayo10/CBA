@@ -23,6 +23,8 @@ import { DRAWER_WIDTH, TOAST_CONFIG, ROUTES } from "../utils/constants";
 import { clearTokenData } from "../utils/token";
 import { logoutUser } from "../api/auth";
 
+import LogoutModal from "./LogoutModal";
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -44,28 +46,15 @@ const AppBar = styled(MuiAppBar, {
 export default function Header({ sideBarOpen, toggleSideBar }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false)
 
-  const logOut = (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-    logoutUser()
-      .then((data) => {
-        if (!data.ok || data.error) throw new Error(data.message || data.error);
+  const openModal = () =>{
+    setModalOpen(true)
+  }
 
-        clearTokenData();
-        setIsLoading(false);
-        toast.success("Successfull", TOAST_CONFIG);
-        navigate(ROUTES.LOGIN);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        clearTokenData();
-        navigate(ROUTES.LOGIN);
-        toast.error(error.message, TOAST_CONFIG);
-      });
-  };
-
-  const viewProfile = () => {};
+  const closeModal = () =>{
+    setModalOpen(false)
+  }
 
   return (
     <AppBar position="absolute" open={sideBarOpen}>
@@ -114,11 +103,12 @@ export default function Header({ sideBarOpen, toggleSideBar }) {
           color="inherit"
           startIcon={<LogoutIcon />}
           sx={{ ml: 1 }}
-          onClick={logOut}
+          onClick={openModal}
         >
           LogOut
         </Button>
       </Toolbar>
+      <LogoutModal closeModal={closeModal} modalOpen={modalOpen}/>
       <Backdrop
         sx={{
           color: "#fff",
