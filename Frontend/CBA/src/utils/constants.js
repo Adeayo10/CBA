@@ -1,3 +1,5 @@
+import { generateId } from "./util";
+
 export const TOAST_CONFIG = {
   position: "top-right",
   autoClose: 5000,
@@ -108,6 +110,46 @@ export const GENDER = {
   FEMALE: "Female",
 };
 
+export const NG_STATES = [
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "FCT - Abuja",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara"
+]
+
 export const CREATE_ACCOUNT_BASE = {
   id: "",
   fullName: "",
@@ -119,7 +161,7 @@ export const CREATE_ACCOUNT_BASE = {
   accountNumber: "",
   status: STATUS.ACTIVE,
   accountType: "",
-  state: STATUS.ACTIVE,
+  state: NG_STATES[0],
 };
 
 export const ACCOUNT_ALLLOWED_FIELDS = [
@@ -138,33 +180,38 @@ export const ACCOUNT_ALLLOWED_FIELDS = [
 export const CREATE_POSTING_BASE = {
   [POSTING_TYPES.DEPOSIT]: {
     id: "",
-    accountName: "",
-    accountNumber: "",
-    amount: 0,
+    ledgerAccountName: "",
+    ledgerAccountNumber: "",
+    amount: "",
     transactionType: POSTING_TYPES.DEPOSIT,
     narration: "",
     datePosted: "",
+    customerAccountNumber: "",
+    customerAccountName: "",
     customerNarration: "",
     customerTransactionType: POSTING_TYPES.DEPOSIT,
   },
   [POSTING_TYPES.WITHDRAWAL]: {
     id: "",
-    accountName: "",
-    accountNumber: "",
-    amount: 0,
+    ledgerAccountName: "",
+    ledgerAccountNumber: "",
+    amount: "",
     transactionType: POSTING_TYPES.WITHDRAWAL,
     narration: "",
     datePosted: "",
+    customerAccountNumber: "",
+    customerAccountName: "",
     customerNarration: "",
     customerTransactionType: POSTING_TYPES.WITHDRAWAL,
   },
   [POSTING_TYPES.TRANSFER]: {
-    senderId: "",
-    receiverId: "",
-    amount: 0,
+    senderId: generateId(),
+    receiverId: generateId(),
+    amount: "",
     narration: "",
     senderAccountNumber: "",
     receiverAccountNumber: "",
+    receiverAccountName: "",
   },
 };
 
@@ -172,7 +219,6 @@ export const POSTING_AUTOGEN_FIELD_MAP = {
   status: "status",
   customerId: "id",
   customerName: "fullName",
-  customerAccountNumber: "accountNumber",
   customerAccountType: "accountType",
   customerBranch: "branch",
   customerEmail: "email",
@@ -208,3 +254,5 @@ export const LEDGER_ALLLOWED_FIELDS = [
 ];
 
 export const APP_LOCALE = { REGION: "en-NG", CURRENCY: "NGN" };
+
+
