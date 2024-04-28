@@ -85,7 +85,10 @@ export default function PostingCreateModal({
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0) {
+    if (
+      Object.keys(emptyFields).length > 0 ||
+      Object.keys(formErrors).length > 0
+    ) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
@@ -145,7 +148,9 @@ export default function PostingCreateModal({
   };
 
   const submitDepositPosting = async () => {
-    const autogenFields = await getAutogenFields(postingDetails.accountNumber);
+    const autogenFields = await getAutogenFields(
+      postingDetails.customerAccountNumber
+    );
     const depositPosting = {
       ...postingDetails,
       datePosted: getCurrentISODate(),
@@ -159,7 +164,9 @@ export default function PostingCreateModal({
   };
 
   const submitWithdrawalPosting = async () => {
-    const autogenFields = await getAutogenFields(postingDetails.accountNumber);
+    const autogenFields = await getAutogenFields(
+      postingDetails.customerAccountNumber
+    );
     const withdrawalPosting = {
       ...postingDetails,
       datePosted: getCurrentISODate(),
@@ -174,7 +181,7 @@ export default function PostingCreateModal({
     const transferPosting = {
       ...postingDetails,
       datePosted: getCurrentISODate(),
-      senderAccountNumber: postingDetails.accountNumber,
+      senderAccountNumber: postingDetails.customerAccountNumber,
     };
     return await createTransfer(transferPosting);
   };
@@ -222,51 +229,72 @@ export default function PostingCreateModal({
           columnSpacing={{ xs: 1, sm: 2, md: 3 }}
           sx={{ my: 0.5, pt: 0.5, pb: 1.5 }}
         >
+          {postingType !== POSTING_TYPES.TRANSFER && (
+            <>
+              <Grid item xs={6}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="LedgerAccountNumber"
+                  label="LedgerAccountNumber"
+                  name="ledgerAccountNumber"
+                  onChange={handleInputChange}
+                  error={Boolean(formErrors.ledgerAccountNumber)}
+                  helperText={formErrors.ledgerAccountNumber}
+                  onBlur={validateField}
+                  value={postingDetails.ledgerAccountNumber}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="LedgerAccountName"
+                  label="LedgerAccountName"
+                  name="ledgerAccountName"
+                  onChange={handleInputChange}
+                  error={Boolean(formErrors.ledgerAccountName)}
+                  helperText={formErrors.ledgerAccountName}
+                  onBlur={validateField}
+                  value={postingDetails.ledgerAccountName}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="CustomerAccountNumber"
+                  label="CustomerAccountNumber"
+                  name="customerAccountNumber"
+                  onChange={handleInputChange}
+                  error={Boolean(formErrors.customerAccountNumber)}
+                  helperText={formErrors.customerAccountNumber}
+                  onBlur={validateField}
+                  value={postingDetails.customerAccountNumber}
+                />
+              </Grid>
+            </>
+          )}
+
           <Grid item xs={6}>
             <TextField
               margin="normal"
               required
               fullWidth
-              id="AccountNumber"
-              label="AccountNumber"
-              name="accountNumber"
+              id="CustomerAccountName"
+              label="CustomerAccountName"
+              name="customerAccountName"
               onChange={handleInputChange}
-              error={Boolean(formErrors.accountNumber)}
-              helperText={formErrors.accountNumber}
+              error={Boolean(formErrors.customerAccountName)}
+              helperText={formErrors.customerAccountName}
               onBlur={validateField}
-              value={postingDetails.accountNumber}
+              value={postingDetails.customerAccountName}
             />
           </Grid>
-          <Grid item xs={6}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="AccountName"
-              label="AccountName"
-              name="accountName"
-              onChange={handleInputChange}
-              error={Boolean(formErrors.accountName)}
-              helperText={formErrors.accountName}
-              onBlur={validateField}
-              value={postingDetails.accountName}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="Narration"
-              label="Narration"
-              name="narration"
-              onChange={handleInputChange}
-              error={Boolean(formErrors.narration)}
-              helperText={formErrors.narration}
-              onBlur={validateField}
-              value={postingDetails.narration}
-            />
-          </Grid>
+
           {postingType == POSTING_TYPES.TRANSFER && (
             <>
               <Grid item xs={6}>
@@ -274,14 +302,14 @@ export default function PostingCreateModal({
                   margin="normal"
                   required
                   fullWidth
-                  id="ReceiverAccountNumber"
-                  label="ReceiverAccountNumber"
-                  name="receiverAccountNumber"
+                  id="CustomerAccountNumber"
+                  label="CustomerAccountNumber"
+                  name="senderAccountNumber"
                   onChange={handleInputChange}
-                  error={Boolean(formErrors.receiverAccountNumber)}
-                  helperText={formErrors.receiverAccountNumber}
+                  error={Boolean(formErrors.senderAccountNumber)}
+                  helperText={formErrors.senderAccountNumber}
                   onBlur={validateField}
-                  value={postingDetails.receiverAccountNumber}
+                  value={postingDetails.senderAccountNumber}
                 />
               </Grid>
               <Grid item xs={6}>
@@ -299,8 +327,38 @@ export default function PostingCreateModal({
                   value={postingDetails.receiverAccountName}
                 />
               </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="ReceiverAccountNumber"
+                  label="ReceiverAccountNumber"
+                  name="receiverAccountNumber"
+                  onChange={handleInputChange}
+                  error={Boolean(formErrors.receiverAccountNumber)}
+                  helperText={formErrors.receiverAccountNumber}
+                  onBlur={validateField}
+                  value={postingDetails.receiverAccountNumber}
+                />
+              </Grid>
             </>
           )}
+          <Grid item xs={6}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="Narration"
+              label="Narration"
+              name="narration"
+              onChange={handleInputChange}
+              error={Boolean(formErrors.narration)}
+              helperText={formErrors.narration}
+              onBlur={validateField}
+              value={postingDetails.narration}
+            />
+          </Grid>
           <Grid item xs={6}>
             <TextField
               margin="normal"
