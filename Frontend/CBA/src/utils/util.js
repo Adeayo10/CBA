@@ -47,7 +47,7 @@ export function formatDate(dateString) {
 }
 
 export function getCurrentISODate() {
-  return dayjs().format(`YYYY-MM-DDTHH:mm:ss.SSSZ`);
+  return dayjs().toISOString();
 }
 
 export function formatCurrency(amount) {
