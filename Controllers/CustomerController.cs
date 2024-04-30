@@ -13,12 +13,10 @@ public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
     private readonly ILogger<CustomerController> _logger;
-    private readonly IPdfService _pdfService;
-    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger, IPdfService pdfService)
+    public CustomerController(ICustomerService customerService, ILogger<CustomerController> logger)
     {
         _customerService = customerService;
         _logger = logger;
-        _pdfService = pdfService;
         _logger.LogInformation("Customer Controller has been created");
     }
     [HttpPost]
@@ -29,10 +27,6 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Creating customer");
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new CustomerResponse { Message = "Invalid model state", Errors = new List<string>(ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage))});
-            }
             var result = await _customerService.CreateCustomerAsync(customer);
             if (!result.Status)
             {
@@ -210,7 +204,7 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new TransactionResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            return Ok(new TransactionResponse { Message = result.Message, Status = result.Status, Transactions = result.Transactions });
+            return Ok(new TransactionResponse { Message = result.Message, Status = result.Status, Transactions = result.Transactions, EndDate = result.EndDate, StartDate = result.StartDate});
         }
         catch (Exception ex)
         {

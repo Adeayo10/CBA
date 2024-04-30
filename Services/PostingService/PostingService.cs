@@ -30,7 +30,7 @@ public class PostingService : IPostingService
                 Errors = new List<string> { "Customer not found" }
             };
         }
-        var LedgerEntity = await _context.GLAccounts.FindAsync(customerDeposit.LedgerAccountNumber);
+        var LedgerEntity = await _context.GLAccounts.Where(x => x.AccountNumber == customerDeposit.LedgerAccountNumber).SingleAsync();
         if(LedgerEntity is null)
         {
             _logger.LogInformation("Ledger not found");
@@ -43,7 +43,7 @@ public class PostingService : IPostingService
         }
 
         var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.LedgerAccountNumber!);
-        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
+        var customerBalance = await _context.CustomerBalance.Where(x => x.AccountNumber == customerDeposit.CustomerAccountNumber).SingleAsync();
 
         if (LedgerBalance < customerDeposit.Amount)
         {
@@ -70,12 +70,16 @@ public class PostingService : IPostingService
     {
         customerEntity.Balance += customerDeposit.Amount;
         LedgerBalance -= customerDeposit.Amount;
+        var ledger = await _context.GLAccounts.Where(x => x.AccountNumber == customerDeposit.LedgerAccountNumber).SingleAsync();
+        ledger.Balance = LedgerBalance;
+        _context.GLAccounts.Update(ledger);
         customerBalance.LedgerBalance += LedgerBalance;
         customerBalance.AvailableBalance += customerDeposit.Amount;
         customerBalance.WithdrawableBalance += customerDeposit.Amount;
 
         PostingEntity postingEntity = PostingEntityForDeposit(customerDeposit, customerEntity, LedgerEntity);
         Transaction transaction = TransactionEntityForDeposit(customerDeposit, customerEntity, LedgerEntity);
+
         await DatabasePersistenceForDepositAsync(customerEntity, customerBalance, postingEntity, transaction);
     }
 
@@ -92,7 +96,7 @@ public class PostingService : IPostingService
     private static Transaction TransactionEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         var moneyin = customerDeposit.Amount;
-        var transactionBalance = customerEntity.Balance + moneyin;
+        var transactionBalance = customerEntity.Balance;
 
         return new Transaction
         {
@@ -177,7 +181,7 @@ public class PostingService : IPostingService
                 Errors = new List<string> { "Customer not found" }
             };
         }
-        var LedgerEntity = await _context.GLAccounts.FindAsync(customerWithdraw.LedgerAccountNumber);
+        var LedgerEntity = await _context.GLAccounts.Where(x => x.AccountNumber == customerWithdraw.LedgerAccountNumber).SingleAsync();
         if (LedgerEntity is null)
         {
             _logger.LogInformation("Ledger not found");
@@ -190,7 +194,7 @@ public class PostingService : IPostingService
         }
 
         var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.LedgerAccountNumber!);
-        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber!);
+        var customerBalance = await _context.CustomerBalance.Where(x => x.AccountNumber == customerWithdraw.CustomerAccountNumber).SingleAsync();
             
         if (customerEntity.Balance < customerWithdraw.Amount)
         {
@@ -217,6 +221,9 @@ public class PostingService : IPostingService
     {
         customerEntity.Balance -= customerWithdraw.Amount;
         LedgerBalance += customerWithdraw.Amount;
+        var ledger = await _context.GLAccounts.Where(x => x.AccountNumber == customerWithdraw.LedgerAccountNumber).SingleAsync();
+        ledger.Balance = LedgerBalance;
+        _context.GLAccounts.Update(ledger);
         customerBalance.LedgerBalance += LedgerBalance;
         customerBalance.AvailableBalance -= customerWithdraw.Amount;
         customerBalance.WithdrawableBalance -= customerWithdraw.Amount;
@@ -237,7 +244,7 @@ public class PostingService : IPostingService
     private static Transaction TransactionEntityForWithdraw(PostingDTO customerWithdraw, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         var moneyOut = customerWithdraw.Amount;
-        var transactionBalance = customerEntity.Balance - moneyOut;
+        var transactionBalance = customerEntity.Balance;
         return new Transaction
         {
             TransactionType = "Withdrawal",
@@ -339,6 +346,7 @@ public class PostingService : IPostingService
     public async Task<dynamic> GetPostingsAsync(int pageNumber, int pageSize, string? filterValue)
     {
         _logger.LogInformation("Getting all postings");
+
         var totalPostings = await GetTotalPostingsAsync();
         var totalPostingsByType = await GetTotalPostingsByTypeAsync();
         var postingsTask = await _context.PostingEntities
@@ -347,29 +355,35 @@ public class PostingService : IPostingService
             .Take(pageSize)
             .ToListAsync();
         
-        var filteredPostings = postingsTask
-            .Where(x => x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
-            .Select(x => new
-            {
-                x.AccountName,
-                x.AccountNumber,
-                x.Amount,
-                x.TransactionType,
-                x.Narration,
-                x.CustomerId,
-                x.CustomerName,
-                x.CustomerAccountNumber,
-                x.CustomerAccountType,
-                x.CustomerBranch,
-                x.CustomerEmail,
-                x.CustomerPhoneNumber,
-                x.CustomerStatus,
-                x.CustomerGender,
-                x.CustomerAddress,
-                x.CustomerState,
-                x.DatePosted
-            })
-            .ToList();
+        var postings = postingsTask;
+
+            var filteredPostings = postings
+             .Where(x => x.TransactionType != null && x.TransactionType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
+             .Select(x => new
+             {
+                 x.AccountName,
+                 x.AccountNumber,
+                 x.Amount,
+                 x.TransactionType,
+                 x.Narration,
+                 x.CustomerId,
+                 x.CustomerName,
+                 x.CustomerAccountNumber,
+                 x.CustomerAccountType,
+                 x.CustomerBranch,
+                 x.CustomerEmail,
+                 x.CustomerPhoneNumber,
+                 x.CustomerStatus,
+                 x.CustomerGender,
+                 x.CustomerAddress,
+                 x.CustomerState,
+                 x.DatePosted
+             })
+             .ToList();
+
+        _logger.LogInformation($"Filter Value: {filterValue}");
+        _logger.LogInformation($"Number of postings: {postings.Count}");
+        _logger.LogInformation($"Total customers: {filteredPostings.Count}");
 
         var result = new  {
 

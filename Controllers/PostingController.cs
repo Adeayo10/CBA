@@ -91,7 +91,7 @@ public class PostingController : ControllerBase
         {
             _logger.LogInformation("Getting all postings");
             var result = await _postingService.GetPostingsAsync(pageNumber, pageSize, filterValue);
-            return Ok(new { result });
+            return Ok(result);
         }
         catch (Exception ex)
         {

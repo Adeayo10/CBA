@@ -8,7 +8,7 @@ public class GLAccounts
     public string? AccountDescription { get; set; }
     public DateTime? TransactionDate { get; set; } 
     public string? AccountNumber { get; set; }
-    public string? AccountStatus { get; set; } = "Active";
+    public string? AccountStatus { get; set; }
     public decimal Balance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;

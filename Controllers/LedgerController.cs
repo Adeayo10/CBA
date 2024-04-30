@@ -33,17 +33,22 @@ public class LedgerController : ControllerBase
             {
                 return BadRequest(new LedgerResponse()
                 {
-                    Message = "Account already exist",
-                    Status = false
+                    Message = response.Message,
+                    Status = response.Status
                 });
-            }
+            } 
             // return CreatedAtAction(nameof(GetAll), new { id = response.Data!.AccountNumber }, new LedgerResponse()
             // {
             //     Message = "Account created successfully",
             //     Status = true,
             //     Data = response.Data
             // });
-            return Ok(response.Message);
+            return Ok(new LedgerResponse()
+            {
+                Message = response.Message,
+                Status = response.Status,
+                
+            });
         }
         catch (Exception ex)
         {
@@ -234,7 +239,11 @@ public class LedgerController : ControllerBase
                     Status = false
                 });
             }
-            return Ok(response.Message);
+            return Ok(new LedgerResponse()
+            {
+                Message = response.Message,
+                Status = response.Status
+            });
         }
         catch (Exception ex)
         {
@@ -259,8 +268,8 @@ public class LedgerController : ControllerBase
             {
                 return BadRequest(new LedgerResponse()
                 {
-                    Message = "Account does not exist",
-                    Status = false
+                    Message = response.Message,
+                    Status = response.Status
                 });
             }
             return Ok(response);

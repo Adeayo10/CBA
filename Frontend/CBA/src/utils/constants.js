@@ -101,7 +101,7 @@ export const POSTING_TYPES = {
   TRANSFER: "Transfer",
 };
 
-export const ACCOUNT_IDS = { Current: 2, Savings: 1, Loan: 3 };
+export const ACCOUNT_IDS = { Current: "Current", Savings: "Savings", Loan: "Loan" };
 
 export const PAGE_SIZE = 10;
 

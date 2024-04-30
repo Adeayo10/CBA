@@ -11,7 +11,6 @@ using System.Text.Encodings.Web;
 using System.Web;
 
 namespace CBA.Services;
-
 public class UserService : IUserService
 {
     private readonly ITokenService _tokenService;
@@ -21,7 +20,6 @@ public class UserService : IUserService
     private readonly ILogger<UserService> _logger;
     private readonly IEmailService _emailService;
     private readonly UserDataContext _context;
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserService(UserDataContext context, IPasswordService passwordService,
@@ -108,7 +106,15 @@ public class UserService : IUserService
     }
     public async Task<LoginResponse> LoginUserAsync(UserLoginRequest user)
     {
-
+        if (user is null)
+        {
+            return new LoginResponse()
+            {
+                Errors = new List<string>() { "User object is null" },
+                Success = false
+            };
+        }
+        
         var userExist = await _userManager.FindByEmailAsync(user.Email);
 
         if (userExist == null)
@@ -153,7 +159,6 @@ public class UserService : IUserService
             };
         }
     }
-
     public async Task<LogoutResponse> LogoutUserAsync(string userName)
     {
         var result = await _tokenService.RevokeTokenAsync(userName);
@@ -178,7 +183,6 @@ public class UserService : IUserService
             };
         }
     }
-
     public async Task<RegistrationResponse> ConfirmEmailAsync(string userId, string token)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -659,7 +663,6 @@ public class UserService : IUserService
         var token = session.GetString("UserToken");
         return Task.FromResult(token ?? string.Empty);
     }
-
     private void RemoveUserToken(ApplicationUser user)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
@@ -710,7 +713,6 @@ public class UserService : IUserService
             };
         }
     }
-
     private static string GenerateSixDigitToken()
     {
         var random = new Random();

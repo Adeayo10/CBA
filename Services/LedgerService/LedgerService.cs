@@ -49,7 +49,7 @@ public class LedgerService : ILedgerService
             AccountCategory = ledgerRequestDTO.AccountCategory,
             AccountDescription = ledgerRequestDTO.AccountDescription,
             Balance = 1000,
-            AccountStatus = default,
+            AccountStatus = "Active",
             TransactionDate = DateTime.Now
         };
 

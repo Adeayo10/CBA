@@ -3,7 +3,7 @@ using CBA.Context;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Diagnostics;
 
 namespace CBA.Services;
 public class CustomerService : ICustomerService
@@ -113,7 +113,7 @@ public class CustomerService : ICustomerService
     {
 
         var accountNumber = GenerateAccountNumber(customer.PhoneNumber!);
-        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value)??throw new ArgumentNullException(nameof(customer.AccountType));
+        var accountType = Enum.GetName(typeof(CustomerAccountType), customer.AccountType!.Value) ?? throw new ArgumentNullException(nameof(customer.AccountType));
         var customerEntity = new CustomerEntity
         {
             FullName = customer.FullName,
@@ -242,7 +242,7 @@ public class CustomerService : ICustomerService
         var customers = customersTask;
 
         var filteredCustomers = customers
-            .Where(x => x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.AccountType != null && x.AccountType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
             .Select(x => new CustomerEntity
             {
                 Id = x.Id,
@@ -261,9 +261,12 @@ public class CustomerService : ICustomerService
 
             })
             .ToList();
+                
+        _logger.LogInformation($"Filter Value: {filterValue}");
+        _logger.LogInformation($"Number of customers: {customers.Count}");
+        _logger.LogInformation($"Account Types: {string.Join(", ", customers.Select(c => c.AccountType))}");
 
-        _logger.LogInformation("Customers found");
-
+        _logger.LogInformation($"Total customers: {filteredCustomers.Count}");
         var result = new
         {
             TotalCustomers = totalCustomers,
@@ -277,12 +280,16 @@ public class CustomerService : ICustomerService
     {
         return await _context.CustomerEntity.CountAsync();
     }
-
     private async Task<Dictionary<string, int>> GetCustomersPerAccountTypeAsync()
     {
         return await _context.CustomerEntity
             .GroupBy(x => x.AccountType)
-            .ToDictionaryAsync(g => g.Key.ToString(), g => g.Count());
+            .Select(x => new
+            {
+                AccountType = x.Key,
+                Count = x.Count()
+            })
+            .ToDictionaryAsync(x => x.AccountType!, x => x.Count);
     }
     public async Task<CustomerResponse> GetCustomerAccountBalanceAsync(Guid id)
     {
@@ -345,7 +352,7 @@ public class CustomerService : ICustomerService
         };
     }
     public object GetAccountTypes()
-    {   
+    {
         var accountTypes = Enum.GetValues(typeof(CustomerAccountType)).Cast<CustomerAccountType>().ToList();
         var mappedAccountTypes = accountTypes.Select(accountTypes => new
         {
@@ -371,13 +378,13 @@ public class CustomerService : ICustomerService
         var endDate = transaction.EndDate.ToString() ?? throw new ArgumentNullException(nameof(transaction.EndDate));
         var endDateInYYYYMMDD = DateTime.Parse(endDate).ToString("yyyy-MM-dd");
 
-        bool transactionsExists =  transactions.Count > 0;
+        bool transactionsExists = transactions.Count > 0;
 
-        string message = transactionsExists? "Transactions found" : "No Transactions Found";
+        string message = transactionsExists ? "Transactions found" : "No Transactions Found";
 
         _logger.LogInformation(message);
         _logger.LogInformation($"Transactions: {transactions.ToArray()}");
-        
+
         return new TransactionResponse
         {
             Id = customerEntity.Id.ToString(),
@@ -397,7 +404,7 @@ public class CustomerService : ICustomerService
         _logger.LogInformation($"File path: {filePath} ");
         _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()} ");
         await _pdfService.CreateAccountStatementPdfAsync(transactions.Transactions, transactions.Id, filePath, transactions.StartDate, transactions.EndDate);
-        
+
         using var memory = new MemoryStream();
         await using (var stream = new FileStream(filePath, FileMode.Open))
         {
