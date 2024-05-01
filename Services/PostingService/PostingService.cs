@@ -282,35 +282,32 @@ public class PostingService : IPostingService
     }
     public async Task<CustomerResponse> TransferAsync(CustomerTransferDTO customerTransfer)
     {
-        var customerEntity = await _context.CustomerEntity.Where(x=> x.AccountNumber == customerTransfer.SenderAccountNumber).SingleAsync() ?? throw new ArgumentNullException(nameof(customerTransfer));
-        var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerTransfer.SenderAccountNumber!);
-        var customerBalance = await _context.CustomerBalance.Where(x=> x.AccountNumber == customerEntity.AccountNumber).SingleAsync();
-
-        if (customerEntity is null)
+        var sender = await _context.CustomerEntity.FirstOrDefaultAsync(x => x.AccountNumber == customerTransfer.SenderAccountNumber);
+        if (sender == null)
         {
-            _logger.LogInformation("Customer not found");
+            _logger.LogInformation("Sender not found");
             return new CustomerResponse
             {
-                Message = "Customer not found",
+                Message = "Sender not found",
                 Status = false,
-                Errors = new List<string> { "Customer not found" }
+                Errors = new List<string> { "Sender not found" }
             };
         }
 
-        var recipient = await _context.CustomerEntity.Where(x=> x.AccountNumber == customerTransfer.ReceiverAccountNumber).SingleAsync();
-        if (recipient is null)
+        var receiver = await _context.CustomerEntity.FirstOrDefaultAsync(x => x.AccountNumber == customerTransfer.ReceiverAccountNumber);
+        if (receiver == null)
         {
-            _logger.LogInformation("Recipient not found");
+            _logger.LogInformation("Receiver not found");
             return new CustomerResponse
             {
-                Message = "Recipient not found",
+                Message = "Receiver not found",
                 Status = false,
-                Errors = new List<string> { "Recipient not found" }
+                Errors = new List<string> { "Receiver not found" }
             };
         }
 
-        _logger.LogInformation("Transferring from customer account");
-        if (customerEntity.Balance < customerTransfer.Amount)
+        var senderBalance = sender.Balance;
+        if (senderBalance < customerTransfer.Amount)
         {
             _logger.LogInformation("Insufficient funds");
             return new CustomerResponse
@@ -321,21 +318,13 @@ public class PostingService : IPostingService
             };
         }
 
-        customerEntity.Balance -= customerTransfer.Amount;
-        recipient.Balance += customerTransfer.Amount;
-        LedgerBalance += customerTransfer.Amount;
+        sender.Balance -= customerTransfer.Amount;
+        receiver.Balance += customerTransfer.Amount;
 
-        if (customerBalance != null)
-        {
-            customerBalance.LedgerBalance += LedgerBalance;
-            customerBalance.AvailableBalance -= customerTransfer.Amount;
-            customerBalance.WithdrawableBalance -= customerTransfer.Amount;
-            _context.CustomerBalance.Update(customerBalance);
-        }
-
-        _context.CustomerEntity.Update(customerEntity);
-        _context.CustomerEntity.Update(recipient);
+        _context.CustomerEntity.Update(sender);
+        _context.CustomerEntity.Update(receiver);
         await _context.SaveChangesAsync();
+
         _logger.LogInformation("Transfer successful");
 
         return new CustomerResponse
