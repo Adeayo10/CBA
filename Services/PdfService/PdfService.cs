@@ -12,13 +12,9 @@ using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using Transaction = CBA.Models.Transaction;
-using Path = System.IO.Path;
 using CBA.Models;
 using CBA.Context;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Security;
-using iText.Signatures;
-
 
 namespace CBA.Services;
 public class PdfServiceFactory : IPdfService
@@ -69,7 +65,7 @@ public class PdfServiceFactory : IPdfService
             var summaryTable = CreateSummaryTable(PurpleColour, font, customer, startDate, endDate, transactions);
             MergeAddressAndSummaryTables(document, font, addressTable, summaryTable);
 
-            var headerTable = CreateHeaderTable(PurpleColour, font);
+            var headerTable = CreateHeaderTable(PurpleColour, font, customer);
             var noticeBoard = CreateNoticeBoard(PurpleColour, font);
             MergeHeaderAndNoticeBoardTables(document, font, headerTable, noticeBoard);
             TransactionTable(document, PurpleColour, offPurpleColour, font, transactions);
@@ -128,7 +124,7 @@ public class PdfServiceFactory : IPdfService
 
         List summaryBullets = new();
         summaryBullets.Add(new ListItem("Sort Code 00-01-02"));
-        summaryBullets.Add(new ListItem(customer.AccountNumber));
+        summaryBullets.Add(new ListItem($"AccountNumber: {customer.AccountNumber}"));
         summaryBullets.Add(new ListItem("SWIFTBIC CNGDVV11"));
         summaryBullets.Add(new ListItem("IBAN CFDSA 111 2344 2233"));
         summaryTable.AddCell(new Cell().Add(summaryBullets).SetBorder(Border.NO_BORDER).SetPaddingBottom(10f));
@@ -156,12 +152,11 @@ public class PdfServiceFactory : IPdfService
 
         document.Add(addressSummaryMergeTable);
     }
-    private Table CreateHeaderTable(DeviceRgb purpleColour, PdfFont font)
+    private Table CreateHeaderTable(DeviceRgb purpleColour, PdfFont font, CustomerEntity customer)
     {
-
         Table headerTable = new Table(new float[] { 300F }).SetFontColor(purpleColour).SetFont(font).SetBorder(Border.NO_BORDER).SetHorizontalAlignment(HorizontalAlignment.LEFT);
-        headerTable.AddCell(new Cell().Add(new Paragraph("Your Goodman Bank Account Statement")).SetBorder(Border.NO_BORDER).SetFontSize(15F));
-        headerTable.AddCell(new Cell().Add(new Paragraph("Current account statement")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetPaddingTop(7F));
+        headerTable.AddCell(new Cell().Add(new Paragraph($"{customer.Branch} Bank Account Statement")).SetBorder(Border.NO_BORDER).SetFontSize(15F));
+        headerTable.AddCell(new Cell().Add(new Paragraph($"{customer.AccountType} Account Statemnent")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetPaddingTop(7F));
         _logger.LogInformation("Header Table created");
         return headerTable;
     }
@@ -198,7 +193,7 @@ public class PdfServiceFactory : IPdfService
         transactionsTable.AddCell(new Cell().Add(new Paragraph("Description")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour));
         transactionsTable.AddCell(new Cell().Add(new Paragraph("Money out")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetTextAlignment(TextAlignment.RIGHT));
         transactionsTable.AddCell(new Cell().Add(new Paragraph("Money In")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetTextAlignment(TextAlignment.RIGHT));
-        transactionsTable.AddCell(new Cell().Add(new Paragraph("Amount")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetTextAlignment(TextAlignment.RIGHT));
+        //transactionsTable.AddCell(new Cell().Add(new Paragraph("Amount")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetTextAlignment(TextAlignment.RIGHT));
         transactionsTable.AddCell(new Cell().Add(new Paragraph("Balance")).SetBorder(Border.NO_BORDER).SetFontSize(11F).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetTextAlignment(TextAlignment.RIGHT));
        
         transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions.First().TransactionDate.ToString())).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour));
@@ -215,16 +210,16 @@ public class PdfServiceFactory : IPdfService
                 .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK));
             transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].TransactionDescription)).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
                 .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetKeepTogether(true));
-            // transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].MoneyOut.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
-            //     .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
-            // transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].MoneyIn.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
-            //     .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
-            // transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].Balance.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
-            //     .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
-
-            transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].Amount.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
+             transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].MoneyOut.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
                 .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
-            backgroundCounter++;
+             transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].MoneyIn.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
+                .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
+             transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].Balance.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
+                 .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
+
+            // transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions[i].Amount.ToString())).SetBackgroundColor((backgroundCounter % 2 == 0) ? ColorConstants.WHITE : offPurpleColour)
+            //     .SetBorder(new SolidBorder(ColorConstants.WHITE, 1F)).SetFontColor(ColorConstants.BLACK).SetTextAlignment(TextAlignment.RIGHT));
+            // backgroundCounter++;
         }
 
         transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions.Last().TransactionDate.ToString())).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour));
@@ -254,7 +249,7 @@ public class PDFHeaderEventHandler : IEventHandler
         try
         {
             PdfDocumentEvent docEvent = (PdfDocumentEvent)currentEvent;
-            string logoPath = "C:/Assets/Logo.png";
+            string logoPath = "C:/Users/Adesoji/Desktop/.NET Projects/CBA/Assets/logo.png";
             var logo = ImageDataFactory.Create(logoPath);
             PdfPage page = docEvent.GetPage();
             PdfDocument pdf = docEvent.GetDocument();

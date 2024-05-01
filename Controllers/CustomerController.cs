@@ -37,7 +37,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating customer");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
     [HttpPut]
@@ -58,7 +58,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating customer");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -99,7 +99,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting all customers");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
 
     }
@@ -145,7 +145,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting customer account balance");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -167,7 +167,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error changing customer account status");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -185,7 +185,7 @@ public class CustomerController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting account types");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -204,12 +204,12 @@ public class CustomerController : ControllerBase
             {
                 return BadRequest(new TransactionResponse { Message = result.Message, Status = result.Status, Errors = result.Errors });
             }
-            return Ok(new TransactionResponse { Message = result.Message, Status = result.Status, Transactions = result.Transactions, EndDate = result.EndDate, StartDate = result.StartDate});
+            return Ok(new TransactionResponse { Message = result.Message, Status = result.Status, Transactions = result.Transactions, EndDate = result.EndDate, StartDate = result.StartDate });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting customer transactions");
-            return StatusCode(500,ex.Message);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -221,9 +221,15 @@ public class CustomerController : ControllerBase
         try
         {
             _logger.LogInformation("Creating account statement pdf");
-          
-            return await _customerService.GetAccountStatementPdfAsync(transaction);
-            
+
+            var file = await _customerService.GetAccountStatementPdfAsync(transaction);
+            if (file is null)
+            {
+                return BadRequest(new CustomerResponse { Message = "Error creating account statement pdf", Status = false });
+            }
+            var pdfStatement = File(file.FileContents, "application/pdf", "AccountStatement.pdf");
+            return pdfStatement;
+
         }
         catch (Exception ex)
         {

@@ -3,7 +3,6 @@ using CBA.Context;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace CBA.Services;
 public class CustomerService : ICustomerService

@@ -7,7 +7,7 @@ public class PostingService : IPostingService
 {
     private readonly UserDataContext _context;
     private readonly ILogger<PostingService> _logger;
-    private readonly ILedgerService _ledgerService; 
+    private readonly ILedgerService _ledgerService;
     private readonly IEmailService _emailService;
     public PostingService(UserDataContext context, ILogger<PostingService> logger, ILedgerService ledgerService, IEmailService emailService)
     {
@@ -16,7 +16,6 @@ public class PostingService : IPostingService
         _ledgerService = ledgerService;
         _emailService = emailService;
     }
-    
     public async Task<CustomerResponse> DepositAsync(PostingDTO customerDeposit)
     {
         var customerEntity = await _context.CustomerEntity.Where(x => x.AccountNumber == customerDeposit.CustomerAccountNumber).SingleAsync();
@@ -31,7 +30,7 @@ public class PostingService : IPostingService
             };
         }
         var LedgerEntity = await _context.GLAccounts.Where(x => x.AccountNumber == customerDeposit.LedgerAccountNumber).SingleAsync();
-        if(LedgerEntity is null)
+        if (LedgerEntity is null)
         {
             _logger.LogInformation("Ledger not found");
             return new CustomerResponse
@@ -82,7 +81,6 @@ public class PostingService : IPostingService
 
         await DatabasePersistenceForDepositAsync(customerEntity, customerBalance, postingEntity, transaction);
     }
-
     private async Task DatabasePersistenceForDepositAsync(CustomerEntity customerEntity, CustomerBalance customerBalance, PostingEntity postingEntity, Transaction transaction)
     {
         await _context.Transaction.AddAsync(transaction);
@@ -92,7 +90,6 @@ public class PostingService : IPostingService
         await _context.SaveChangesAsync();
         _logger.LogInformation("Deposit successful");
     }
-
     private static Transaction TransactionEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         var moneyin = customerDeposit.Amount;
@@ -109,7 +106,6 @@ public class PostingService : IPostingService
             Balance = transactionBalance,
         };
     }
-
     private static PostingEntity PostingEntityForDeposit(PostingDTO customerDeposit, CustomerEntity customerEntity, GLAccounts LedgerEntity)
     {
         return new PostingEntity
@@ -132,7 +128,6 @@ public class PostingService : IPostingService
             CustomerState = customerEntity.State,
         };
     }
-
     private static string GenerateReceiptTableRo(CustomerEntity customer)
     {
         return $@"
@@ -144,12 +139,19 @@ public class PostingService : IPostingService
             <td>{DateTime.Now}</td>
         </tr>";
     }
-
     private async Task SendEmailReceiptAsync(CustomerEntity customerEntity)
     {
         var receiptTableRows = GenerateReceiptTableRo(customerEntity);
-        
+
         var htmlReceiptTable = $@"
+        <h1>Transaction Receipt</h1>
+        <p>Dear {customerEntity.FullName},</p>
+        <p>Your transaction was successful. Below is the receipt of your transaction.</p>
+        <p>Thank you for banking with us.</p>
+        <p>Best regards,</p>
+        <p>Banking Team</p>
+        <br>
+        <br>
         <table>
             <thead>
                 <tr>
@@ -195,7 +197,7 @@ public class PostingService : IPostingService
 
         var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.LedgerAccountNumber!);
         var customerBalance = await _context.CustomerBalance.Where(x => x.AccountNumber == customerWithdraw.CustomerAccountNumber).SingleAsync();
-            
+
         if (customerEntity.Balance < customerWithdraw.Amount)
         {
             _logger.LogInformation("Insufficient funds");
@@ -280,7 +282,7 @@ public class PostingService : IPostingService
     }
     public async Task<CustomerResponse> TransferAsync(CustomerTransferDTO customerTransfer)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(customerTransfer.SenderAccountNumber)?? throw new ArgumentNullException(nameof(customerTransfer));
+        var customerEntity = await _context.CustomerEntity.FindAsync(customerTransfer.SenderAccountNumber) ?? throw new ArgumentNullException(nameof(customerTransfer));
         var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerTransfer.SenderAccountNumber!);
         var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
 
@@ -342,7 +344,6 @@ public class PostingService : IPostingService
             Status = true
         };
     }
-
     public async Task<dynamic> GetPostingsAsync(int pageNumber, int pageSize, string? filterValue)
     {
         _logger.LogInformation("Getting all postings");
@@ -354,38 +355,39 @@ public class PostingService : IPostingService
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-        
+
         var postings = postingsTask;
 
-            var filteredPostings = postings
-             .Where(x => x.TransactionType != null && x.TransactionType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
-             .Select(x => new
-             {
-                 x.AccountName,
-                 x.AccountNumber,
-                 x.Amount,
-                 x.TransactionType,
-                 x.Narration,
-                 x.CustomerId,
-                 x.CustomerName,
-                 x.CustomerAccountNumber,
-                 x.CustomerAccountType,
-                 x.CustomerBranch,
-                 x.CustomerEmail,
-                 x.CustomerPhoneNumber,
-                 x.CustomerStatus,
-                 x.CustomerGender,
-                 x.CustomerAddress,
-                 x.CustomerState,
-                 x.DatePosted
-             })
-             .ToList();
+        var filteredPostings = postings
+         .Where(x => x.TransactionType != null && x.TransactionType.ToString().Equals(filterValue, StringComparison.OrdinalIgnoreCase))
+         .Select(x => new
+         {
+             x.AccountName,
+             x.AccountNumber,
+             x.Amount,
+             x.TransactionType,
+             x.Narration,
+             x.CustomerId,
+             x.CustomerName,
+             x.CustomerAccountNumber,
+             x.CustomerAccountType,
+             x.CustomerBranch,
+             x.CustomerEmail,
+             x.CustomerPhoneNumber,
+             x.CustomerStatus,
+             x.CustomerGender,
+             x.CustomerAddress,
+             x.CustomerState,
+             x.DatePosted
+         })
+         .ToList();
 
         _logger.LogInformation($"Filter Value: {filterValue}");
         _logger.LogInformation($"Number of postings: {postings.Count}");
         _logger.LogInformation($"Total customers: {filteredPostings.Count}");
 
-        var result = new  {
+        var result = new
+        {
 
             TotalPostings = totalPostings,
             TotalPostingsByType = totalPostingsByType,
@@ -412,5 +414,5 @@ public class PostingService : IPostingService
         }
         return postingTypeCount;
     }
-} 
+}
 //pagination for posting service
