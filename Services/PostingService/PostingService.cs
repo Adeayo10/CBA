@@ -282,9 +282,9 @@ public class PostingService : IPostingService
     }
     public async Task<CustomerResponse> TransferAsync(CustomerTransferDTO customerTransfer)
     {
-        var customerEntity = await _context.CustomerEntity.FindAsync(customerTransfer.SenderAccountNumber) ?? throw new ArgumentNullException(nameof(customerTransfer));
+        var customerEntity = await _context.CustomerEntity.Where(x=> x.AccountNumber == customerTransfer.SenderAccountNumber).SingleAsync() ?? throw new ArgumentNullException(nameof(customerTransfer));
         var LedgerBalance = await _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerTransfer.SenderAccountNumber!);
-        var customerBalance = await _context.CustomerBalance.FindAsync(customerEntity.AccountNumber);
+        var customerBalance = await _context.CustomerBalance.Where(x=> x.AccountNumber == customerEntity.AccountNumber).SingleAsync();
 
         if (customerEntity is null)
         {
@@ -297,7 +297,7 @@ public class PostingService : IPostingService
             };
         }
 
-        var recipient = await _context.CustomerEntity.FindAsync(customerTransfer.ReceiverAccountNumber);
+        var recipient = await _context.CustomerEntity.Where(x=> x.AccountNumber == customerTransfer.ReceiverAccountNumber).SingleAsync();
         if (recipient is null)
         {
             _logger.LogInformation("Recipient not found");
