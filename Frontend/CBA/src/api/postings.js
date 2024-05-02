@@ -22,7 +22,7 @@ export async function createTransfer(transferPosting) {
 }
 
 export async function createWithdrawal(withdrawalPosting) {
-  const API_URL = `/api/v1/Posting/Withdrawal`;
+  const API_URL = `/api/v1/Posting/Withdraw`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -35,6 +35,7 @@ export async function createWithdrawal(withdrawalPosting) {
     headers,
     body: JSON.stringify(withdrawalPosting),
   });
+  console.log(response)
   return await response.json();
 }
 
