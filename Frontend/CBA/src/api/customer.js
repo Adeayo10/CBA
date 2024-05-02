@@ -9,7 +9,7 @@ export async function getCustomers(
   pageNumber = 1,
   pageSize = PAGE_SIZE
 ) {
-  const API_URL = `/api/v1/Customer/GetAllCustomers?pageNumber=${pageNumber}&pageSize=${pageSize}&filterValue=${ACCOUNT_IDS[accountType]}`;
+  const API_URL = `/api/v1/Customer/GetAllCustomers?pageNumber=${pageNumber}&pageSize=${pageSize}&filterValue=${accountType}`;
 
   if (tokenExpired()) await refreshAccessToken();
 
@@ -42,6 +42,23 @@ export async function getCustomerById(id) {
   return await response.json();
 }
 
+export async function getCustomerBalance(id) {
+  const API_URL = `/api/v1/Customer/GetCustomerAccountBalance?id=${id}`;
+
+  if (tokenExpired()) await refreshAccessToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: getAuthorizationHeader(),
+  };
+  //console.log(id);
+  const response = await fetch(API_URL, {
+    method: "GET",
+    headers,
+  });
+  return await response.json();
+}
+
 export async function getCustomerByAccount(accountNumber) {
   const API_URL = `/api/v1/Customer/ValidateCustomerAccountNumber`;
 
@@ -55,8 +72,9 @@ export async function getCustomerByAccount(accountNumber) {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
-    body: JSON.stringify({accountNumber})
+    body: JSON.stringify({ accountNumber }),
   });
+  console.log(response);
   return await response.json();
 }
 
@@ -164,5 +182,6 @@ export async function generateAccountStatement(accountStamentDetails) {
     headers,
     body: JSON.stringify(accountStamentDetails),
   });
-  return await response.json();
+  // console.log(await response.blob())
+  return response;
 }
