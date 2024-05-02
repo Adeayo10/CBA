@@ -29,6 +29,7 @@ import {
   getCustomerTransactions,
 } from "../../api/customer";
 import Title from "../../Components/Title";
+import { formatDate } from "../../utils/util";
 
 export default function AccountStatement() {
   const [accountNumber, setAccountNumber] = useState("");
@@ -48,7 +49,10 @@ export default function AccountStatement() {
 
     setFormErrors({ ...emptyFields });
 
-    if (Object.keys(emptyFields).length > 0 || Object.keys(formErrors).length > 0) {
+    if (
+      Object.keys(emptyFields).length > 0 ||
+      Object.keys(formErrors).length > 0
+    ) {
       setIsLoading(false);
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
@@ -61,12 +65,29 @@ export default function AccountStatement() {
     };
 
     generateAccountStatement(accountStatementDetails)
-      .then((data) => {
-        console.log(data);
-        if (data.errors || !data.status)
+      .then(async (response) => {
+        console.log(response);
+        if (!response.ok) {
+          const data = await response.json();
           throw new Error(data.message || data.errors);
+        }
 
-        toast.success(data.message, TOAST_CONFIG);
+        toast.success("Successful!", TOAST_CONFIG);
+        const file = await response.blob();
+        const fileName =
+          accountNumber +
+          "_statement_" +
+          dayjs(startDate).format("YYYYMMDD") +
+          "-" +
+          dayjs(endDate).format("YYYYMMDD");
+        const fileUrl = window.URL.createObjectURL(file);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = fileUrl;
+        downloadLink.download = fileName;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+
         setIsLoading(false);
       })
       .catch((error) => {
@@ -120,7 +141,7 @@ export default function AccountStatement() {
       emptyFields["endDate"] = "Field Cannot Be Empty";
     }
     if (!accountNumber) {
-      emptyFields["endDate"] = "Field Cannot Be Empty";
+      emptyFields["accountNumber"] = "Field Cannot Be Empty";
     }
 
     console.log({ emptyFields });
@@ -146,7 +167,7 @@ export default function AccountStatement() {
     const { name, value } = event.target;
     if (!value)
       setFormErrors({ ...formErrors, [name]: "Field Cannot Be Empty" });
-    else if (name == "accountNumber" && !isValidPhoneNumber("0"+ value))
+    else if (name == "accountNumber" && !isValidPhoneNumber("0" + value))
       setFormErrors({ ...formErrors, [name]: "Invalid Account Number" });
     else if (formErrors[name]) {
       let updatedErrors = { ...formErrors };
