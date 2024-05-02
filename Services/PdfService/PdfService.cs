@@ -249,7 +249,7 @@ public class PDFHeaderEventHandler : IEventHandler
         try
         {
             PdfDocumentEvent docEvent = (PdfDocumentEvent)currentEvent;
-            string logoPath = "C:/Users/Adesoji/Desktop/.NET Projects/CBA/Assets/logo.png";
+            string logoPath = "./Assets/logo.png";
             var logo = ImageDataFactory.Create(logoPath);
             PdfPage page = docEvent.GetPage();
             PdfDocument pdf = docEvent.GetDocument();
