@@ -36,7 +36,7 @@ function generateId(){
 export default function LedgerCreateModal({
   toggleModal,
   modalOpen,
-  refreshAccountsList,
+  refreshLedgerList,
 }) {
   const ledgerId = generateId();
 
@@ -78,7 +78,7 @@ export default function LedgerCreateModal({
 
         toast.success(data.message, TOAST_CONFIG);
         setIsLoading(false);
-        refreshAccountsList();
+        refreshLedgerList();
         resetModal();
       })
       .catch((error) => {
