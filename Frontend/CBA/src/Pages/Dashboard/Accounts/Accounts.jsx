@@ -51,6 +51,7 @@ import { redirectIfRefreshTokenExpired } from "../../../utils/token";
 import AccountUpdateModal from "./AccountUpdateModal";
 import AccountCreateModal from "./AccountCreateModal";
 import AccountDetailsModal from "./AccountDetailsModal";
+import AccountBalanceModal from "./AccountBalanceModal";
 
 export default function Accounts({ accountType }) {
   const [accountsList, setAccountsList] = useState([]);
@@ -61,6 +62,7 @@ export default function Accounts({ accountType }) {
   const [currentUpdateAccount, setCurrentUpdateAccount] = useState({});
 
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,15 +90,11 @@ export default function Accounts({ accountType }) {
           throw new Error(data.message || data.errors);
 
         setAccountsList(data.filteredCustomers);
-        setNoOfPages(
-          Math.ceil(
-            data.customersPerAccountType[ACCOUNT_IDS[accountType]] / PAGE_SIZE
-          )
-        );
+        setNoOfPages(Math.ceil(data.filteredCustomers.length / PAGE_SIZE || 1));
         setIsLoading(false);
       })
       .catch((error) => {
-        const errorMessage = error.message || "No Data Found"
+        const errorMessage = error.message || "No Data Found";
         toast.error(errorMessage, TOAST_CONFIG);
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
@@ -117,6 +115,15 @@ export default function Accounts({ accountType }) {
     const account = accountsList[accountIndex];
     setCurrentAccountDetails(account);
     toggleDetailsModal();
+    closeMenu();
+  };
+
+  const showAccountBalance = (event) => {
+    event.preventDefault();
+    const accountIndex = currentAccountElement.name;
+    const account = accountsList[accountIndex];
+    setCurrentAccountDetails(account);
+    toggleBalanceModal();
     closeMenu();
   };
 
@@ -141,6 +148,10 @@ export default function Accounts({ accountType }) {
 
   const toggleDetailsModal = () => {
     setDetailsModalOpen(!detailsModalOpen);
+  };
+
+  const toggleBalanceModal = () => {
+    setBalanceModalOpen(!balanceModalOpen);
   };
 
   const toggleCreateModal = () => {
@@ -182,23 +193,6 @@ export default function Accounts({ accountType }) {
 
   const refreshAccountList = () => {
     fetchAccounts();
-  };
-
-  const showAccountBalance = (event) => {
-    event.preventDefault();
-
-    const accountIndex = currentAccountElement.name;
-    if (!accountIndex) {
-      toast.error("Unable to Get Account", TOAST_CONFIG);
-      return;
-    }
-    const balance = accountsList[accountIndex]?.balance;
-
-    if (balance == null) {
-      toast.error("Unable to Get Balance", TOAST_CONFIG);
-      return;
-    }
-    closeMenu();
   };
 
   const handlePageChange = (event, page) => {
@@ -371,6 +365,11 @@ export default function Accounts({ accountType }) {
               toggleModal={toggleDetailsModal}
               account={currentAccountDetails}
               accountType={accountType}
+            />
+            <AccountBalanceModal
+              modalOpen={balanceModalOpen}
+              toggleModal={toggleBalanceModal}
+              account={currentAccountDetails}
             />
             <Backdrop
               sx={{
