@@ -101,7 +101,11 @@ export const POSTING_TYPES = {
   TRANSFER: "Transfer",
 };
 
-export const ACCOUNT_IDS = { Current: "Current", Savings: "Savings", Loan: "Loan" };
+export const ACCOUNT_IDS = {
+  Current: "Current",
+  Savings: "Savings",
+  Loan: "Loan",
+};
 
 export const PAGE_SIZE = 10;
 
@@ -147,8 +151,8 @@ export const NG_STATES = [
   "Sokoto",
   "Taraba",
   "Yobe",
-  "Zamfara"
-]
+  "Zamfara",
+];
 
 export const CREATE_ACCOUNT_BASE = {
   id: "",
@@ -176,6 +180,12 @@ export const ACCOUNT_ALLLOWED_FIELDS = [
   "balance",
   "date Created",
 ];
+
+export const ACCOUNT_BALANCE_FIELDS = {
+  ledgerBalance: "",
+  availableBalance: "",
+  withdrawableBalance: "",
+};
 
 export const CREATE_POSTING_BASE = {
   [POSTING_TYPES.DEPOSIT]: {
@@ -205,13 +215,12 @@ export const CREATE_POSTING_BASE = {
     customerTransactionType: POSTING_TYPES.WITHDRAWAL,
   },
   [POSTING_TYPES.TRANSFER]: {
-    senderId: generateId(),
-    receiverId: generateId(),
     amount: "",
     narration: "",
     senderAccountNumber: "",
     receiverAccountNumber: "",
     receiverAccountName: "",
+    customerAccountName: "",
   },
 };
 
@@ -254,5 +263,3 @@ export const LEDGER_ALLLOWED_FIELDS = [
 ];
 
 export const APP_LOCALE = { REGION: "en-NG", CURRENCY: "NGN" };
-
-
