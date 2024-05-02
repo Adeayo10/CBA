@@ -90,13 +90,11 @@ export default function Postings({ postingType }) {
           throw new Error(data.message || data.errors);
 
         setPostingsList(data.filteredPostings);
-        setNoOfPages(
-          Math.ceil(data.totalPostingsByType[postingType] / PAGE_SIZE)
-        );
+        setNoOfPages(Math.ceil(data.filteredPostings.length / PAGE_SIZE) || 1);
         setIsLoading(false);
       })
       .catch((error) => {
-       const errorMessage = error.message || "No Data Found"
+        const errorMessage = error.message || "No Data Found";
         toast.error(errorMessage, TOAST_CONFIG);
         setIsLoading(false);
         redirectIfRefreshTokenExpired(error.message, navigate);
@@ -164,11 +162,11 @@ export default function Postings({ postingType }) {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Account Name</TableCell>
-                  <TableCell>Account No.</TableCell>
-                  <TableCell>Account Type</TableCell>
+                  <TableCell>Ledger</TableCell>
+                  <TableCell>Ledger Account</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Customer Account</TableCell>
                   <TableCell>Branch</TableCell>
-                  <TableCell>Teller</TableCell>
                   <TableCell>Amount</TableCell>
                   <TableCell>Date</TableCell>
                   <TableCell align="right">Action</TableCell>
@@ -181,22 +179,21 @@ export default function Postings({ postingType }) {
                       id,
                       accountName,
                       accountNumber,
-                      accountType,
-                      branch,
-                      teller,
+                      customerName,
+                      customerAccountNumber,
+                      customerBranch,
                       amount,
                       datePosted,
                     },
                     index
                   ) => {
                     return (
-                      <TableRow key={id}>
+                      <TableRow key={`${id}_${amount}_${index}`}>
                         <TableCell>{accountName}</TableCell>
-                        <TableCell>{lastName}</TableCell>
                         <TableCell>{accountNumber}</TableCell>
-                        <TableCell>{accountType}</TableCell>
-                        <TableCell>{branch}</TableCell>
-                        <TableCell>{teller}</TableCell>
+                        <TableCell>{customerName}</TableCell>
+                        <TableCell>{customerAccountNumber}</TableCell>
+                        <TableCell>{customerBranch}</TableCell>
                         <TableCell>{formatCurrency(amount)}</TableCell>
                         <TableCell>{formatDate(datePosted)}</TableCell>
                         <TableCell align="right">

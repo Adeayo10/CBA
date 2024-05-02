@@ -38,7 +38,6 @@ export default function LedgerUpdateModal({
   useEffect(() => {
     if (modalOpen) {
       setLedgerDetails({ ...ledger });
-      //console.log("I ran")
     }
   }, [modalOpen]);
 

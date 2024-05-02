@@ -39,6 +39,7 @@ import { changeLedgerStatus, getLedgers } from "../../../api/ledger";
 import LedgerCreateModal from "./LedgerCreateModal";
 import LedgerUpdateModal from "./LedgerUpdateModal";
 import LedgerDetailsModal from "./LedgerDetailsModal";
+import LedgerBalaceModal from "./LedgerBalanceModal";
 
 export default function GeneralLedger() {
   const [ledgersList, setLedgersList] = useState([]);
@@ -49,6 +50,7 @@ export default function GeneralLedger() {
   const [currentUpdateLedger, setCurrentUpdateLedger] = useState({});
 
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,6 +125,10 @@ export default function GeneralLedger() {
     setDetailsModalOpen(!detailsModalOpen);
   };
 
+  const toggleBalanceModal = () => {
+    setBalanceModalOpen(!balanceModalOpen);
+  }
+
   const toggleCreateModal = () => {
     setCreateModalOpen(!createModalOpen);
   };
@@ -166,18 +172,11 @@ export default function GeneralLedger() {
 
   const showLedgerBalance = (event) => {
     event.preventDefault();
-
     const ledgerIndex = currentLedgerElement.name;
-    if (!ledgerIndex) {
-      toast.error("Unable to Get Account", TOAST_CONFIG);
-      return;
-    }
-    const balance = ledgersList[ledgerIndex]?.balance;
-
-    if (balance == null) {
-      toast.error("Unable to Get Balance", TOAST_CONFIG);
-      return;
-    }
+    const ledger = ledgersList[ledgerIndex];
+    console.log(ledger);
+    setCurrentLedgerDetails(ledger);
+    toggleBalanceModal()
     closeMenu();
   };
 
@@ -356,6 +355,11 @@ export default function GeneralLedger() {
             <LedgerDetailsModal
               modalOpen={detailsModalOpen}
               toggleModal={toggleDetailsModal}
+              ledger={currentLedgerDetails}
+            />
+            <LedgerBalaceModal
+              modalOpen={balanceModalOpen}
+              toggleModal={toggleBalanceModal}
               ledger={currentLedgerDetails}
             />
             <Backdrop
