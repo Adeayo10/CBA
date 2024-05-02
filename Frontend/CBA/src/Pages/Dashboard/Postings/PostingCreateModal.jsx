@@ -129,12 +129,18 @@ export default function PostingCreateModal({
     setIsLoading(false);
   };
 
-  const getAutogenFields = async (accountNumber) => {
+  const customerLookup = async (accountNumber) => {
+    console.log(accountNumber);
     const { status, customer } = await getCustomerByAccount(accountNumber);
     if (!status)
       throw new Error(
         `Failed to get Customer with Account Number: ${accountNumber}`
       );
+    return customer;
+  };
+
+  const getAutogenFields = async (accountNumber) => {
+    const customer = await customerLookup(accountNumber);
 
     const autogenFields = {};
 
@@ -178,10 +184,14 @@ export default function PostingCreateModal({
   };
 
   const submitTransferPosting = async () => {
+    const sender = await customerLookup(postingDetails.senderAccountNumber);
+    const reciever = await customerLookup(postingDetails.receiverAccountNumber);
     const transferPosting = {
       ...postingDetails,
       datePosted: getCurrentISODate(),
-      senderAccountNumber: postingDetails.customerAccountNumber,
+      receiverAccountName: reciever.fullName,
+      recieverId: reciever.id,
+      senderId: sender.id,
     };
     return await createTransfer(transferPosting);
   };
