@@ -226,7 +226,7 @@ public class PdfServiceFactory : IPdfService
         transactionsTable.AddCell(new Cell().Add(new Paragraph("End balance")).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour));
         transactionsTable.AddCell(new Cell().Add(new Paragraph(" ")).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour));
         transactionsTable.AddCell(new Cell().Add(new Paragraph(" ")).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour));
-        transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions.Last().Amount.ToString())).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour).SetTextAlignment(TextAlignment.RIGHT));
+        transactionsTable.AddCell(new Cell().Add(new Paragraph(transactions.Last().Balance.ToString())).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(purpleColour, 0.5F)).SetBorderRight(new SolidBorder(ColorConstants.WHITE, 0.5F)).SetFontColor(purpleColour).SetBackgroundColor(offPurpleColour).SetTextAlignment(TextAlignment.RIGHT));
 
         document.Add(transactionsTable);
         _logger.LogInformation("Transaction Table created");
@@ -249,7 +249,7 @@ public class PDFHeaderEventHandler : IEventHandler
         try
         {
             PdfDocumentEvent docEvent = (PdfDocumentEvent)currentEvent;
-            string logoPath = "C:/Users/Adesoji/Desktop/.NET Projects/CBA/Assets/logo.png";
+            string logoPath = "./Assets/logo.png";
             var logo = ImageDataFactory.Create(logoPath);
             PdfPage page = docEvent.GetPage();
             PdfDocument pdf = docEvent.GetDocument();
