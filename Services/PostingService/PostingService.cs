@@ -59,7 +59,7 @@ public class PostingService : IPostingService
         _logger.LogInformation("Depositing into customer account");
         await PerformDepositAsync(customerDeposit, customerEntity, ledgerEntity!, customerBalance!/*, ledgerBalance,*/ );
         _logger.LogInformation("Deposit successful");
-        await SendEmailReceiptAsync(customerEntity);
+        await SendEmailReceiptAsync(customerEntity, customerDeposit.Amount);
         _logger.LogInformation("Email sent");
         return new CustomerResponse
         {
@@ -132,46 +132,52 @@ public class PostingService : IPostingService
             CustomerGender = customerEntity.Gender,
             CustomerAddress = customerEntity.Address,
             CustomerState = customerEntity.State,
+            Branch = customerEntity.Branch,
+            //Teller = ""Pass in the teller name as the user"",
+            AccountType = customerEntity.AccountType.ToString(),
+            CustomerFullName = customerEntity.FullName,
+            CustomerBalance = customerEntity.Balance.ToString(),
         };
     }
     private static string GenerateReceiptTableRow(CustomerEntity customer)
     {
         return $@"
-        <tr>
-            <td>{customer.AccountNumber}</td>
-            <td>{customer.FullName}</td>
-            <td>{customer.Balance}</td>
-            <td>{customer.Branch}</td>
-            <td>{DateTime.Now}</td>
-        </tr>";
+            <tr>
+                <td style='border: 1px solid black; padding: 5px;'>{customer.AccountNumber}</td>
+                <td style='border: 1px solid black; padding: 5px;'>{customer.FullName}</td>
+                <td style='border: 1px solid black; padding: 5px;'>{customer.Balance}</td>
+                <td style='border: 1px solid black; padding: 5px;'>{customer.Branch}</td>
+                <td style='border: 1px solid black; padding: 5px;'>{DateTime.Now}</td>
+            </tr>";
     }
-    private async Task SendEmailReceiptAsync(CustomerEntity customerEntity)
+    private async Task SendEmailReceiptAsync(CustomerEntity customerEntity, decimal amount, string transactionType = "Deposit")
     {
         var receiptTableRows = GenerateReceiptTableRow(customerEntity);
 
         var htmlReceiptTable = $@"
-        <h1>Transaction Receipt</h1>
-        <p>Dear {customerEntity.FullName},</p>
-        <p>Your transaction was successful. Below is the receipt of your transaction.</p>
-        <p>Thank you for banking with us.</p>
-        <p>Best regards,</p>
-        <p>Banking Team</p>
-        <br>
-        <br>
-        <table>
-            <thead>
+            <h1 style='color: blue;'>Transaction Receipt</h1>
+            <p style='font-size: 16px;'>Dear {customerEntity.FullName},</p>
+            <p> A {transactionType}  transaction of N{amount}.00 was made on your account.</p>
+            <p style='font-size: 14px;'>Your transaction was successful. Below is the receipt of your transaction.</p>
+            <p style='font-size: 14px;'>Thank you for banking with us.</p>
+            <p style='font-size: 14px;'>Best regards,</p>
+            <p style='font-size: 14px;'>Banking Team</p>
+            <br>
+            <br>
+            <table style='border-collapse: collapse;'>
+                <thead>
                 <tr>
-                    <th>Account Number</th>
-                    <th>Full Name</th>
-                    <th>Balance</th>
-                    <th>Branch</th>
-                    <th>Date</th>
+                    <th style='border: 1px solid black; padding: 5px;'>Account Number</th>
+                    <th style='border: 1px solid black; padding: 5px;'>Full Name</th>
+                    <th style='border: 1px solid black; padding: 5px;'>Balance</th>
+                    <th style='border: 1px solid black; padding: 5px;'>Branch</th>
+                    <th style='border: 1px solid black; padding: 5px;'>Date</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {receiptTableRows}
-            </tbody>
-        </table>";
+                </tbody>
+            </table>";
 
         var message = new Message(new string[] { customerEntity.Email }, "Transaction Receipt", htmlReceiptTable);
         await _emailService.SendEmail(message);
@@ -217,7 +223,7 @@ public class PostingService : IPostingService
         _logger.LogInformation("Withdrawing from customer account");
         await PerformWithdralAsync(customerWithdraw, customerEntity, customerBalance, LedgerEntity /*, LedgerBalance*/);
         _logger.LogInformation("Withdrawal successful");
-        await SendEmailReceiptAsync(customerEntity);
+        await SendEmailReceiptAsync(customerEntity, customerWithdraw.Amount, "Withdrawal");
         _logger.LogInformation("Email sent");
         return new CustomerResponse
         {
@@ -342,6 +348,50 @@ public class PostingService : IPostingService
             Status = true
         };
     }
+    
+    private static Transaction TransactionEntityForTransfer(CustomerTransferDTO customerTransfer, CustomerEntity sender, CustomerEntity receiver)
+    {
+        var moneyOut = customerTransfer.Amount;
+        var moneyin = customerTransfer.Amount;
+        var transactionBalance = sender.Balance;
+        return new TransferTransaction
+        {
+            TransactionType = "Transfer",
+            TransactionDescription = customerTransfer.Narration,
+            Amount = customerTransfer.Amount,
+            // GLAccountId = sender.Id,
+            // GLAccountId = receiver.Id,
+            SourceAccountId = sender.Id,
+            DestinationAccountId = receiver.Id,
+
+            MoneyOut = moneyOut,
+            MoneyIn = moneyin,
+            Balance = transactionBalance
+        };
+    }
+    
+    private static PostingEntity PostingEntityForTransfer(CustomerTransferDTO customerTransfer, CustomerEntity sender, CustomerEntity receiver)
+    {
+        return new PostingEntity
+        {
+            AccountName = sender.FullName,
+            AccountNumber = sender.AccountNumber,
+            Amount = customerTransfer.Amount,
+            TransactionType = "Transfer",
+            Narration = customerTransfer.Narration,
+            CustomerId = sender.Id.ToString(),
+            CustomerName = sender.FullName,
+            CustomerAccountNumber = sender.AccountNumber,
+            CustomerAccountType = sender.AccountType!.ToString(),
+            CustomerBranch = sender.Branch,
+            CustomerEmail = sender.Email,
+            CustomerPhoneNumber = sender.PhoneNumber,
+            CustomerStatus = sender.Status,
+            CustomerGender = sender.Gender
+        };
+    }
+
+    
     private async Task<CustomerEntity> GetCustomerByAccountNumberAsync(string accountNumber)
     {
         return await _context.CustomerEntity.FirstOrDefaultAsync(x => x.AccountNumber == accountNumber);

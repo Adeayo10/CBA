@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CBA.Models;
-
-// [Table("Transactions")]
+[Table("Transactions")]
 public class Transaction
 {
     public Guid Id { get; set; }
@@ -17,4 +16,10 @@ public class Transaction
     public decimal MoneyIn { get; set; }
     public decimal MoneyOut { get; set; }
     public decimal Balance { get; set; }
+}
+
+partial class TransferTransaction : Transaction
+{
+    public Guid SourceAccountId { get; set; }
+    public Guid DestinationAccountId { get; set; }
 }
