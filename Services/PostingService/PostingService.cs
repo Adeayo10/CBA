@@ -75,8 +75,8 @@ public class PostingService : IPostingService
         // var ledger = await _context.GLAccounts.SingleAsync(x=> x.AccountNumber == customerDeposit.LedgerAccountNumber);
         //ledger.Balance = LedgerBalance;
         //_context.GLAccounts.Update(ledger);
-
-        customerBalance.LedgerBalance += LedgerEntity.Balance;
+        var customerLedgerBalance = _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerDeposit.LedgerAccountNumber!);
+        customerBalance.LedgerBalance = customerLedgerBalance.Result - customerDeposit.Amount;
         customerBalance.AvailableBalance += customerDeposit.Amount;
         customerBalance.WithdrawableBalance += customerDeposit.Amount;
 
@@ -232,7 +232,8 @@ public class PostingService : IPostingService
         //var ledger = await _context.GLAccounts.Where(x => x.AccountNumber == customerWithdraw.LedgerAccountNumber).SingleAsync();
         //ledger.Balance = LedgerBalance;
         //_context.GLAccounts.Update(ledger);
-        customerBalance.LedgerBalance += LedgerEntity.Balance;
+        var customerLedgerBalance = _ledgerService.GetMostRecentLedgerEnteryBalanceAsync(customerWithdraw.LedgerAccountNumber!);
+        customerBalance.LedgerBalance = customerLedgerBalance.Result  + customerWithdraw.Amount;
         customerBalance.AvailableBalance -= customerWithdraw.Amount;
         customerBalance.WithdrawableBalance -= customerWithdraw.Amount;
 
