@@ -127,7 +127,16 @@ public class UserService : IUserService
                 Message = "User does not exist"
             };
         }
-
+        else if (userExist.Status == "Deactivated")
+        {
+            _logger.LogError($"Error occurred in Login method: User is deactivated");
+            return new LoginResponse()
+            {
+                Success = false,
+                Errors = new List<string>() { "User is deactivated" },
+                Message = "User is deactivated"
+            };
+        }
         string passwordHash = userExist.PasswordHash;
         string userExistId = userExist.Id;
         bool validPassword = _passwordService.IsValidPassword(user.Password, passwordHash);
@@ -148,16 +157,13 @@ public class UserService : IUserService
             };
 
         }
-        else
+        _logger.LogError($"Error occurred in Login method: Invalid password");
+        return new LoginResponse
         {
-            _logger.LogError($"Error occurred in Login method: Invalid password");
-            return new LoginResponse
-            {
-                Success = false,
-                Errors = new List<string>() { "Invalid password" },
-                Message = "Invalid password"
-            };
-        }
+            Success = false,
+            Errors = new List<string>() { "Invalid password" },
+            Message = "Invalid password"
+        };
     }
     public async Task<LogoutResponse> LogoutUserAsync(string userName)
     {
@@ -675,6 +681,15 @@ public class UserService : IUserService
     }
     public async Task<AuthResult> ConfirmUserTokenAsync(LoginTokenDTO tokenUser, string token)
     {
+        if (tokenUser is null)
+        {
+            _logger.LogError($"Error occurred in ConfirmUserToken method: User object is null");
+            return new AuthResult
+            {
+                Success = false,
+                Errors = new List<string>() { "User object is null" }
+            };
+        }
         ApplicationUser? user = await _userManager.FindByIdAsync(tokenUser.UserId.ToString());
         _logger.LogInformation($"User {user?.Email} retrieved successfully");
 

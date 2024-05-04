@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using API.Models.PasswordModel;
 
-
 namespace CBA.Controllers;
 
 [ApiVersion("1.0")]
@@ -72,14 +71,6 @@ public class AuthController : ControllerBase
         try
         {
             _logger.LogInformation("VerifyEmail method called");
-            if (user is null)
-            {
-                return BadRequest(new AuthResult
-                {
-                    Errors = new List<string>() { "User object is null" },
-                    Success = false
-                });
-            }
             var result = await _userService.ConfirmUserTokenAsync(user, token);
             return Ok(new AuthResult
             {
@@ -176,8 +167,6 @@ public class AuthController : ControllerBase
             return StatusCode(500, response);
         }
     }
-
-
 
     [HttpPost]
     [Route("Register")]

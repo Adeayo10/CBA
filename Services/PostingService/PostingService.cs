@@ -338,6 +338,14 @@ public class PostingService : IPostingService
         await UpdateSenderBalanceTable(sender, customerTransfer.Amount);
         await UpdateReceiverBalanceTable(receiver, customerTransfer.Amount);
 
+        //var transaction = TransactionEntityForTransfer(customerTransfer, sender, receiver);
+        var posting = PostingEntityForTransfer(customerTransfer, sender, receiver);
+
+        //await _context.Transaction.AddAsync(transaction);
+        await _context.PostingEntities.AddAsync(posting);
+        _context.CustomerEntity.Update(sender);
+        _context.CustomerEntity.Update(receiver);
+
         await SaveChangesAsync();
 
         _logger.LogInformation("Transfer successful");
@@ -387,15 +395,16 @@ public class PostingService : IPostingService
             CustomerEmail = sender.Email,
             CustomerPhoneNumber = sender.PhoneNumber,
             CustomerStatus = sender.Status,
-            CustomerGender = sender.Gender
+            CustomerGender = sender.Gender,
+            // ReceiverName = receiver.FullName,
+            // ReceiverAccountNumber = receiver.AccountNumber,
+            // ReceiverEmail = receiver.Email,
+            // ReceiverPhoneNumber = receiver.PhoneNumber
         };
     }
 
     
-    private async Task<CustomerEntity> GetCustomerByAccountNumberAsync(string accountNumber)
-    {
-        return await _context.CustomerEntity.FirstOrDefaultAsync(x => x.AccountNumber == accountNumber);
-    }
+   
     private static bool HasSufficientFunds(CustomerEntity customer, decimal amount)
     {
         return customer.Balance >= amount;
@@ -497,5 +506,9 @@ public class PostingService : IPostingService
             }
         }
         return postingTypeCount;
+    }
+    private async Task<CustomerEntity> GetCustomerByAccountNumberAsync(string accountNumber)
+    {
+        return await _context.CustomerEntity.SingleAsync(x => x.AccountNumber == accountNumber);
     }
 }
