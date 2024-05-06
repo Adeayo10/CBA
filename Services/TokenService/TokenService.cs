@@ -73,6 +73,18 @@ public class TokenService : ITokenService
                 }
             }
 
+            var isTokenExpired = validatedToken.ValidTo < DateTime.Now;
+            _logger.LogInformation($"Token is expired: {isTokenExpired}");
+
+            if (isTokenExpired)
+            {
+                return new AuthResult()
+                {
+                    Errors = new List<string>() { "Token has expired" },
+                    Success = false
+                };
+            }
+
             var storedRefreshToken = await _context.RefreshToken.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
             _logger.LogInformation("Refresh token found in db: {result}", storedRefreshToken != null);
 
