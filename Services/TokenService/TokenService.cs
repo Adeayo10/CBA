@@ -73,18 +73,18 @@ public class TokenService : ITokenService
                 }
             }
 
-            var isTokenExpired = validatedToken.ValidTo < DateTime.Now;
-            _logger.LogInformation($"Token is expired: {isTokenExpired}");
-
-            if (isTokenExpired)
+            var utcExpiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+            var expiryDate = UnixTimeStampToDateTime(utcExpiryDate).ToLocalTime();
+            _logger.LogInformation($"Token expiry date: {expiryDate}");
+            if (expiryDate < DateTime.Now)
             {
+                _logger.LogError($"Error occured in VerifyToken method: Token has expired");
                 return new AuthResult()
                 {
                     Errors = new List<string>() { "Token has expired" },
                     Success = false
                 };
             }
-
             var storedRefreshToken = await _context.RefreshToken.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
             _logger.LogInformation("Refresh token found in db: {result}", storedRefreshToken != null);
 
