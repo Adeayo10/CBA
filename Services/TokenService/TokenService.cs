@@ -72,22 +72,6 @@ public class TokenService : ITokenService
                     };
                 }
             }
-
-            var utcExpiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-            
-            var expiryDate = UnixTimeStampToDateTime(utcExpiryDate).ToLocalTime();
-
-          
-            _logger.LogInformation($"Token expiry date: {expiryDate}");
-            if (expiryDate < DateTime.UtcNow)
-            {
-                _logger.LogError($"Error occured in VerifyToken method: Token has expired");
-                return new AuthResult()
-                {
-                    Errors = new List<string>() { "Token has expired" },
-                    Success = false
-                };
-            }
             var storedRefreshToken = await _context.RefreshToken.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
             _logger.LogInformation("Refresh token found in db: {result}", storedRefreshToken != null);
 
@@ -245,14 +229,16 @@ public class TokenService : ITokenService
             new(ClaimTypes.Role, user.Role.ToString()),
             new(ClaimTypes.Email, user.Email ?? string.Empty),
                 // the JTI is used for our refresh token
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(5)).ToUnixTimeSeconds().ToString())
         };
         return claims;
     }
-    private DateTime UnixTimeStampToDateTime(long unixTimeStamp)
+    public bool IsAccessTokenExpired(string accessToken)
     {
-        var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
-        return dateTimeOffset.UtcDateTime;
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
+        return jwtToken.ValidTo < DateTime.Now;
     }
 }
 
