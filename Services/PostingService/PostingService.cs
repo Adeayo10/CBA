@@ -357,26 +357,26 @@ public class PostingService : IPostingService
         };
     }
     
-    private static Transaction TransactionEntityForTransfer(CustomerTransferDTO customerTransfer, CustomerEntity sender, CustomerEntity receiver)
-    {
-        var moneyOut = customerTransfer.Amount;
-        var moneyin = customerTransfer.Amount;
-        var transactionBalance = sender.Balance;
-        return new TransferTransaction
-        {
-            TransactionType = "Transfer",
-            TransactionDescription = customerTransfer.Narration,
-            Amount = customerTransfer.Amount,
-            // GLAccountId = sender.Id,
-            // GLAccountId = receiver.Id,
-            SourceAccountId = sender.Id,
-            DestinationAccountId = receiver.Id,
+    // private static Transaction TransactionEntityForTransfer(CustomerTransferDTO customerTransfer, CustomerEntity sender, CustomerEntity receiver)
+    // {
+    //     var moneyOut = customerTransfer.Amount;
+    //     var moneyin = customerTransfer.Amount;
+    //     var transactionBalance = sender.Balance;
+    //     // return new TransferTransaction
+    //     // {
+    //     //     TransactionType = "Transfer",
+    //     //     TransactionDescription = customerTransfer.Narration,
+    //     //     Amount = customerTransfer.Amount,
+    //     //     // GLAccountId = sender.Id,
+    //     //     // GLAccountId = receiver.Id,
+    //     //     SourceAccountId = sender.Id,
+    //     //     DestinationAccountId = receiver.Id,
 
-            MoneyOut = moneyOut,
-            MoneyIn = moneyin,
-            Balance = transactionBalance
-        };
-    }
+    //     //     MoneyOut = moneyOut,
+    //     //     MoneyIn = moneyin,
+    //     //     Balance = transactionBalance
+    //     // };
+    // }
     
     private static PostingEntity PostingEntityForTransfer(CustomerTransferDTO customerTransfer, CustomerEntity sender, CustomerEntity receiver)
     {
