@@ -232,13 +232,17 @@ export default function Accounts({ accountType }) {
                   <TableCell>AccountNo</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell>Branch</TableCell>
+                  <TableCell>State</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell align="right">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {accountsList.map(
-                  ({ id, fullName, accountNumber, status, branch }, index) => {
+                  (
+                    { id, fullName, accountNumber, status, state, branch },
+                    index
+                  ) => {
                     let splitName = fullName.split(" ");
                     let firstName = splitName[0];
                     let lastName =
@@ -267,6 +271,7 @@ export default function Accounts({ accountType }) {
                         </TableCell>
 
                         <TableCell style={disabledText}>{branch}</TableCell>
+                        <TableCell style={disabledText}>{state}</TableCell>
                         <TableCell style={disabledText}>{status}</TableCell>
                         <TableCell align="right">
                           <IconButton
