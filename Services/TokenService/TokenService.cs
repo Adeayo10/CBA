@@ -74,9 +74,12 @@ public class TokenService : ITokenService
             }
 
             var utcExpiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+            
             var expiryDate = UnixTimeStampToDateTime(utcExpiryDate).ToLocalTime();
+
+          
             _logger.LogInformation($"Token expiry date: {expiryDate}");
-            if (expiryDate < DateTime.Now)
+            if (expiryDate < DateTime.UtcNow)
             {
                 _logger.LogError($"Error occured in VerifyToken method: Token has expired");
                 return new AuthResult()
@@ -245,6 +248,11 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         return claims;
+    }
+    private DateTime UnixTimeStampToDateTime(long unixTimeStamp)
+    {
+        var dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
+        return dateTimeOffset.UtcDateTime;
     }
 }
 
