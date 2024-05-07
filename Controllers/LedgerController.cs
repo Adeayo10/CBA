@@ -47,6 +47,7 @@ public class LedgerController : ControllerBase
             {
                 Message = response.Message,
                 Status = response.Status,
+                LedgerId = response.LedgerId
                 
             });
         }

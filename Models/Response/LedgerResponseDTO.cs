@@ -6,5 +6,6 @@ public class LedgerResponse: Response
     public new bool Status { get; set; }
     public LedgerData? Data { get; set; }
     public List<GLAccounts>? DataList { get; set; }
+    public int LedgerId { get; set; }
 
 }
