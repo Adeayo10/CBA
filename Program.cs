@@ -48,7 +48,7 @@ var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuer = true,
     ValidateAudience = true,
-    ValidateLifetime = false,
+    ValidateLifetime = true,
     ValidateIssuerSigningKey = true,
     ValidIssuer = configure["JwtSettings:issuer"],
     ValidAudience = configure["JwtSettings:audience"],
