@@ -8,9 +8,6 @@ using CBA.Models;
 using CBA.Models.AuthModel;
 using Microsoft.EntityFrameworkCore;
 
-
-
-
 namespace CBA.Services;
 public class TokenService : ITokenService
 {
@@ -20,13 +17,18 @@ public class TokenService : ITokenService
     private readonly TokenValidationParameters _tokenValidationParameters;
 
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ICookieService _cookieService;
 
-    public TokenService(UserDataContext context, ILogger<TokenService> logger, TokenValidationParameters tokenValidationParameters, UserManager<ApplicationUser> userManager)
+    public TokenService(UserDataContext context, ILogger<TokenService> logger, 
+    TokenValidationParameters tokenValidationParameters, 
+    UserManager<ApplicationUser> userManager,
+    ICookieService cookieService)
     {
         _context = context;
         _logger = logger;
         _tokenValidationParameters = tokenValidationParameters;
         _userManager = userManager;
+        _cookieService = cookieService;
         _logger.LogInformation("TokenService constructor called");
     }
     public async Task<AuthResult> GenerateTokensAsync(ApplicationUser user)
@@ -39,13 +41,18 @@ public class TokenService : ITokenService
         var refreshToken = await CreateRefreshTokenAsync(user, token);
         _logger.LogInformation("Token generated successfully");
 
+        _cookieService.SetCookie("refreshToken", refreshToken.Token, 30);
+        _cookieService.SetCookie("accessToken", jwtToken, 5);
+        
         return new AuthResult()
         {
-            Token = jwtToken,
-            RefreshToken = refreshToken.Token,
+            //Token = jwtToken,
+            //RefreshToken = refreshToken.Token,
             /*ExpiryDate = tokenOptions.ValidTo.ToLocalTime(),*/
             ExpiryDate = token.ValidTo.ToLocalTime(),
         };
+
+       
     }
     public async Task<AuthResult> VerifyTokenAsync(TokenRequest tokenRequest)
     {
@@ -186,6 +193,9 @@ public class TokenService : ITokenService
             _context.RefreshToken.RemoveRange(_context.RefreshToken.Where(u => u.UserId == user.Id));
             await _context.SaveChangesAsync();
         }
+
+        _cookieService.RemoveCookie("refreshToken");
+        _cookieService.RemoveCookie("accessToken");
 
         _logger.LogInformation($"Refresh token revoked for user: {userName}");
         await _userManager.UpdateSecurityStampAsync(user);    

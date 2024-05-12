@@ -77,8 +77,8 @@ public class AuthController : ControllerBase
                 Success = result.Success,
                 Errors = result.Errors,
                 Message = result.Message,
-                Token = result.Token,
-                RefreshToken = result.RefreshToken,
+                //Token = result.Token,
+                //RefreshToken = result.RefreshToken,
                 ExpiryDate = result.ExpiryDate
             });
         }
