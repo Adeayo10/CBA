@@ -72,6 +72,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<UserDataContext>(options =>
         options.UseSqlServer(Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"))
     );
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -82,6 +83,7 @@ builder.Services.AddScoped<IValidator<CustomerEntity>, CustomerValidatorService>
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPostingService, PostingService>();
 builder.Services.AddScoped<IPdfService, PdfServiceFactory>();
+builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
