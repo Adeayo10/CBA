@@ -1,6 +1,6 @@
 import Cookies from "universal-cookie";
 import { jwtDecode } from "jwt-decode";
-import { ROUTES} from "./constants";
+import { ROUTES } from "./constants";
 
 const cookies = new Cookies();
 
@@ -9,7 +9,7 @@ export function getCurrentRole() {
   return "SuperAdmin";
 }
 
-export function saveUserId(userId){
+export function saveUserId(userId) {
   cookies.set("userId", userId, {
     path: "/",
     secure: true,
@@ -17,8 +17,8 @@ export function saveUserId(userId){
   });
 }
 
-export function retrieveUserId(){
-  return cookies.get("userId")
+export function retrieveUserId() {
+  return cookies.get("userId");
 }
 
 export function saveTokenData(accessToken, refreshToken, expiryDate) {
@@ -45,7 +45,7 @@ export function clearTokenData() {
   cookies.remove("accessToken", { path: "/" });
   cookies.remove("refreshToken", { path: "/" });
   cookies.remove("expiryDate", { path: "/" });
-  cookies.remove("userId", {path: "/"})
+  cookies.remove("userId", { path: "/" });
 }
 
 export function tokenExists() {
@@ -54,7 +54,8 @@ export function tokenExists() {
 
 export function tokenExpired() {
   const expiryDate = retrieveExpiryDate();
-  return new Date().getTime() > new Date(expiryDate).getTime();
+  const timeOffsetMs = 30000;
+  return new Date().getTime() > new Date(expiryDate).getTime() - timeOffsetMs;
 }
 
 export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
