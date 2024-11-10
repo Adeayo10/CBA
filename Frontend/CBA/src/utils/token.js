@@ -22,13 +22,13 @@ export function retrieveUserId() {
 }
 
 export function saveTokenData(accessToken, refreshToken, expiryDate) {
-  cookies.set("accessToken", accessToken, {
+  cookies.set("clientAccessToken", accessToken, {
     path: "/",
     secure: true,
     sameSite: false,
   });
 
-  cookies.set("refreshToken", refreshToken, {
+  cookies.set("clientRefreshToken", refreshToken, {
     path: "/",
     secure: true,
     sameSite: false,
@@ -42,18 +42,21 @@ export function saveTokenData(accessToken, refreshToken, expiryDate) {
 }
 
 export function clearTokenData() {
-  cookies.remove("accessToken", { path: "/" });
-  cookies.remove("refreshToken", { path: "/" });
+  cookies.remove("clientAccessToken", { path: "/" });
+  cookies.remove("clientRefreshToken", { path: "/" });
   cookies.remove("expiryDate", { path: "/" });
   cookies.remove("userId", { path: "/" });
 }
 
 export function tokenExists() {
+  console.log({accessToken: retrieveAccessToken()})
   return Boolean(retrieveAccessToken());
 }
 
 export function tokenExpired() {
   const expiryDate = retrieveExpiryDate();
+  console.log(expiryDate)
+  if (!expiryDate) return true
   const timeOffsetMs = 30000;
   return new Date().getTime() > new Date(expiryDate).getTime() - timeOffsetMs;
 }
@@ -65,16 +68,16 @@ export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
 }
 
 export function retrieveRefreshToken() {
-  return cookies.get("refreshToken");
+  return cookies.get("clientRefreshToken");
 }
 
 export function retrieveAccessToken() {
-  return cookies.get("accessToken");
+  return cookies.get("clientAccessToken");
 }
 
 export function retrieveUserFromToken() {
-  const { role, email, unique_name } = jwtDecode(retrieveAccessToken());
-  return { role, email, username: unique_name };
+  const { role, email } = jwtDecode(retrieveAccessToken());
+  return { role, email};
 }
 
 function retrieveExpiryDate() {
