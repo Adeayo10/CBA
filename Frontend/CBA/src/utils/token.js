@@ -1,6 +1,6 @@
 import Cookies from "universal-cookie";
 import { jwtDecode } from "jwt-decode";
-import { ROUTES} from "./constants";
+import { ROUTES } from "./constants";
 
 const cookies = new Cookies();
 
@@ -9,7 +9,7 @@ export function getCurrentRole() {
   return "SuperAdmin";
 }
 
-export function saveUserId(userId){
+export function saveUserId(userId) {
   cookies.set("userId", userId, {
     path: "/",
     secure: true,
@@ -17,18 +17,18 @@ export function saveUserId(userId){
   });
 }
 
-export function retrieveUserId(){
-  return cookies.get("userId")
+export function retrieveUserId() {
+  return cookies.get("userId");
 }
 
 export function saveTokenData(accessToken, refreshToken, expiryDate) {
-  cookies.set("accessToken", accessToken, {
+  cookies.set("clientAccessToken", accessToken, {
     path: "/",
     secure: true,
     sameSite: false,
   });
 
-  cookies.set("refreshToken", refreshToken, {
+  cookies.set("clientRefreshToken", refreshToken, {
     path: "/",
     secure: true,
     sameSite: false,
@@ -42,19 +42,23 @@ export function saveTokenData(accessToken, refreshToken, expiryDate) {
 }
 
 export function clearTokenData() {
-  cookies.remove("accessToken", { path: "/" });
-  cookies.remove("refreshToken", { path: "/" });
+  cookies.remove("clientAccessToken", { path: "/" });
+  cookies.remove("clientRefreshToken", { path: "/" });
   cookies.remove("expiryDate", { path: "/" });
-  cookies.remove("userId", {path: "/"})
+  cookies.remove("userId", { path: "/" });
 }
 
 export function tokenExists() {
+  console.log({accessToken: retrieveAccessToken()})
   return Boolean(retrieveAccessToken());
 }
 
 export function tokenExpired() {
   const expiryDate = retrieveExpiryDate();
-  return new Date().getTime() > new Date(expiryDate).getTime();
+  console.log(expiryDate)
+  if (!expiryDate) return true
+  const timeOffsetMs = 30000;
+  return new Date().getTime() > new Date(expiryDate).getTime() - timeOffsetMs;
 }
 
 export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
@@ -64,16 +68,16 @@ export function redirectIfRefreshTokenExpired(errorMessage, navigate) {
 }
 
 export function retrieveRefreshToken() {
-  return cookies.get("refreshToken");
+  return cookies.get("clientRefreshToken");
 }
 
 export function retrieveAccessToken() {
-  return cookies.get("accessToken");
+  return cookies.get("clientAccessToken");
 }
 
 export function retrieveUserFromToken() {
-  const { role, email, unique_name } = jwtDecode(retrieveAccessToken());
-  return { role, email, username: unique_name };
+  const { role, email } = jwtDecode(retrieveAccessToken());
+  return { role, email};
 }
 
 function retrieveExpiryDate() {

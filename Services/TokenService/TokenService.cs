@@ -46,8 +46,8 @@ public class TokenService : ITokenService
         
         return new AuthResult()
         {
-            //Token = jwtToken,
-            //RefreshToken = refreshToken.Token,
+            Token = jwtToken,
+            RefreshToken = refreshToken.Token,
             /*ExpiryDate = tokenOptions.ValidTo.ToLocalTime(),*/
             ExpiryDate = token.ValidTo.ToLocalTime(),
         };

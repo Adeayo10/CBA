@@ -52,7 +52,8 @@ export async function forgotPassword(email) {
   return await response.json();
 }
 
-export async function verifyCode(code, userId = retrieveUserId()) {
+export async function verifyCode(code, userId) {
+  userId = userId || retrieveUserId()
   const API_URL = `/api/v1/Auth/verify-token?token=${code}`;
   const headers = {
     "Content-Type": "application/json",
@@ -128,6 +129,8 @@ export async function refreshAccessToken() {
     headers,
     body: JSON.stringify(requestBody),
   });
+  if (response.status == 401)
+    throw new Error("Refresh Token Expired")
   const { token, refreshToken, expiryDate, errors } = await response.json();
 
   if (errors) throw new Error(errors);

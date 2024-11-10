@@ -18,7 +18,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import PasswordIcon from '@mui/icons-material/Password';
 
 import { resetPassword } from "../api/auth";
-import { tokenExists } from "../utils/token";
+import { tokenExists, tokenExpired } from "../utils/token";
 import { TOAST_CONFIG, ROUTES} from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
@@ -36,7 +36,7 @@ export default function ResetPassword() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  if (tokenExists()) {
+  if (!tokenExpired() || tokenExists()) {
     //console.log("Here");
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }

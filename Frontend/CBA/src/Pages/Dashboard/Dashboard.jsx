@@ -11,7 +11,9 @@ import Copyright from "../../Components/Copyright";
 import { ROUTES } from "../../utils/constants";
 
 export default function Dashboard(props) {
-  if (!tokenExists() || tokenExpired()) {
+  if (tokenExpired() || !tokenExists()) {
+    console.log("hello")
+    console.log({expired: tokenExpired(), exists: tokenExists()})
     clearTokenData();
     return <Navigate to={ROUTES.LOGIN} replace />;
   }

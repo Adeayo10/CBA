@@ -711,8 +711,8 @@ public class UserService : IUserService
             return new AuthResult
             {
                 Success = true,
-                //Token = generateUserToken.Token,
-                //RefreshToken = generateUserToken.RefreshToken,
+                Token = generateUserToken.Token,
+                RefreshToken = generateUserToken.RefreshToken,
                 ExpiryDate = generateUserToken.ExpiryDate,
                 Message = $"Welcome back!{user.UserName}"
             };

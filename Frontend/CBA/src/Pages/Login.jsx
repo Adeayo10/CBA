@@ -21,7 +21,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { loginUser } from "../api/auth";
-import { tokenExists, saveUserId } from "../utils/token";
+import { tokenExists, saveUserId, tokenExpired } from "../utils/token";
 import { ROUTES, TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
 
@@ -34,7 +34,7 @@ export default function Login() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  if (tokenExists()) {
+  if (!tokenExpired() || tokenExists()) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
 
