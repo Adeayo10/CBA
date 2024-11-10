@@ -16,9 +16,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import PasswordIcon from "@mui/icons-material/Password";
 
 import { verifyCode, resendCode } from "../api/auth";
-import { saveTokenData, tokenExists } from "../utils/token";
+import { retrieveUserId, saveTokenData, tokenExists, tokenExpired } from "../utils/token";
 import { ROUTES, TOAST_CONFIG } from "../utils/constants";
 import Copyright from "../Components/Copyright";
+import { getUserById } from "../api/users";
 
 export default function VerifyToken() {
   const navigate = useNavigate();
@@ -27,31 +28,41 @@ export default function VerifyToken() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  if (tokenExists()) {
+  if (!tokenExpired() || tokenExists()) {
     return <Navigate to={ROUTES.DASHBOARD} replace />;
   }
+
+  const verifyAccessCode = async (code, userId = undefined) => {
+    userId = userId || retrieveUserId()
+    setIsLoading(true);
+    try {
+      const data = await verifyCode(code, userId);
+      if (!data.success || data.errors)
+        throw new Error(data.message || data.errors);
+
+      saveTokenData(data.token, data.refreshToken, data.expiryDate);
+      // console.log(data)
+      const userData = await getUserById(userId)
+      if (!userData.success || userData.errors)
+        throw new Error(userData.message || userData.errors);
+
+      console.log(userData)
+
+      setIsLoading(false);
+      toast.success(data.message, TOAST_CONFIG);
+      navigate("/dashboard");
+    } catch(error) {
+      setIsLoading(false);
+      toast.error(error.message, TOAST_CONFIG);
+    }
+  };
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const userId = queryParams.get("userId");
     const code = queryParams.get("token");
 
-    if (userId && code) {
-      verifyCode(code, userId)
-        .then((data) => {
-          if (!data.success || data.errors)
-            throw new Error(data.message || data.errors);
-
-          saveTokenData(data.token, data.refreshToken, data.expiryDate);
-          setIsLoading(false);
-          toast.success(data.message, TOAST_CONFIG);
-          navigate("/dashboard");
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          toast.error(error.message, TOAST_CONFIG);
-        });
-    }
+    if (userId && code) verifyAccessCode(code, userId);
   }, []);
 
   const handleSubmit = (submitEvent) => {
@@ -61,22 +72,7 @@ export default function VerifyToken() {
       toast.error("Form contains errors", TOAST_CONFIG);
       return;
     }
-    setIsLoading(true);
-    verifyCode(code)
-      .then((data) => {
-        console.log(data);
-        if (!data.success || data.errors)
-          throw new Error(data.message || data.errors);
-
-        saveTokenData(data.token, data.refreshToken, data.expiryDate);
-        setIsLoading(false);
-        toast.success("Login Successful!", TOAST_CONFIG);
-        navigate(ROUTES.DASHBOARD);
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        toast.error(error.message, TOAST_CONFIG);
-      });
+    verifyAccessCode(code);
   };
 
   const handleChange = (changeEvent) => {
