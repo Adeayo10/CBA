@@ -19,12 +19,13 @@ public class UserService : IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<UserService> _logger;
     private readonly IEmailService _emailService;
+    private readonly IBackgroundEmailService _backgroundEmailService;
     private readonly UserDataContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserService(UserDataContext context, IPasswordService passwordService,
     ITokenService tokenService, UserManager<ApplicationUser> userManager, ILogger<UserService> logger,
-    IValidator<ApplicationUser> validationService, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+    IValidator<ApplicationUser> validationService, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IBackgroundEmailService backgroundEmailService)
     {
         _tokenService = tokenService;
         _passwordService = passwordService;
@@ -34,6 +35,7 @@ public class UserService : IUserService
         _context = context;
         _emailService = emailService;
         _httpContextAccessor = httpContextAccessor;
+        _backgroundEmailService = backgroundEmailService;
         _logger.LogInformation("UserService constructor called");
     }
     public async Task<RegistrationResponse> AddUserAsync(UserProfileDTO user)
@@ -114,7 +116,7 @@ public class UserService : IUserService
                 Success = false
             };
         }
-        
+
         var userExist = await _userManager.FindByEmailAsync(user.Email);
 
         if (userExist == null)
@@ -577,7 +579,7 @@ public class UserService : IUserService
     }
     private static ApplicationUser CreateUserDetails(UserProfileDTO user, string hashPassword)
     {
-        var userRole = Enum.GetName(typeof(Role), user.Role)?? throw new InvalidOperationException("Role not found");
+        var userRole = Enum.GetName(typeof(Role), user.Role) ?? throw new InvalidOperationException("Role not found");
         var newUser = new ApplicationUser()
         {
             Email = user.Email,
@@ -630,7 +632,9 @@ public class UserService : IUserService
         var encodedToken = UrlEncoder.Default.Encode(token);
         var resetPasswordLink = $"http://localhost:5173/reset-password?userId={user.Id}&token={encodedToken}";
         var message = new Message(new string[] { user.Email! }, "User Confirmation", $"Hello {user.FullName}, <br/> <br/> You have successfully created an account with CBA. <br/> <br/> Your username is: {user.UserName} <br/> <br/> Your password is: {user.Password} <br/> <br/> To reset your password <a href=\"{resetPasswordLink}\" target=\"_blank\">Click Here</a> <br/> <br/> Thank you. ");
-        await _emailService.SendEmail(message);
+        _backgroundEmailService.QueueEmail(message);
+
+        //await _emailService.SendEmail(message);
     }
     private async Task SendUserResetPasswordEmailAsync(ApplicationUser user)
     {
@@ -650,18 +654,27 @@ public class UserService : IUserService
     }
     private async Task SendUserTokenEmailAsync(ApplicationUser user)
     {
-        var token = GenerateSixDigitToken();
-        StoreUserTokenAsync(user, token);
-        var tokenExpiry = DateTime.Now.AddMinutes(5);
-        var callback = $"http://localhost:5173/verify-token?userId={user.Id}&token={token}";
-        var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Please enter the following six-digit token: {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
-        await _emailService.SendEmail(message);
+        try
+        {
+            var token = GenerateSixDigitToken();
+            await StoreUserTokenAsync(user, token);
+            var tokenExpiry = DateTime.Now.AddMinutes(5);
+            var callback = $"http://localhost:5173/confirm-token?userId={user.Id}&token={token}";
+            var message = new Message(new string[] { user.Email! }, "Enter Token", $"Hello {user.UserName},<br/><br/> Hey baby girl finish your class as soon as you can I miss you {token} <br/><br/> click <a href=\"{callback}\" target=\"_blank\">here</a> to complete your login request <br/><br/> token expires in {tokenExpiry}, <br/><br/>Thank you");
+            _backgroundEmailService.QueueEmail(message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send token email to user: {Email}", user.Email);
+            throw;
+        }
     }
-    private void  StoreUserTokenAsync(ApplicationUser user, string token)
+
+    private Task StoreUserTokenAsync(ApplicationUser user, string token)
     {
         var session = _httpContextAccessor.HttpContext!.Session;
         session.SetString("UserToken", token);
-
+        return Task.CompletedTask;
     }
     private Task<string> RetrieveUserTokenAsync(ApplicationUser user)
     {

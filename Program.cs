@@ -5,6 +5,7 @@ using CBA.Context;
 using CBA.Models;
 using CBA.Services;
 using FluentValidation;
+using iText.Kernel.XMP.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,6 @@ builder.Services.AddCors(options =>
 
 var emailConfig = configure.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton<EmailConfiguration>(emailConfig!);
-
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -76,6 +76,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<IBackgroundEmailService, BackgroundEmailService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<IBackgroundEmailService>());
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IValidator<ApplicationUser>, ValidatorService>();
@@ -105,7 +107,14 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession();
+builder.Services.AddSession(
+    options =>
+    {
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    }
+);
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new() { Title = "CBA", Version = "v1" });
