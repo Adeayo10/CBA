@@ -401,23 +401,27 @@ public class CustomerService : ICustomerService
         if (transactions.Transactions == null || transactions.Transactions.Count == 0) { throw new Exception(transactions.Message); }
         var filePath = Path.Combine(Path.GetTempPath(), $"{transaction.AccountNumber}.pdf");
         _logger.LogInformation($"File path: {filePath} ");
-        _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()} ");
+        _logger.LogInformation($"transactions: {transactions.Transactions.ToArray()[0]} ");
         await _pdfService.CreateAccountStatementPdfAsync(transactions.Transactions, transactions.Id, filePath, transactions.StartDate, transactions.EndDate);
 
-        using var memory = new MemoryStream();
-        await using (var stream = new FileStream(filePath, FileMode.Open))
+        byte[] fileBytes;
+        if (!File.Exists(filePath))
         {
-            await stream.CopyToAsync(memory);
+            throw new Exception("File not found");
         }
-        memory.Position = 0;
-        var file = new FileContentResult(memory.ToArray(), "application/pdf")
+        await using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+        {
+            using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            fileBytes = memory.ToArray();
+        }
+        var file = new FileContentResult(fileBytes, "application/pdf")
         {
             FileDownloadName = Path.GetFileName(filePath)
         };
         _logger.LogInformation("File created and downloaded successfully");
 
         return file;
-
 
     }
 
