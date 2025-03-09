@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using CBA.Middlewares;
+using Serilog. Sinks.Grafana.Loki;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
@@ -142,6 +146,9 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
+/*Log.Logger = new LoggerConfiguration()
+    .ReadForm*/
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
 
@@ -160,5 +167,6 @@ app.UseSession();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserContextEnrichmentMiddleware>();
 app.MapControllers();
 app.Run();
